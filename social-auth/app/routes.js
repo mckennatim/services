@@ -1,0 +1,341 @@
+var cons = require('tracer').console();
+var User = require('../app/models').moUser;
+var AppInfo  = require('../app/models').moApp;
+var mf = require('./funcs')
+var appInfo 
+
+
+module.exports = function(app, passport) {
+// normal routes ===============================================================
+
+  app.get('/', function(req, res) {
+    cons.log('in root')
+    res.render('index.ejs');
+  });
+  app.get('/spa/:appid/:apiURL', function(req, res) {
+    cons.log(req.params)
+    appInfo ={
+      appId: req.params.appid,
+      spaURL: req.headers.referer,
+      apiURL: req.params.apiURL
+    }
+    mf.upsertSPAinfo(appInfo)
+    res.render('index.ejs',appInfo);
+  });
+
+  // PROFILE SECTION =========================
+  app.get('/profile', isLoggedIn, function(req, res) {
+    //cons.log(req.user)
+    const appId = mf.getCurrApp()
+    const email = req.user.userinfo.emailkey
+    AppInfo.findOne({appId: appId}, function(err,result){
+      cons.log(result)
+      mf.sendToApi(appId, email, result.apiURL, function(){
+        cons.log("back from sendToApi")
+        console.log(result.spaURL)
+        res.redirect(result.spaURL+'#registered?'+email);        
+      })
+    })  
+  });
+
+  // LOGOUT ==============================
+  app.get('/logout', function(req, res) {
+    req.logout();
+    res.redirect('/');
+  });
+
+// =============================================================================
+// AUTHENTICATE (FIRST LOGIN) ==================================================
+// =============================================================================
+
+  // locally --------------------------------
+    // LOGIN ===============================
+    // show the login form
+    app.get('/login/:apikey/:email/:appId', function(req, res) {
+      res.render('login.ejs', { message: req.flash('loginMessage'), apikey: req.params.apikey, email: req.params.email, appId: req.params.appId });
+    });
+
+    // process the login form
+    // app.post('/login', passport.authenticate('local-login', {
+    //   successRedirect : '/profile', // redirect to the secure profile section
+    //   failureRedirect : '/login', // redirect back to the signup page if there is an error
+    //   failureFlash : true // allow flash messages
+    // }));    
+    // process the login form
+    app.post('/login/:apikey/:email/:appId', 
+        passport.authenticate('localapikey', {session: false}),
+        function(req, res) {  
+          cons.log(req.body)        
+          if (req.params.email==req.user.userinfo.emailkey){
+            cons.log('emails match for that apikey')
+            //res.end('emails match for that apikey') 
+            const appId = req.params.appId
+            const email = req.user.userinfo.emailkey
+            AppInfo.findOne({appId: appId}, function(err,result){
+              if(mf.get('result.spaURL', result)){
+                mf.sendToApi(appId, email, function(){
+                  cons.log("back from sendToApi")
+                  res.redirect(result.spaURL+'#registered?'+email);        
+                })                
+              }else{
+                res.end('signup didnt work')
+              }
+            })                       
+          } else {
+            res.end('Hmm the apicheck didnt work')            
+          }         
+        }        
+    )
+
+    // SIGNUP =================================
+    // show the signup form
+    app.get('/signup/:appId', function(req, res) {
+      mf.setCurrApp(req.params.appId)
+      res.render('signup.ejs', { 
+        message: req.flash('signupMessage'),
+        appId:  req.params.appId
+      });
+    });
+
+    // process the signup form
+    app.post('/signup', function(req,res){ 
+      cons.log(req.body)
+      mf.processUser(req.body, function(err,status){
+        cons.log(err)
+        if (err){
+          res.end ('Some kind of problem')
+        }
+        if(status.alreadyRegistered){
+          cons.log(status.user)
+          const appId = req.body.appId
+          const email = req.body.email
+          AppInfo.findOne({appId: appId}, function(err,result){
+            console.log(result.spaURL)
+            if(mf.get('result.spaURL', result)){
+              mf.sendToApi(appId, email, function(){
+                cons.log("back from sendToApi")
+                res.redirect(result.spaURL+'#registered?'+email);        
+              })                
+            }else{
+              res.end('signup didnt work')
+            }
+          })
+        } else{
+          res.end('Check your email from this device and click on the liink to complete the registration')
+        }
+      })
+    });
+
+  // facebook -------------------------------
+    // handle the callback after facebook has authenticated the user
+    app.get('/auth/facebook/callback', function(req,res,next){
+      //cons.log(req.user)
+      passport.authenticate('facebook', {
+        successRedirect : '/profile',
+        failureRedirect : '/'
+      })(req,res,next);
+    });
+
+    // send to facebook to do the authentication
+    app.get('/auth/facebook/:appId', function(req,res,next){
+      mf.setCurrApp(req.params.appId)
+      cons.log(req.params.appId)
+      passport.authenticate(
+        'facebook', { scope : 'email', appId: req.params.appId }
+      )(req,res,next);
+    });
+
+
+
+  // github -------------------------------
+
+    // handle the callback after github has authenticated the user
+    app.get('/auth/github/callback',
+      passport.authenticate('github', {
+        successRedirect : '/profile',
+        failureRedirect : '/'
+      }));
+
+    // send to github to do the authentication
+    app.get('/auth/github/:appId', function(req,res,next){
+      mf.setCurrApp(req.params.appId)
+      passport.authenticate(
+        'github', { scope : 'email' }
+      )(req,res,next);
+    });
+
+  // twitter --------------------------------
+
+    // handle the callback after twitter has authenticated the user
+    app.get('/auth/twitter/callback',
+      passport.authenticate('twitter', {
+        successRedirect : '/profile',
+        failureRedirect : '/'
+      }));
+    // send to twitter to do the authentication
+    app.get('/auth/twitter/:appId', function(req,res,next){
+      mf.setCurrApp(req.params.appId)
+      passport.authenticate(
+        'twitter', { scope : 'email' }
+      )(req,res,next);
+    });
+
+
+
+  // google ---------------------------------
+
+    // the callback after google has authenticated the user
+    app.get('/auth/google/callback',
+      passport.authenticate('google', {
+        successRedirect : '/profile',
+        failureRedirect : '/'
+      }));
+    // send to google to do the authentication
+    app.get('/auth/google/:appId', function(req,res,next){
+      mf.setCurrApp(req.params.appId)
+      passport.authenticate(
+        'google', { scope : ['profile', 'email'] }
+      )(req,res,next);
+    });
+
+
+// =============================================================================
+// AUTHORIZE (ALREADY LOGGED IN / CONNECTING OTHER SOCIAL ACCOUNT) =============
+// =============================================================================
+
+  // locally --------------------------------
+    app.get('/connect/local', function(req, res) {
+      res.render('connect-local.ejs', { message: req.flash('loginMessage') });
+    });
+    app.post('/connect/local', passport.authenticate('local-signup', {
+      successRedirect : '/profile', // redirect to the secure profile section
+      failureRedirect : '/connect/local', // redirect back to the signup page if there is an error
+      failureFlash : true // allow flash messages
+    }));
+
+  // facebook -------------------------------
+
+    // send to facebook to do the authentication
+    app.get('/connect/facebook', passport.authorize('facebook', { scope : 'email' }));
+
+    // handle the callback after facebook has authorized the user
+    app.get('/connect/facebook/callback',
+      passport.authorize('facebook', {
+        successRedirect : '/profile',
+        failureRedirect : '/'
+      }));
+
+  // github -------------------------------
+
+    // send to github to do the authentication
+    app.get('/connect/github', passport.authorize('github', { scope : 'email' }));
+
+    // handle the callback after github has authorized the user
+    app.get('/connect/github/callback',
+      passport.authorize('github', {
+        successRedirect : '/profile',
+        failureRedirect : '/'
+      }));
+
+  // twitter --------------------------------
+
+    // send to twitter to do the authentication
+    app.get('/connect/twitter', passport.authorize('twitter', { scope : 'email' }));
+
+    // handle the callback after twitter has authorized the user
+    app.get('/connect/twitter/callback',
+      passport.authorize('twitter', {
+        successRedirect : '/profile',
+        failureRedirect : '/'
+      }));
+
+
+  // google ---------------------------------
+
+    // send to google to do the authentication
+    app.get('/connect/google', passport.authorize('google', { scope : ['profile', 'email'] }));
+
+    // the callback after google has authorized the user
+    app.get('/connect/google/callback',
+      passport.authorize('google', {
+        successRedirect : '/profile',
+        failureRedirect : '/'
+      }));
+
+// =============================================================================
+// UNLINK ACCOUNTS =============================================================
+// =============================================================================
+// used to unlink accounts. for social accounts, just remove the token
+// for local account, remove email and password
+// user account will stay active in case they want to reconnect in the future
+
+  // local -----------------------------------
+  app.get('/unlink/local', isLoggedIn, function(req, res) {
+    var user            = req.user;
+    user.local.email    = undefined;
+    user.local.password = undefined;
+    user.save(function(err) {
+      res.redirect('/profile');
+    });
+  });
+
+  // facebook -------------------------------
+  app.get('/unlink/facebook', isLoggedIn, function(req, res) {
+    var user            = req.user;
+    user.facebook.token = undefined;
+    user.save(function(err) {
+      res.redirect('/profile');
+    });
+  });
+
+  // github -------------------------------
+  app.get('/unlink/github', isLoggedIn, function(req, res) {
+    var user            = req.user;
+    user.github.token = undefined;
+    user.save(function(err) {
+      res.redirect('/profile');
+    });
+  });
+
+  // twitter --------------------------------
+  app.get('/unlink/twitter', isLoggedIn, function(req, res) {
+    var user           = req.user;
+    user.twitter.token = undefined;
+    user.save(function(err) {
+      res.redirect('/profile');
+    });
+  });
+
+  // google ---------------------------------
+  app.get('/unlink/google', isLoggedIn, function(req, res) {
+    var user          = req.user;
+    user.google.token = undefined;
+    user.save(function(err) {
+      res.redirect('/profile');
+    });
+  });
+
+  ///--------------------------------------------------------
+  // privacy policy and terms of service
+  app.get('/privacy',function(req, res) {
+    res.render('privacy.ejs')
+  });    
+  app.get('/terms',function(req, res) {
+    res.render('terms.ejs')
+  });    
+
+  app.get('/redirect',function(req, res) {
+    console.log('in /redirect')
+    res.redirect('https://cascada.sitebuilt.net')
+  });    
+
+};
+
+
+// route middleware to ensure user is logged in
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated())
+    return next();
+
+  res.redirect('/');
+}
