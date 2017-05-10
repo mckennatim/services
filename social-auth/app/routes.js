@@ -79,9 +79,13 @@ module.exports = function(app, passport) {
             const email = req.user.userinfo.emailkey
             AppInfo.findOne({appId: appId}, function(err,result){
               if(mf.get('result.spaURL', result)){
-                mf.sendToApi(appId, email, function(){
-                  cons.log("back from sendToApi")
-                  res.redirect(result.spaURL+'#registered?'+email);        
+              var apiURL = result.apiURL+'/api/reg/auth'  
+              mf.sendToApi(appId, email, apiURL, function(){
+                cons.log("back from sendToApi")
+                cons.log(result.spaURL)
+                const payload= {appId: appId, email: email}
+                const token =jwt.encode(payload, cfg.apisecrets.geniot)
+                res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
                 })                
               }else{
                 res.end('signup didnt work')
@@ -116,11 +120,15 @@ module.exports = function(app, passport) {
           const appId = req.body.appId
           const email = req.body.email
           AppInfo.findOne({appId: appId}, function(err,result){
-            console.log(result.spaURL)
+            cons.log(result)
+            var apiURL = result.apiURL+'/api/reg/auth'
             if(mf.get('result.spaURL', result)){
-              mf.sendToApi(appId, email, function(){
+              mf.sendToApi(appId, email, apiURL, function(){
                 cons.log("back from sendToApi")
-                res.redirect(result.spaURL+'#registered?'+email);        
+                cons.log(result.spaURL)
+                const payload= {appId: appId, email: email}
+                const token =jwt.encode(payload, cfg.apisecrets.geniot)
+                res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
               })                
             }else{
               res.end('signup didnt work')

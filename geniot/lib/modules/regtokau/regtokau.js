@@ -28,10 +28,12 @@ module.exports = function(passport) {
 		const payload = jwt.decode(req.body.token, secret)
 		cons.log(payload)
 		if (payload.email==cfg.super){
+			//if you are a superuser add if no there the superuser records
 			const superdev = "CYURD14I"
 			cons.log('your are a superuser')
 			var ins = {devid: superdev, userid: payload.email, appid: 'superapp', role:'super', auth: true }
 			var ins2 = {devid: superdev, userid: payload.email, appid: 'admin', role:'admin', auth: true }
+			var ins3 = {devid: superdev, userid: payload.email, appid: payload.appId, role:'admin', auth: true }
 			conn.query('INSERT INTO devuserapp SET ?', ins , function (error, results, fields) {
 			  if(error) {
 			  	console.log(error.code)
@@ -46,44 +48,71 @@ module.exports = function(passport) {
 			  	console.log(results.insertId);
 			  }
 			})
-		}
-		res.jsonp({message: 'back from auth'});
-	})
+			conn.query('INSERT INTO devuserapp SET ?', ins3 , function (error, results, fields) {
+			  if(error) {
+			  	console.log(error.code)
+			  }else {
+			  	console.log(results.insertId);
+			  }
+			})
+			res.jsonp({message: 'authenticated a superuser'});
+		}else{
+			//see if there are any apps/devices for that user or tell them they are shit outa luck and should contact the bossman to add your email to the system, meeanwhile you can put them in with no apps or devices or auth
+			conn.query('SELECT * FROM devuserapp  WHERE userid = ?', payload.email, function (error, results, fields) {
+				// // cons.log(Object.assign({}, results[0]))
+				// var resu =[]
+				// results.map((result)=>{
+				// 	resu.push(Object.assign({}, result))
+				// })
+				// cons.log(resu.length)
+				if(results.length==0){
+					conn.query('INSERT INTO devuserapp SET ? ', {userid: payload.email, auth:false} , function (error, results, fields){
+							res.jsonp({message: 'added a new user'});
+						})
+				}else{
+					res.jsonp({message: 'user exists'});
+				}
 
-	router.get('/postauth/:email/:appid', function(req,res){
-		cons.log(req.params)
-		//create token from email 
-		res.jsonp({message: 'back from postauth'});
+			})
+		}
 	})
+	return router;
+}
 
-	router.post('/authenticate/:name', 
-	//passport.authenticate('localapikey', {session: false, failureRedirect: '/unauthorized'}),
-		passport.authenticate('localapikey', {session: false}),
-		function(req, res) {
-			console.log(req.params)
-			cons.log(req.user)
-			console.log('just sent body in /authenticate')
-			if (req.params.name==req.user.name){
-				cons.log('names match')
-				var payload = {name: req.user.name};
-				var token = jwt.encode(payload, secret);
-				var name =jwt.decode(token, secret);
-				cons.log(name)
-				res.jsonp({message: 'token here', token: token});
-				cons.log(token);     
-			}else {
-				res.jsonp({message: 'apikey does not match user'});
-			}
-		}
-	);
-	router.get('/account', 
-		passport.authenticate('bearer', { session: false }), 
-		function(req, res){ 
-			console.log('in api/account ') 
-			console.log(req.body)
-			res.jsonp(req.user)
-		}
-	);
+	// router.get('/postauth/:email/:appid', function(req,res){
+	// 	cons.log(req.params)
+	// 	//create token from email 
+	// 	res.jsonp({message: 'back from postauth'});
+	// })
+
+	// router.post('/authenticate/:name', 
+	// //passport.authenticate('localapikey', {session: false, failureRedirect: '/unauthorized'}),
+	// 	passport.authenticate('localapikey', {session: false}),
+	// 	function(req, res) {
+	// 		console.log(req.params)
+	// 		cons.log(req.user)
+	// 		console.log('just sent body in /authenticate')
+	// 		if (req.params.name==req.user.name){
+	// 			cons.log('names match')
+	// 			var payload = {name: req.user.name};
+	// 			var token = jwt.encode(payload, secret);
+	// 			var name =jwt.decode(token, secret);
+	// 			cons.log(name)
+	// 			res.jsonp({message: 'token here', token: token});
+	// 			cons.log(token);     
+	// 		}else {
+	// 			res.jsonp({message: 'apikey does not match user'});
+	// 		}
+	// 	}
+	// );
+	// router.get('/account', 
+	// 	passport.authenticate('bearer', { session: false }), 
+	// 	function(req, res){ 
+	// 		console.log('in api/account ') 
+	// 		console.log(req.body)
+	// 		res.jsonp(req.user)
+	// 	}
+	// );
 	// router.get('/isUser/:name', function(req, res) {
 	// 	console.log('in isUser by name');
 	// 	var name = req.params.name.toLowerCase();
@@ -115,8 +144,8 @@ module.exports = function(passport) {
 	// 	}
 	// );	
 
-	return router;
-}
+// 	return router;
+// }
 
         // "_id" : ObjectId("56f4156d518e55f815a3abc9"),
         // "devid" : "CYURD001",

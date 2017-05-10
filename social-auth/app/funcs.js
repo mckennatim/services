@@ -19,8 +19,10 @@ const sendToApi=(appId, email, apiURL, callback)=>{
   superagent
     .post(apiURL)
     .send({token: token})
-    .end(callback)
-
+    .end(function(e, res){
+      cons.log(res.body)
+      callback()
+    })
   // setTimeout(callback, 2000)
 }
 

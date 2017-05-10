@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var ejs = require('ejs')
 var passport = require('passport');
 var expressSession = require('express-session');
-var initPassport = require('./modules/regtokau/init');
+var initPassport = require('./modules/regtokau/strategize');
 
 var app = express();
 //app.engine('.html', require('ejs').renderFile);

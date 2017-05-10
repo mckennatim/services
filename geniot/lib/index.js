@@ -7,10 +7,12 @@ var app = require('./corsPassport');
 var regtokau = require('./modules/regtokau/regtokau')(passport);
 var schedrts = require('./modules/schedule/schedrts')(passport);
 var mqtt = require('./modules/mqtt/mqttroutes')(passport);
+var dedata = require('./modules/dedata')(passport);
 
 app.use('/api/sched', schedrts);
 app.use('/api/reg', regtokau);
 app.use('/api/mqtt', mqtt);
+app.use('/api/dedata', dedata);
 
 app.get('/api', function (req,res){
   res.send("<h4>in demiot /api</h4>")

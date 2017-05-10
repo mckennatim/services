@@ -8,7 +8,12 @@ var env = require('../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 var secret = cfg.secret
 
-var httpLoc = 'http://localhost:' + cfg.port.express + '/api/reg/'
+var httpLoc = cfg.url.local +':'+ cfg.port.express + '/api/'
+var payload = {
+	appId: "tauth",
+	email: "mckenna.tim@gmail.com"
+};
+var token = jwt.encode(payload, secret);
 
 describe('regtokau:', function() {
 	var agent = superagent.agent();
@@ -17,11 +22,10 @@ describe('regtokau:', function() {
 	var apikey = 'dog';
 	var ureg = 'tim2';
 	var uav = 'fred';
-	var token ='';
 	var eregtim = 'tim2@sitebuilt.net';
 	var enottim = 'mckenna.nottim@gmail.com';
 	it('GET / should be running and return: please select...', function(done) {
-		superagent.get(httpLoc)
+		superagent.get(httpLoc+'reg')
 			.end(function(e, res) {
 				console.log(res.body.message)
 				expect(e).to.eql(null)
@@ -31,14 +35,12 @@ describe('regtokau:', function() {
 			})
 	})
 	it('posts aaa to api/reg/auth', function(done){
-		var payload = {
-			appId: "tauth",
-			email: "mckenna.tim@gmail.com"
-		};
-		var token = jwt.encode(payload, secret);
+
 		//var token = 'jwt.encode(payload, authSecret)';
+		var url = httpLoc + 'reg/auth'
+		console.log(url)
 		superagent
-			.post(httpLoc + 'auth')
+			.post(url)
 			.send({token: token})
 			.end(function(e, res) {
 				console.log(res.status);
@@ -47,6 +49,19 @@ describe('regtokau:', function() {
 			})
 		}
 	)
+})
+describe('dedata token protected routes', function() {
+	it('GETs succeeds w userinfo from api/dedata/apps when passed token', function(done) {
+		var url = httpLoc + 'dedata/apps'
+		superagent
+			.get(url)
+			.set('Authorization', 'Bearer ' + token)
+			.end(function(e, res) {
+				console.log(res.body)
+				expect(true).to.be(true);
+				done()
+			})
+	})
 })
 		/*-----------------------------------authentication-----------------------------------------------*/
 	//describe('signup', function() {
