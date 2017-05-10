@@ -12,9 +12,10 @@ const loginURL = cfg.url.server+':'+cfg.port.express+'/login'
 const sendToApi=(appId, email, apiURL, callback)=>{
   cons.log(appId)
   cons.log(email)
-  var token = jwt.encode({appId: appId, email: email}, cfg.jwt.secret)
+  var token = jwt.encode({appId: appId, email: email}, cfg.apisecrets.geniot)
   cons.log(token)
-  cons.log("gonna send to /api/auth/:appId/:email")
+  cons.log(apiURL)
+  cons.log("gonna send to /api/reg/auth/")
   superagent
     .post(apiURL)
     .send({token: token})

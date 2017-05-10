@@ -7,7 +7,6 @@ var fs = require('fs');
 var env = require('../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 var secret = cfg.secret
-var authSecret = cfg.auth[0].secret
 
 var httpLoc = 'http://localhost:' + cfg.port.express + '/api/reg/'
 
@@ -31,12 +30,13 @@ describe('regtokau:', function() {
 				done()
 			})
 	})
-	it('posts to api/reg/auth', function(done){
+	it('posts aaa to api/reg/auth', function(done){
 		var payload = {
 			appId: "tauth",
 			email: "mckenna.tim@gmail.com"
 		};
-		var token = jwt.encode(payload, authSecret);		
+		var token = jwt.encode(payload, secret);
+		//var token = 'jwt.encode(payload, authSecret)';
 		superagent
 			.post(httpLoc + 'auth')
 			.send({token: token})

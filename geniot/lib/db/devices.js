@@ -3,8 +3,14 @@ var Schema = mongoose.Schema;
 var devicesSchema = new Schema({
 	devid: {type:String, index:{unique: true}},
 	domain: String,
-	usersarr: Array,
-	users: Array,
+	users: [{
+		email: String,
+		apps: [{
+			appId: String,
+			role: String,
+			auth: Boolean 
+		}]
+	}],
 	loc: {
 		lat: Number,
 		lng: Number,

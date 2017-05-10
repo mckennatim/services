@@ -1,8 +1,11 @@
 var cons = require('tracer').console();
+var jwt = require('jwt-simple');
 var User = require('../app/models').moUser;
 var AppInfo  = require('../app/models').moApp;
 var mf = require('./funcs')
-var appInfo 
+var env = require('../env.json')
+var cfg= env[process.env.NODE_ENV||'development']
+// var appInfo 
 
 
 module.exports = function(app, passport) {
@@ -30,10 +33,13 @@ module.exports = function(app, passport) {
     const email = req.user.userinfo.emailkey
     AppInfo.findOne({appId: appId}, function(err,result){
       cons.log(result)
-      mf.sendToApi(appId, email, result.apiURL, function(){
+      var apiURL = result.apiURL+'/api/reg/auth'
+      mf.sendToApi(appId, email, apiURL, function(){
         cons.log("back from sendToApi")
-        console.log(result.spaURL)
-        res.redirect(result.spaURL+'#registered?'+email);        
+        cons.log(result.spaURL)
+        const payload= {appId: appId, email: email}
+        const token =jwt.encode(payload, cfg.apisecrets.geniot)
+        res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
       })
     })  
   });

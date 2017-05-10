@@ -1,7 +1,7 @@
 # social-auth
 # tags
-## 05
-Before redirecting back to spa/registered, post a jwt to /api/auth which decodes it and then saves it to userinfo database
+## 05-jwt-to-spa&api-devuserapp-table
+Before redirecting back to spa/registered, post a jwt to /api/auth which decodes it and then saves it to devuserapp  mysql table in geniot database and send the jwt to the spa
 ## 04-local
 local is done and handles appId correctly
 ## 03-redirect-to-from-app

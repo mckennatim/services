@@ -1,5 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
+var mysql      = require('mysql');
 var jwt = require('jwt-simple');
 var cons = require('tracer').console();
 var env = require('../../../env.json')
@@ -8,10 +9,10 @@ var mo =require('../../db/models')
 var cfg= env[process.env.NODE_ENV||'development']
 var db = cfg.db
 var secret = cfg.secret
-var authSecret = cfg.auth[0].secret
 
 var router = express.Router();
 
+var conn = mysql.createConnection(cfg.mysql);
 mongoose.connect(db.url);
 //var User = require('../../db/user');
 var emailKey = require('./util').emmailKey
@@ -24,23 +25,35 @@ module.exports = function(passport) {
 	});
 
 	router.post('/auth', function(req, res){
-		const payload = jwt.decode(req.body.token, authSecret)
+		const payload = jwt.decode(req.body.token, secret)
 		cons.log(payload)
 		if (payload.email==cfg.super){
+			const superdev = "CYURD14I"
 			cons.log('your are a superuser')
-			var moload = {
-				email: payload.email,
-				$addToSet: {devices: "CYURD14I"}
-			}
-			mo.Uuser.update({email: payload.email}, moload, {upsert: true}, function(err,result){})
+			var ins = {devid: superdev, userid: payload.email, appid: 'superapp', role:'super', auth: true }
+			var ins2 = {devid: superdev, userid: payload.email, appid: 'admin', role:'admin', auth: true }
+			conn.query('INSERT INTO devuserapp SET ?', ins , function (error, results, fields) {
+			  if(error) {
+			  	console.log(error.code)
+			  }else {
+			  	console.log(results.insertId);
+			  }
+			})
+			conn.query('INSERT INTO devuserapp SET ?', ins2 , function (error, results, fields) {
+			  if(error) {
+			  	console.log(error.code)
+			  }else {
+			  	console.log(results.insertId);
+			  }
+			})
 		}
 		res.jsonp({message: 'back from auth'});
 	})
 
-	router.get('/postauth/:email', function(req,res){
+	router.get('/postauth/:email/:appid', function(req,res){
 		cons.log(req.params)
-		//res.jsonp({message: 'back from postauth'});
-		res.jsonp(['message:','back from postauth']);
+		//create token from email 
+		res.jsonp({message: 'back from postauth'});
 	})
 
 	router.post('/authenticate/:name', 
@@ -104,3 +117,23 @@ module.exports = function(passport) {
 
 	return router;
 }
+
+        // "_id" : ObjectId("56f4156d518e55f815a3abc9"),
+        // "devid" : "CYURD001",
+        // "domain" : "parley",
+        // "loc" : {
+        //         "lat" : 14.345,
+        //         "lng" : -72.444,
+        //         "timezone" : "America/New_York",
+        //         "address" : "12 Parley Vale, Jamaica Plain, MA 02130"
+        // },
+        // "users" : [
+        //         {
+        //                 "name" : "tim",
+        //                 "email" : "mckenna.tim@gmail.com"
+        //         }
+        // ],
+        // "usersarr" : [
+        //         "tim"
+        // ],
+        // "__v" : 0
