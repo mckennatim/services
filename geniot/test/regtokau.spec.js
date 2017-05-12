@@ -9,10 +9,17 @@ var cfg= env[process.env.NODE_ENV||'development']
 var secret = cfg.secret
 
 var httpLoc = cfg.url.local +':'+ cfg.port.express + '/api/'
+//expires in an hour
 var payload = {
 	appId: "tauth",
-	email: "mckenna.tim@gmail.com"
+	email: "mckenna.tim@gmail.com",
+	exp: Math.floor(Date.now() / 1000) - (60 * 60) 
 };
+// var payload = {
+// 	appId: "tauth",
+// 	email: "tim6@sitebuilt.net",
+// 	exp: Math.floor(Date.now() / 1000) + (60 * 60) 
+// };
 var token = jwt.encode(payload, secret);
 
 describe('regtokau:', function() {
@@ -34,25 +41,36 @@ describe('regtokau:', function() {
 				done()
 			})
 	})
-	it('posts aaa to api/reg/auth', function(done){
+	// it('posts aaa to api/reg/auth', function(done){
 
-		//var token = 'jwt.encode(payload, authSecret)';
-		var url = httpLoc + 'reg/auth'
-		console.log(url)
-		superagent
-			.post(url)
-			.send({token: token})
-			.end(function(e, res) {
-				console.log(res.status);
-				expect(res.status).to.be(200);
-				done();
-			})
-		}
-	)
+	// 	//var token = 'jwt.encode(payload, authSecret)';
+	// 	var url = httpLoc + 'reg/auth'
+	// 	console.log(url)
+	// 	superagent
+	// 		.post(url)
+	// 		.send({token: token})
+	// 		.end(function(e, res) {
+	// 			console.log(res.status);
+	// 			expect(res.status).to.be(200);
+	// 			done();
+	// 		})
+	// 	}
+	// )
 })
 describe('dedata token protected routes', function() {
-	it('GETs succeeds w userinfo from api/dedata/apps when passed token', function(done) {
-		var url = httpLoc + 'dedata/apps'
+	// it('GETs succeeds w userinfo from api/dedata/apps when passed token', function(done) {
+	// 	var url = httpLoc + 'dedata/apps'
+	// 	superagent
+	// 		.get(url)
+	// 		.set('Authorization', 'Bearer ' + token)
+	// 		.end(function(e, res) {
+	// 			console.log(res.body)
+	// 			expect(res.body).to.be.an('array');
+	// 			done()
+	// 		})
+	// })
+	it('GETs succeeds w userinfo from api/dedata/appsa when passed token', function(done) {
+		var url = httpLoc + 'dedata/appsa'
 		superagent
 			.get(url)
 			.set('Authorization', 'Bearer ' + token)
@@ -62,6 +80,18 @@ describe('dedata token protected routes', function() {
 				done()
 			})
 	})
+	// it('GETs fails w userinfo from api/dedata/apps when passed bad token', function(done) {
+	// 	var url = httpLoc + 'dedata/apps'
+	// 	superagent
+	// 		.get(url)
+	// 		.set('Authorization', 'Bearer ' + token)
+	// 		.end(function(e, res) {
+	// 			console.log(res.status)
+	// 			console.log(res.body)
+	// 			expect(res.status).to.equal(500);
+	// 			done()
+	// 		})
+	// })
 })
 		/*-----------------------------------authentication-----------------------------------------------*/
 	//describe('signup', function() {

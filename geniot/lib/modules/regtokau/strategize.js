@@ -1,17 +1,11 @@
-//var LocalStrategy = require('passport-localapikey').Strategy;
+var mysql = require('mysql')
 var BearerStrategy = require('passport-http-bearer').Strategy;
 var jwt = require('jwt-simple');
 var env = require('../../../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
-//var cfg = require('../../cfg').cfg();
 var secret = cfg.secret;
 var cons = require('tracer').console();
-
-// var User = require('../../db/user');
-// // User.find().toArray(function(err, items) {
-// // 	console.log(err);
-// // 	console.log(items)
-// // }
+var conn = require('../../db/mysqldb')
 
 module.exports = function(passport) {
 	passport.use(new BearerStrategy({},
@@ -19,51 +13,29 @@ module.exports = function(passport) {
 			process.nextTick(function() {
 				cons.log('in bearer strategy')
 				if (token) {
-					var items ={secretstuff: 'dogfood'}
-					return done(null, items)
-					// try {
-					// 	var user = jwt.decode(token, secret);
-					// 	cons.log(user)
-					// 	var name = user.name;
-					// 	User.findOne({name: name}, function(err, items) {
-					// 		cons.log(items)
-					// 		if(!items){
-					// 			return done(null,false)							
-					// 		} else if (items.name === name) {
-					// 			return done(null, items);
-					// 		}
-					// 		return done(null, null);
-					// 	});
-					// } catch (err) {
-					// 	return done(err, null);
-					// }
+					try {
+						var tokdata = jwt.decode(token, secret);
+						cons.log(tokdata.email)
+						conn.query('SELECT * FROM devuserapp  WHERE userid = ?', tokdata.email, function (error, results, fields) {
+							if(!results){return done(null,false)}
+							if(results.length>0){
+								var resu =[]
+								results.map((result)=>{
+									resu.push(Object.assign({}, result))
+								})
+								return done(null, resu)								
+							}else{
+								return done(null,null)
+							}
+						})
+					} catch (error) {
+						cons.log(error)
+						const err= 'token is no damn good'
+						return done(err, null);
+					}
 				}				
 			});
 		}
 	));
 }
-// passport.use(new LocalStrategy(
-	// 	function(apikey, done) {
-	// 		// asynchronous verification, for effect...
-	// 		process.nextTick(function() {
-	// 			User.findOne({apikey: apikey}, function(err, items) {
-	// 				if (items == null) {
-	// 					return done(null, null);
-	// 				} else if (items.apikey === apikey) {
-	// 					return done(null, items);
-	// 				}else if(!items){
-	// 					return done(null, false, {
-	// 						message: 'Unknown api ' + apikey
-	// 					});	
-	// 				}					
-	// 				if (items.apikey != apikey) {
-	// 					return done(null, false, {
-	// 						message: 'wrong apikey'
-	// 					});
-	// 				}
-	// 				return done(null, null);
-	// 			});				
-	// 		});
-	// 	}
-	// ));
-// }
+

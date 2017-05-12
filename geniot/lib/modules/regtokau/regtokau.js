@@ -1,10 +1,11 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var mysql      = require('mysql');
+// var mysql      = require('mysql');
 var jwt = require('jwt-simple');
 var cons = require('tracer').console();
 var env = require('../../../env.json')
-var mo =require('../../db/models')
+var conn = require('../../db/mysqldb')
+// var mo =require('../../db/models')
 
 var cfg= env[process.env.NODE_ENV||'development']
 var db = cfg.db
@@ -12,7 +13,7 @@ var secret = cfg.secret
 
 var router = express.Router();
 
-var conn = mysql.createConnection(cfg.mysql);
+// var conn = mysql.createConnection(cfg.mysql);
 mongoose.connect(db.url);
 //var User = require('../../db/user');
 var emailKey = require('./util').emmailKey
