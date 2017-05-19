@@ -3,7 +3,7 @@ var router = express.Router();
 var mqtt2 =require('../../modules/mqtt/mqtt2.js')
 var currentPacket = mqtt2.currentPacket
 
-module.exports = function(passport) {
+module.exports = function() {
 	router.get('/', function(req, res) {
 		res.jsonp({message: "in root of mqtt module"})		
 	});

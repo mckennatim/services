@@ -10,7 +10,7 @@ var connection = mysql.createConnection(mconn);
 
 console.log(moment().tz("America/Los_Angeles").format())
 
-module.exports = function(passport) {
+module.exports = function() {
 	router.get('/', function(req, res) {
 		res.jsonp({message: "in root of datetime module"})		
 	});

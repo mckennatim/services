@@ -19,7 +19,7 @@ var bearerToken = function(req,res, next){
 	} 
 	cons.log(tokdata)
 	var retu = 'duch'
-	conn.query('SELECT * FROM devuserapp  WHERE userid = ?', tokdata.email, function (error, results, fields) {
+	conn.query('SELECT d.userid, d.devid, e.description as devdesc, d.appid,  a.desc as appdesc, d.role, d.auth FROM `devuserapp` d LEFT JOIN `devices` e ON d.devid=e.devid LEFT JOIN `apps` a ON d.appid=a.appid WHERE d.userid= ?', tokdata.email, function (error, results, fields) {
 		if (error){
 			cons.log(error.message)
 			req.tokenAuth = {auth: false, message: error.message}
@@ -50,7 +50,6 @@ var bearerToken = function(req,res, next){
 			next()
 		}	
 	})
-
 }
 
 module.exports = {bearerToken}

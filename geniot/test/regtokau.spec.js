@@ -7,13 +7,13 @@ var fs = require('fs');
 var env = require('../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 var secret = cfg.secret
-
+ 
 var httpLoc = cfg.url.local +':'+ cfg.port.express + '/api/'
 //expires in an hour
 var payload = {
 	appId: "tauth",
 	email: "mckenna.tim@gmail.com",
-	exp: Math.floor(Date.now() / 1000) - (60 * 60) 
+	exp: Math.floor(Date.now() / 1000) + (60 * 60) 
 };
 // var payload = {
 // 	appId: "tauth",
@@ -70,7 +70,7 @@ describe('dedata token protected routes', function() {
 	// 		})
 	// })
 	it('GETs succeeds w userinfo from api/dedata/appsa when passed token', function(done) {
-		var url = httpLoc + 'dedata/appsa'
+		var url = httpLoc + 'dedata/apps'
 		superagent
 			.get(url)
 			.set('Authorization', 'Bearer ' + token)

@@ -1,3 +1,7 @@
+other sql files...
+/tmstack/hsc/sql/sql.sql
+
+
 CREATE TABLE IF NOT EXISTS `devuserapp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `devid` varchar(30) DEFAULT NULL,
@@ -59,3 +63,38 @@ CREATE TABLE IF NOT EXISTS `biz` (
   KEY `owner` (`owner`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=145 ;
 
+-- a slow build
+SELECT * FROM `devuserapp` d 
+LEFT JOIN `devices`e 
+ON d.devid=e.devid
+
+SELECT * FROM `devuserapp` d 
+LEFT JOIN `devices` e 
+ON d.devid=e.devid
+LEFT JOIN `apps` a 
+ON d.appid=a.appid
+
+
+SELECT d.userid, d.devid, d.appid, e.description, a.desc 
+FROM `devuserapp` d 
+LEFT JOIN `devices` e 
+ON d.devid=e.devid
+LEFT JOIN `apps` a 
+ON d.appid=a.appid
+
+SELECT d.userid, d.devid, d.appid, e.description, a.desc 
+FROM `devuserapp` d 
+LEFT JOIN `devices` e 
+ON d.devid=e.devid
+LEFT JOIN `apps` a 
+ON d.appid=a.appid
+WHERE d.userid="mckenna.tim@gmail.com"
+
+SELECT d.userid, d.devid, e.description as devdesc, d.appid,  a.desc as appdesc, d.role, d.auth
+FROM `devuserapp` d 
+LEFT JOIN `devices` e 
+ON d.devid=e.devid
+LEFT JOIN `apps` a 
+ON d.appid=a.appid
+WHERE d.userid="mckenna.tim@gmail.com"
+-- last is it

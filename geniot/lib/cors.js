@@ -6,11 +6,8 @@ var bodyParser = require('body-parser');
 var ejs = require('ejs')
 var passport = require('passport');
 var expressSession = require('express-session');
-var initPassport = require('./modules/regtokau/strategize');
 
 var app = express();
-//app.engine('.html', require('ejs').renderFile);
-// view engine setup
 app.set('views', __dirname + '/views/');
 app.set('view engine', 'ejs');
 
@@ -29,15 +26,6 @@ app.all('*', function(req,res,next){
     next();
 });
 
-// Configuring Passport
-
-app.use(passport.initialize());
-
-// Initialize Passport
-initPassport(passport);
-
-// development error handler
-// will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);

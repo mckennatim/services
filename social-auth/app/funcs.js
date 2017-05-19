@@ -12,7 +12,13 @@ const loginURL = cfg.url.server+':'+cfg.port.express+'/login'
 const sendToApi=(appId, email, apiURL, callback)=>{
   cons.log(appId)
   cons.log(email)
-  var token = jwt.encode({appId: appId, email: email}, cfg.apisecrets.geniot)
+  var expmin = cfg.apps[appId].expdays*24 
+  var data = {
+    appId: appId, 
+    email: email,
+    exp: Math.floor(Date.now() / 1000) + (expmin * 60) 
+  }
+  var token = jwt.encode(data, cfg.apisecrets.geniot)
   cons.log(token)
   cons.log(apiURL)
   cons.log("gonna send to /api/reg/auth/")

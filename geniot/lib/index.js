@@ -3,11 +3,11 @@ var passport = require('passport');
 var env = require('../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 require('./modules/mqtt/mqtt2.js')
-var app = require('./corsPassport');
-var regtokau = require('./modules/regtokau/regtokau')(passport);
-var schedrts = require('./modules/schedule/schedrts')(passport);
-var mqtt = require('./modules/mqtt/mqttroutes')(passport);
-var dedata = require('./modules/dedata')(passport);
+var app = require('./cors');
+var regtokau = require('./modules/regtokau/regtokau')();
+var schedrts = require('./modules/schedule/schedrts')();
+var mqtt = require('./modules/mqtt/mqttroutes')();
+var dedata = require('./modules/dedata')();
 
 app.use('/api/sched', schedrts);
 app.use('/api/reg', regtokau);
