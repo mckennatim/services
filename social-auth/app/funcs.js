@@ -150,6 +150,7 @@ const processUser = (reqbody, done)=>{
       })          
       var newUser = new User();
       newUser.local.apikey = apikey;
+      newUser.local.auth = false;
       newUser.userinfo.emailkey = email;
       newUser.save(function(err) {
         if (err) done(err);
@@ -167,11 +168,29 @@ const processUser = (reqbody, done)=>{
         })
         var updUser = user
         updUser.local.apikey = apikey;
+        updUser.local.auth = false;
         updUser.save(function(err) {
           if (err) done(err);
           done(null, {apikey: apikey, alreadyRegistered: false});
           return
         });            
+      } else if(!user.local.auth){
+        cons.log('IN NOT user.local.auth')
+        apikey = user.local.apikey
+        emailApikey(apikey, email, appId, function(ret){
+          cons.log(ret)
+          //req.flash({message: ret});
+        })
+        var updUser = user
+        updUser.local.apikey = apikey;
+        updUser.local.auth = false;
+        updUser.save(function(err) {
+          if (err) done(err);
+           done(null, {apikey: apikey, alreadyRegistered: false});
+          return
+        });        
+        // done(null, {apikey: apikey, alreadyRegistered: false,  user: updUser});
+        // return
       } else {
         apikey = user.local.apikey
         done(null, {apikey: apikey, alreadyRegistered: true,  user: user});

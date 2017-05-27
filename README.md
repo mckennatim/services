@@ -1,5 +1,9 @@
 # services
 ## tags
+### 04-social-auth-pre-deploy
+ugh
+Got rid of passport.use(new ApikeyStrategy)
+
 ### 03-geniot-try_catch-middleware
 `social-auth` creates a record for a user in devuserapp for the spa that used it. That spa also gets back a token created using the api's secret. 
 

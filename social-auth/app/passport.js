@@ -34,29 +34,36 @@ module.exports = function(passport) {
     // =========================================================================
     // LOCAL APIKEY LOGIN =============================================================
     // =========================================================================    
-		passport.use(new ApikeyStrategy(
-			function(apikey, done) {
-				process.nextTick(function() {
-					User.findOne({'local.apikey': apikey}, function(err, items) {
-						if (items == null) {
-							return done(null, null);
-						} else if (items.local.apikey === apikey) {
-							return done(null, items);
-						}else if(!items){
-							return done(null, false, {
-								message: 'Unknown api ' + apikey
-							});	
-						}					
-						if (items.local.apikey != apikey) {
-							return done(null, false, {
-								message: 'wrong apikey'
-							});
-						}
-						return done(null, null);
-					});				
-				});
-			}
-		));
+		// passport.use(new ApikeyStrategy(
+		// 	function(apikey, done) {
+		// 		process.nextTick(function() {
+		// 			User.findOne({'local.apikey': apikey}, function(err, items) {
+		// 				cons.log(items)
+		// 				if (items == null) {
+		// 					return done(null, null);
+		// 				} else if (items.local.apikey === apikey) {
+		// 					cons.log('write auth = true')
+		// 					var updUser = items
+		// 					updUser.local.auth = true
+		// 					updUser.save(function(err) {
+  //         			if (err) done(err, null, {message: 'upd error'});          			
+		// 						return done(null, updUser, {message: 'should be good'} );
+		// 					})
+		// 				}else if(!items){
+		// 					return done(null, false, {
+		// 						message: 'Unknown api ' + apikey
+		// 					});	
+		// 				}					
+		// 				if (items.local.apikey != apikey) {
+		// 					return done(null, false, {
+		// 						message: 'wrong apikey'
+		// 					});
+		// 				}
+		// 				return done(null, null);
+		// 			});				
+		// 		});
+		// 	}
+		// ));
     // =========================================================================
     // LOCAL LOGIN =============================================================
     // =========================================================================

@@ -11,7 +11,8 @@ var userSchema = mongoose.Schema({
         appInfo     : {}
     },
     local            : {
-        apikey     : String
+        apikey     : String,
+        auth        :Boolean
     },
     facebook         : {
         id           : String,

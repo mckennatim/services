@@ -12,6 +12,7 @@ module.exports = function() {
 
 	router.get('/apps', bearerToken, function(req,res){
 		cons.log(req.tokenAuth)
+		//get descriptions of apps and add them in
 		res.jsonp(req.tokenAuth)
 	})
 	return router

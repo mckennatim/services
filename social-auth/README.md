@@ -1,5 +1,6 @@
 # social-auth
 # tags
+## 06
 ## 05-jwt-to-spa&api-devuserapp-table
 Before redirecting back to spa/registered, post a jwt to /api/auth which decodes it and then saves it to devuserapp  mysql table in geniot database and send the jwt to the spa
 ## 04-local
@@ -55,6 +56,7 @@ Now generally it would work if I just made a variable like `currentAppId` access
 - https://developers.facebook.com/apps/263878937398656/fb-login/
 - https://apps.twitter.com/app/13521887/keys
 - https://github.com/settings/applications/499597
+- https://console.developers.google.com/apis/credentials/oauthclient/574383590213-1vfblbifa1lv2oalq2jl5mcvfklcs8lo.apps.googleusercontent.com?project=sb-logintest
 
 Now that I've convinced myself that a CORS rest api for authentication is not in the cards <s>services/social-jwt-stateless</s> and that some networks like twitter and linkedin are still on Oauth1.1 and can't authenticate from a javascript front end, I am on the trail of having two backends, one to handle social authentication and another for the actual CORS friendly api serving a SPA. So then there would also be two front ends made to look as one. 
 

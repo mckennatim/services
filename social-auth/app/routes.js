@@ -62,40 +62,108 @@ module.exports = function(app, passport) {
     });
 
     // process the login form
-    // app.post('/login', passport.authenticate('local-login', {
-    //   successRedirect : '/profile', // redirect to the secure profile section
-    //   failureRedirect : '/login', // redirect back to the signup page if there is an error
-    //   failureFlash : true // allow flash messages
-    // }));    
-    // process the login form
-    app.post('/login/:apikey/:email/:appId', 
-        passport.authenticate('localapikey', {session: false}),
-        function(req, res) {  
-          cons.log(req.body)        
-          if (req.params.email==req.user.userinfo.emailkey){
-            cons.log('emails match for that apikey')
-            //res.end('emails match for that apikey') 
-            const appId = req.params.appId
-            const email = req.user.userinfo.emailkey
-            AppInfo.findOne({appId: appId}, function(err,result){
-              if(mf.get('result.spaURL', result)){
-              var apiURL = result.apiURL+'/api/reg/auth'  
-              mf.sendToApi(appId, email, apiURL, function(){
-                cons.log("back from sendToApi")
-                cons.log(result.spaURL)
-                const payload= {appId: appId, email: email}
-                const token =jwt.encode(payload, cfg.apisecrets.geniot)
-                res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
-                })                
-              }else{
-                res.end('signup didnt work')
-              }
-            })                       
-          } else {
-            res.end('Hmm the apicheck didnt work')            
-          }         
-        }        
-    )
+    //passport.authenticate('localapikey', {session: false}),
+    app.post('/login/:apikey/:email/:appId', function(req, res) {  
+      cons.log(req.body)
+      cons.log(req.params)
+      User.findOne({'local.apikey': req.body.apikey}, function(err, user) {
+        cons.log(user)
+        if(err){
+          res.render('message.ejs', { message: 'error in database'});
+        }
+        if(!user){
+          res.render('message.ejs', { message: 'apikey doesnt match any user'});
+        } else if(user.userinfo.emailkey==req.body.email){
+          var updUser = user
+          updUser.local.auth = true;
+          updUser.save(function(err) {
+            if(err){
+              res.render('message.ejs', { message: 'you are good but for some reason there is an error in database'});
+            }else{
+              var appId = req.params.appId
+              var email = req.params.email
+              AppInfo.findOne({appId: appId}, function(err,result){
+                cons.log(result)
+                var apiURL = result.apiURL+'/api/reg/auth'
+                if(mf.get('result.spaURL', result)){
+                  mf.sendToApi(appId, email, apiURL, function(){
+                    cons.log("back from sendToApi")
+                    cons.log(result.spaURL)
+                    const payload= {appId: appId, email: email}
+                    const token =jwt.encode(payload, cfg.apisecrets.geniot)
+                    res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
+                  })                
+                }else{
+                  //res.end('signup didnt work')
+                  res.render('message.ejs', { message: 'signup didnt work'});
+                }
+              })              
+              // res.render('message.ejs', { message: 'all good, but first send2api and change authe to true'});
+            }
+          })
+        } else {
+          res.render('message.ejs', { message: 'not the right apikey for this user'});
+        }
+      });
+    })
+
+          /*
+        check if correct apikey for that email then mark rec as auth,redirect  
+          either
+            err - there is some error try again
+            items==null apikey is not here
+            items 
+            if email==email
+              mark as auth, redirect
+            else not correct user  
+          */
+
+          // if (items == null) {
+          //   return done(null, null);
+          // } else if (items.local.apikey === apikey) {
+          //   cons.log('write auth = true')
+          //   var updUser = items
+          //   updUser.local.auth = true
+          //   updUser.save(function(err) {
+          //     if (err) done(err, null, {message: 'upd error'});               
+          //     return done(null, updUser, {message: 'should be good'} );
+          //   })
+          // }else if(!items){
+          //   return done(null, false, {
+          //     message: 'Unknown api ' + apikey
+          //   }); 
+          // }         
+          // if (items.local.apikey != apikey) {
+          //   return done(null, false, {
+          //     message: 'wrong apikey'
+          //   });
+          // }
+          // return done(null, null);
+        // if (req.params.email==req.user.userinfo.emailkey){
+        //   cons.log('emails match for that apikey')
+        //   //res.end('emails match for that apikey') 
+        //   const appId = req.params.appId
+        //   const email = req.user.userinfo.emailkey
+        //   AppInfo.findOne({appId: appId}, function(err,result){
+        //     if(mf.get('result.spaURL', result)){
+        //     var apiURL = result.apiURL+'/api/reg/auth' 
+        //     //res.end('brohen hgere?') 
+        //     mf.sendToApi(appId, email, apiURL, function(){
+        //       cons.log("back from sendToApi")
+        //       cons.log(result.spaURL)
+        //       const payload= {appId: appId, email: email}
+        //       const token =jwt.encode(payload, cfg.apisecrets.geniot)
+        //       res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
+        //       })                
+        //     }else{
+        //       res.end('signup didnt work')
+        //       cons.log('signup didnt work')
+        //     }
+        //   })                       
+        // } else {
+        //   cons.log('Hmm the apicheck didnt work')            
+        //   res.end('Hmm the apicheck didnt work')            
+        // } 
 
     // SIGNUP =================================
     // show the signup form
@@ -111,8 +179,10 @@ module.exports = function(app, passport) {
     app.post('/signup', function(req,res){ 
       cons.log(req.body)
       mf.processUser(req.body, function(err,status){
+        cons.log(status)
         cons.log(err)
         if (err){
+          cons.log('in procesuser errror')
           res.end ('Some kind of problem')
         }
         if(status.alreadyRegistered){
@@ -131,11 +201,14 @@ module.exports = function(app, passport) {
                 res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
               })                
             }else{
-              res.end('signup didnt work')
+              //res.end('signup didnt work')
+              res.render('message.ejs', { message: 'signup didnt work'});
             }
           })
         } else{
-          res.end('Check your email from this device and click on the liink to complete the registration')
+          //res.end('Check your email from this device and click on the liink to complete the registration')
+          res.render('message.ejs', { message: 'Check your email from this device and click on the link to complete the registration'});
+
         }
       })
     });
