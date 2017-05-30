@@ -20,7 +20,7 @@
     <% } %>
 
     <!-- LOGIN FORM -->
-    <form action="/login/<%= apikey %>/<%= email %>/<%= appId %>" method="post">
+    <form action="<%= base %>login/<%= apikey %>/<%= email %>/<%= appId %>" method="post">
         <div class="form-group">
             <label>Email</label>
             <input type="text" class="form-control" name="email" value="<%= email %>" >

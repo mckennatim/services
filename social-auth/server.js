@@ -11,9 +11,12 @@ var flash    = require('connect-flash');
 var morgan       = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
-var session      = require('express-session');
-var env = require('./env.json')
-var cfg= env[process.env.NODE_ENV||'development']
+//var session      = require('express-session');//causes memory leaks in production
+var session      = require('cookie-session');
+var cfg = require('./app/funcs').cfg
+//console.log(cfg.base)
+//var env = require('./env.json')
+//var cfg= env[process.env.NODE_ENV||'development']
 var configDB = cfg.db;
 var port     = cfg.port.express;
 
@@ -40,10 +43,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
-
 // routes ======================================================================
-require('./app/routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
+//require('./app/routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
+var routes = require('./app/routes.js')(passport); // load our routes and pass in our app and fully configured passport
+var base = cfg.base
+console.log(base)
 
+app.use('/', routes)
 // launch ======================================================================
 app.listen(port);
 console.log('The magic happens on port ' + port);

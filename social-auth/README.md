@@ -1,4 +1,49 @@
 # social-auth
+# deploy
+OK 
+
+it seems that http://162.217.250.109:7080 lets http%3A%2F%2F71.192.254.240%3A3332%2Fapi through but https://services.sitebuilt.net/soath doesn't
+
+copy apps,views,README,server.js,env.json,package.json in ./deploy.sh
+
+    #!/bin/sh
+    server=sitebuilt.net
+    path=/home/services/social-auth
+    echo $server:$path
+    scp package.json root@$server:$path
+    scp env.json root@$server:$path
+    scp README.md root@$server:$path
+    scp server.js root@$server:$path
+    scp appid root@$server:$path
+    scp -r app root@$server:$path/app
+    scp -r views root@$server:$path/views
+
+try node server then npm install --save x until it runs. copy package.json back
+
+add to /etc/nginx/sites-available/services
+
+    location /soauth/ {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-NginX-Proxy true;
+        proxy_pass http://localhost:7080/;
+        proxy_ssl_session_reuse off;
+        proxy_set_header Host $http_host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_redirect off; 
+    }
+then `systemctl reload nginx`
+
+try running as `http://162.217.250.109:7080`
+
+http://162.217.250.109:7080/spa/tauth/http%3A%2F%2F10.0.1.102%3A3332
+
+http://162.217.250.109:7080/login/Fiyorusohefetejacowinite/tim@sitebuilt.net/tauth
+
+get local signup running
+duplicate admin as admind and change url.souath as http://162.217.250.109:7080
+
+
 # tags
 ## 06
 ## 05-jwt-to-spa&api-devuserapp-table

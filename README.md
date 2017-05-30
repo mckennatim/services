@@ -1,5 +1,13 @@
 # services
 ## tags
+### 05-social-auth-deployed-butnotfor-passport
+OK fooled around with base path in env.json and package.json. 
+
+* `req.headers.origin` was the only way to get the proper protocol, https:
+* pass cfg.base into all the forms so the catch when its souath `%=base %>
+signup/`
+* added a reverse deploy `copyFromDeploy` for those touchups to the code base that allow you to run multiple services on `https://services.sitebuilt.net`
+
 ### 04-social-auth-pre-deploy
 ugh
 Got rid of passport.use(new ApikeyStrategy)

@@ -7,7 +7,8 @@ var AppInfo = require('../app/models').moApp;
 var User = require('../app/models').moUser;
 var env = require('../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
-const loginURL = cfg.url.server+':'+cfg.port.express+'/login'
+//cons.log(process.env)
+//console.log(cfg)
 
 const sendToApi=(appId, email, apiURL, callback)=>{
   cons.log(appId)
@@ -102,17 +103,19 @@ const createApikey=()=>{
 	return createRandomWord(24)
 }
 
-const emailApikey = (apikey, email, appId, callback) =>{
+const emailApikey = (apikey, email, appId, baseURL, callback) =>{
+  cons.log(baseURL)
 	let smtpTransport = nodemailer.createTransport({
 		service: 'gmail',
     auth: cfg.gmail.auth
   });
+  const loginURL=baseURL+'login'
   var mailOptions = {
       from: "SocialAuth <mckenna.tim@gmail.com>", // sender address
       to: email, // list of receivers
       subject: "apikey", // Subject line
-      text: "Your apikey for " +appId + " is: " +apikey + "Return to "+loginURL+"/"+apikey+"/"+email+"/"+appId+" and enter your apikey to complete registration for your device", // plaintext body
-      html: "<b>Your apikey for " +appId + " is: " +apikey + "</b><p>Return to "+loginURL+"/"+apikey+"/"+email+"/"+appId+" and enter your apikey to complete registration for your device </b></p>" // html body
+      text: "Your apikey for " +appId + " is: " +apikey + "Return to souath "+loginURL+"/"+apikey+"/"+email+"/"+appId+" and enter your apikey to complete registration for your device", // plaintext body
+      html: "<b>Your apikey for " +appId + " is: " +apikey + "</b><p>Return to soauth "+loginURL+"/"+apikey+"/"+email+"/"+appId+" and enter your apikey to complete registration for your device </b></p>" // html body
   }
   var ret=""
   smtpTransport.sendMail(mailOptions, function(error, response){
@@ -129,7 +132,8 @@ const emailApikey = (apikey, email, appId, callback) =>{
   });
 }
 
-const processUser = (reqbody, done)=>{
+const processUser = (reqbody, baseURL, done)=>{
+  cons.log(baseURL)
   try{
     var email = reqbody.email.toLowerCase();
     var appId = reqbody.appId;
@@ -144,7 +148,9 @@ const processUser = (reqbody, done)=>{
     if(!user){
       //create user, create apikey and send it
       apikey = createApikey()
-      emailApikey(apikey, email, appId, function(ret){
+      cons.log(baseURL)
+
+      emailApikey(apikey, email, appId, baseURL, function(ret){
         cons.log(ret)
         req.flash({message: ret});
       })          
@@ -162,7 +168,7 @@ const processUser = (reqbody, done)=>{
       if(!get('user.local.apikey',user) || user.local.apikey.length <10){
         cons.log('apikey not good')
         apikey = createApikey()
-        emailApikey(apikey, email, appId, function(ret){
+        emailApikey(apikey, email, appId, baseURL, function(ret){
           cons.log(ret)
           //req.flash({message: ret});
         })
@@ -177,7 +183,7 @@ const processUser = (reqbody, done)=>{
       } else if(!user.local.auth){
         cons.log('IN NOT user.local.auth')
         apikey = user.local.apikey
-        emailApikey(apikey, email, appId, function(ret){
+        emailApikey(apikey, email, appId, baseURL, function(ret){
           cons.log(ret)
           //req.flash({message: ret});
         })
@@ -209,5 +215,6 @@ module.exports = {
 	setCurrApp: setCurrApp,
 	get: get,
 	createApikey: createApikey,
-	processUser: processUser
+	processUser: processUser,
+  cfg: cfg
 }

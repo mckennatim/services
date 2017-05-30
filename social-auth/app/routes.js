@@ -1,28 +1,37 @@
+var app = require('express')()
+
 var cons = require('tracer').console();
 var jwt = require('jwt-simple');
 var User = require('../app/models').moUser;
 var AppInfo  = require('../app/models').moApp;
 var mf = require('./funcs')
 var env = require('../env.json')
-var cfg= env[process.env.NODE_ENV||'development']
-// var appInfo 
+//var cfg= env[process.env.NODE_ENV||'development']
+var cfg= mf.cfg
+cons.log(cfg.base) 
 
 
-module.exports = function(app, passport) {
+//module.exports = function(passport) {
+module.exports = function(passport) {
 // normal routes ===============================================================
-
+  
   app.get('/', function(req, res) {
     cons.log('in root')
-    res.render('index.ejs');
+    cons.log(req.query)
+    res.render('hello.ejs');
   });
-  app.get('/spa/:appid/:apiURL', function(req, res) {
+
+  app.get('/spa/:appid', function(req, res) {
     cons.log(req.params)
+    cons.log(req.hostname)
     appInfo ={
       appId: req.params.appid,
       spaURL: req.headers.referer,
-      apiURL: req.params.apiURL
+      apiURL: req.query.apiURL
     }
     mf.upsertSPAinfo(appInfo)
+    appInfo.base=cfg.base
+    cons.log(appInfo)
     res.render('index.ejs',appInfo);
   });
 
@@ -58,7 +67,14 @@ module.exports = function(app, passport) {
     // LOGIN ===============================
     // show the login form
     app.get('/login/:apikey/:email/:appId', function(req, res) {
-      res.render('login.ejs', { message: req.flash('loginMessage'), apikey: req.params.apikey, email: req.params.email, appId: req.params.appId });
+      var ejsparams = { 
+        message: req.flash('loginMessage'), 
+        apikey: req.params.apikey, 
+        email: req.params.email, 
+        appId: req.params.appId,
+        base: cfg.base 
+      }
+      res.render('login.ejs', ejsparams);
     });
 
     // process the login form
@@ -98,7 +114,6 @@ module.exports = function(app, passport) {
                   res.render('message.ejs', { message: 'signup didnt work'});
                 }
               })              
-              // res.render('message.ejs', { message: 'all good, but first send2api and change authe to true'});
             }
           })
         } else {
@@ -107,78 +122,28 @@ module.exports = function(app, passport) {
       });
     })
 
-          /*
-        check if correct apikey for that email then mark rec as auth,redirect  
-          either
-            err - there is some error try again
-            items==null apikey is not here
-            items 
-            if email==email
-              mark as auth, redirect
-            else not correct user  
-          */
-
-          // if (items == null) {
-          //   return done(null, null);
-          // } else if (items.local.apikey === apikey) {
-          //   cons.log('write auth = true')
-          //   var updUser = items
-          //   updUser.local.auth = true
-          //   updUser.save(function(err) {
-          //     if (err) done(err, null, {message: 'upd error'});               
-          //     return done(null, updUser, {message: 'should be good'} );
-          //   })
-          // }else if(!items){
-          //   return done(null, false, {
-          //     message: 'Unknown api ' + apikey
-          //   }); 
-          // }         
-          // if (items.local.apikey != apikey) {
-          //   return done(null, false, {
-          //     message: 'wrong apikey'
-          //   });
-          // }
-          // return done(null, null);
-        // if (req.params.email==req.user.userinfo.emailkey){
-        //   cons.log('emails match for that apikey')
-        //   //res.end('emails match for that apikey') 
-        //   const appId = req.params.appId
-        //   const email = req.user.userinfo.emailkey
-        //   AppInfo.findOne({appId: appId}, function(err,result){
-        //     if(mf.get('result.spaURL', result)){
-        //     var apiURL = result.apiURL+'/api/reg/auth' 
-        //     //res.end('brohen hgere?') 
-        //     mf.sendToApi(appId, email, apiURL, function(){
-        //       cons.log("back from sendToApi")
-        //       cons.log(result.spaURL)
-        //       const payload= {appId: appId, email: email}
-        //       const token =jwt.encode(payload, cfg.apisecrets.geniot)
-        //       res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
-        //       })                
-        //     }else{
-        //       res.end('signup didnt work')
-        //       cons.log('signup didnt work')
-        //     }
-        //   })                       
-        // } else {
-        //   cons.log('Hmm the apicheck didnt work')            
-        //   res.end('Hmm the apicheck didnt work')            
-        // } 
-
     // SIGNUP =================================
-    // show the signup form
     app.get('/signup/:appId', function(req, res) {
       mf.setCurrApp(req.params.appId)
       res.render('signup.ejs', { 
         message: req.flash('signupMessage'),
-        appId:  req.params.appId
+        appId:  req.params.appId,
+        base: cfg.base
       });
     });
 
     // process the signup form
     app.post('/signup', function(req,res){ 
       cons.log(req.body)
-      mf.processUser(req.body, function(err,status){
+      cons.log(req.url)
+      cons.log(req.headers.host)
+      cons.log(req.hostname)
+      cons.log(req.protocol)
+      cons.log(req.headers.origin)
+      //var baseURL = req.protocol+"://"+req.headers.host+cfg.base
+      var baseURL = req.headers.origin+cfg.base
+      cons.log(baseURL)
+      mf.processUser(req.body, baseURL, function(err,status){
         cons.log(status)
         cons.log(err)
         if (err){
@@ -227,6 +192,7 @@ module.exports = function(app, passport) {
     app.get('/auth/facebook/:appId', function(req,res,next){
       mf.setCurrApp(req.params.appId)
       cons.log(req.params.appId)
+      //req.appId=req.params.appId
       passport.authenticate(
         'facebook', { scope : 'email', appId: req.params.appId }
       )(req,res,next);
@@ -415,7 +381,7 @@ module.exports = function(app, passport) {
     console.log('in /redirect')
     res.redirect('https://cascada.sitebuilt.net')
   });    
-
+  return app
 };
 
 
