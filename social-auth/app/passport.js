@@ -40,6 +40,12 @@ module.exports = function(passport) {
 			//cons.log(profile);
 			//cons.log(done);
 			//cons.log(req._toParam)
+			if (!mf.get('profile.emails', profile)){
+				cons.log('no email in this twitter account')
+				// return done('authentication is based on email, try a social media app that has your email or use local signup option',null)
+				mf.setMessage('Authentication is based on email, back arrow and try a social media app that has your email or use local signup option.')
+				return done(null,null)
+			}			
 			var email = (profile.emails[0].value || '').toLowerCase()
 			process.nextTick(function() {
 				var appid = mf.getCurrApp();
@@ -161,8 +167,15 @@ module.exports = function(passport) {
 	twStrategy.passReqToCallback = true;  // allows us to pass in the req from our route (lets us check if a user is logged in or not)
 	passport.use(new TwitterStrategy(twStrategy,
 		function(req, token, refreshToken, profile, done) {
+			//cons.log(profile)//frog
+			if (!mf.get('profile.emails', profile)){
+				cons.log('no email in this twitter account')
+				// return done('authentication is based on email, try a social media app that has your email or use local signup option',null)
+				mf.setMessage('Authentication is based on email, back arrow and try a social media app that has your email or use local signup option.')
+				return done(null,null)
+			}
 			var email = (profile.emails[0].value || '').toLowerCase()
-			console.log(email)
+			cons.log(email)
 			process.nextTick(function() {
 				cons.log(req.user)
 				// check if the user is already logged in

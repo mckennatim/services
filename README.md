@@ -1,5 +1,20 @@
 # services
 ## tags
+### 06-social-auth-deployed
+HOORAY deployed as `https://services.sitebuilt.net/soauth` Up on forever, note cd first so all the app redirects work
+
+from sitebuilt.net root/forgone.sh
+
+    fuser -KILL -k -n tcp 7080 # hello
+    cd /home/services/social-auth
+    export NODE_ENV=production&&forever --uid soauth -a start server.js
+    sleep 2
+
+Deals with the fact that facebook and twitter don't need email to register. Decided for the moment not to allow a separate user record with emailid as twitter or facebook userid.
+
+passport can't handle done(err, null) it causes a server fault(500) but it will failure redirect if you use done(null,null). So failure redirects to `cfg.base+message` and which has `res.render(message.ejs, {message: mf.getMessage()` 
+
+
 ### 05-social-auth-deployed-butnotfor-passport
 OK fooled around with base path in env.json and package.json. 
 

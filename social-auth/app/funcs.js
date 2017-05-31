@@ -9,6 +9,13 @@ var env = require('../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 //cons.log(process.env)
 //console.log(cfg)
+var pmessage='yo what up'
+
+const setMessage = (message)=>{
+  pmessage=message;
+}
+
+const getMessage =()=>pmessage
 
 const sendToApi=(appId, email, apiURL, callback)=>{
   cons.log(appId)
@@ -216,5 +223,7 @@ module.exports = {
 	get: get,
 	createApikey: createApikey,
 	processUser: processUser,
-  cfg: cfg
+  cfg: cfg,
+  getMessage: getMessage,
+  setMessage: setMessage
 }

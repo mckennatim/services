@@ -183,8 +183,8 @@ module.exports = function(passport) {
     app.get('/auth/facebook/callback', function(req,res,next){
       //cons.log(req.user)
       passport.authenticate('facebook', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base+'message'
       })(req,res,next);
     });
 
@@ -205,8 +205,8 @@ module.exports = function(passport) {
     // handle the callback after github has authenticated the user
     app.get('/auth/github/callback',
       passport.authenticate('github', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base+'message'
       }));
 
     // send to github to do the authentication
@@ -222,8 +222,8 @@ module.exports = function(passport) {
     // handle the callback after twitter has authenticated the user
     app.get('/auth/twitter/callback',
       passport.authenticate('twitter', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base+'message'
       }));
     // send to twitter to do the authentication
     app.get('/auth/twitter/:appId', function(req,res,next){
@@ -240,8 +240,8 @@ module.exports = function(passport) {
     // the callback after google has authenticated the user
     app.get('/auth/google/callback',
       passport.authenticate('google', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base
       }));
     // send to google to do the authentication
     app.get('/auth/google/:appId', function(req,res,next){
@@ -261,8 +261,8 @@ module.exports = function(passport) {
       res.render('connect-local.ejs', { message: req.flash('loginMessage') });
     });
     app.post('/connect/local', passport.authenticate('local-signup', {
-      successRedirect : '/profile', // redirect to the secure profile section
-      failureRedirect : '/connect/local', // redirect back to the signup page if there is an error
+      successRedirect : cfg.base+'profile', // redirect to the secure profile section
+      failureRedirect : cfg.base+'connect/local', // redirect back to the signup page if there is an error
       failureFlash : true // allow flash messages
     }));
 
@@ -274,8 +274,8 @@ module.exports = function(passport) {
     // handle the callback after facebook has authorized the user
     app.get('/connect/facebook/callback',
       passport.authorize('facebook', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base
       }));
 
   // github -------------------------------
@@ -286,8 +286,8 @@ module.exports = function(passport) {
     // handle the callback after github has authorized the user
     app.get('/connect/github/callback',
       passport.authorize('github', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base
       }));
 
   // twitter --------------------------------
@@ -298,8 +298,8 @@ module.exports = function(passport) {
     // handle the callback after twitter has authorized the user
     app.get('/connect/twitter/callback',
       passport.authorize('twitter', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base
       }));
 
 
@@ -311,8 +311,8 @@ module.exports = function(passport) {
     // the callback after google has authorized the user
     app.get('/connect/google/callback',
       passport.authorize('google', {
-        successRedirect : '/profile',
-        failureRedirect : '/'
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base
       }));
 
 // =============================================================================
@@ -337,7 +337,7 @@ module.exports = function(passport) {
     var user            = req.user;
     user.facebook.token = undefined;
     user.save(function(err) {
-      res.redirect('/profile');
+      res.redirect(cfg.base+'profile');
     });
   });
 
@@ -346,7 +346,7 @@ module.exports = function(passport) {
     var user            = req.user;
     user.github.token = undefined;
     user.save(function(err) {
-      res.redirect('/profile');
+      res.redirect(cfg.base+'profile');
     });
   });
 
@@ -355,7 +355,7 @@ module.exports = function(passport) {
     var user           = req.user;
     user.twitter.token = undefined;
     user.save(function(err) {
-      res.redirect('/profile');
+      res.redirect(cfg.base+'profile');
     });
   });
 
@@ -364,7 +364,7 @@ module.exports = function(passport) {
     var user          = req.user;
     user.google.token = undefined;
     user.save(function(err) {
-      res.redirect('/profile');
+      res.redirect(cfg.base+'profile');
     });
   });
 
@@ -375,6 +375,9 @@ module.exports = function(passport) {
   });    
   app.get('/terms',function(req, res) {
     res.render('terms.ejs')
+  });    
+  app.get('/message',function(req, res) {
+    res.render('message.ejs', {message: mf.getMessage()})
   });    
 
   app.get('/redirect',function(req, res) {
