@@ -231,7 +231,7 @@ module.exports = function(passport) {
 
     // send to facebook to do the authentication
     app.get('/auth/facebook/:appId', function(req,res,next){
-      mf.setCurrApp(req.params.appId)
+      //mf.setCurrApp(req.params.appId)
       cons.log(req.params.appId)
       //req.appId=req.params.appId
       var callbackURL = fbCallback + "?appId=" + req.params.appId;
@@ -266,7 +266,7 @@ module.exports = function(passport) {
 
     // send to github to do the authentication
     app.get('/auth/github/:appId', function(req,res,next){
-      //mf.setCurrApp(req.params.appId)
+      mf.setCurrApp(req.params.appId)
       req.appId = req.params.appId;
       passport.authenticate(
         'github', { scope : 'email' }
