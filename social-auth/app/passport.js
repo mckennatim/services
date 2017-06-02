@@ -36,16 +36,14 @@ module.exports = function(passport) {
 	fbStrategy.passReqToCallback = true;  // allows us to pass in the req from our route (lets us check if a user is logged in or not)
 	passport.use(new FacebookStrategy(fbStrategy,
 			function(req, token, refreshToken, profile, done) {
-			cons.log(req);
-			//cons.log(profile);
-			//cons.log(done);
-			//cons.log(req._toParam)
 			if (!mf.get('profile.emails', profile)){
 				cons.log('no email in this twitter account')
 				// return done('authentication is based on email, try a social media app that has your email or use local signup option',null)
 				mf.setMessage('Authentication is based on email, back arrow and try a social media app that has your email or use local signup option.')
 				return done(null,null)
-			}			
+			}
+			// cons.log(req.headers.referer)			
+			// var appId=mf.parseBetween(req.headers.referer, '/spa/', '?')
 			var email = (profile.emails[0].value || '').toLowerCase()
 			process.nextTick(function() {
 				var appid = mf.getCurrApp();
@@ -56,6 +54,7 @@ module.exports = function(passport) {
 						if (err) return done(err);
 						if (user) {
 							if (!user.facebook) { //add a new facebook user
+								// user.userinfo.appId = appId
 								user.facebook.id = profile.id
 								user.facebook.token = token;
 								user.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName;
@@ -64,6 +63,7 @@ module.exports = function(passport) {
 									return done(null, user);
 								});
 							} else if (!user.facebook.token ) { 
+								// user.userinfo.appId = appId
 								user.facebook.token = token;
 								user.save(function(err) {
 									if (err) return done(err);
@@ -74,6 +74,7 @@ module.exports = function(passport) {
 						} else {
 							// if there is no user, create them
 							var newUser            = new User();
+							// newUser.userinfo.appId = appId
 							newUser.facebook.id    = profile.id;
 							newUser.facebook.token = token;
 							newUser.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName;
@@ -87,6 +88,7 @@ module.exports = function(passport) {
 				} else {
 					// user already exists and is logged in, we have to link accounts
 					var user            = req.user; // pull the user out of the session
+					// user.userinfo.appId = appId
 					user.facebook.id    = profile.id;
 					user.facebook.token = token;
 					user.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName;
@@ -105,6 +107,8 @@ module.exports = function(passport) {
 	ghStrategy.passReqToCallback = true;  // allows us to pass in the req from our route (lets us check if a user is logged in or not)
 	passport.use(new GithubStrategy(ghStrategy,
 		function(req, token, refreshToken, profile, done) {
+			// cons.log(req.headers.referer)
+			// var appId=mf.parseBetween(req.headers.referer, '/spa/', '?')
 			var email = (profile.emails[0].value || '').toLowerCase()
 			console.log(email)
 			process.nextTick(function() {
@@ -118,6 +122,7 @@ module.exports = function(passport) {
 						if (user) {
 							cons.log(user)
 							if (!user.github) { //add a new github user
+								// user.userinfo.appId = appId
 								user.github.id = profile.id
 								user.github.token = token;
 								user.github.name  = profile.displayName;
@@ -126,6 +131,7 @@ module.exports = function(passport) {
 									return done(null, user);
 								});
 							} else if (!user.github.token ) { 
+								// user.userinfo.appId = appId
 								user.github.token = token;
 								user.save(function(err) {
 									if (err) return done(err);
@@ -136,6 +142,7 @@ module.exports = function(passport) {
 						} else {
 							// if there is no user, create them
 							var newUser            = new User();
+							// newUser.userinfo.appId = appId
 							newUser.github.id    = profile.id;
 							newUser.github.token = token;
 							newUser.github.name  = profile.displayName;
@@ -149,6 +156,7 @@ module.exports = function(passport) {
 				} else {
 					// user already exists and is logged in, we have to link accounts
 					var user            = req.user; // pull the user out of the session
+					// user.userinfo.appId = appId
 					user.github.id    = profile.id;
 					user.github.token = token;
 					user.github.name  = profile.displayName;
@@ -174,10 +182,13 @@ module.exports = function(passport) {
 				mf.setMessage('Authentication is based on email, back arrow and try a social media app that has your email or use local signup option.')
 				return done(null,null)
 			}
+			//cons.log(req)//
+			//var appId=mf.parseBetween(req.headers.referer, '/spa/', '?')
+			//var appId='tauth_lo'
 			var email = (profile.emails[0].value || '').toLowerCase()
 			cons.log(email)
 			process.nextTick(function() {
-				cons.log(req.user)
+				//cons.log(req.user)
 				// check if the user is already logged in
 				if (!req.user || !req.user.twitter) {
 					User.findOne({ 'userinfo.emailkey' : email }, function(err, user) {
@@ -187,6 +198,7 @@ module.exports = function(passport) {
 						if (user) {
 							cons.log(user)
 							if (!user.twitter) { //add a new twitter user
+								// user.userinfo.appId = appId
 								user.twitter.id = profile.id
 								user.twitter.token = token;
 								user.twitter.displayName  = profile.displayName;
@@ -196,6 +208,7 @@ module.exports = function(passport) {
 									return done(null, user);
 								});
 							} else if (!user.twitter.token ) { 
+								// user.userinfo.appId = appId
 								user.twitter.token = token;
 								user.save(function(err) {
 									if (err) return done(err);
@@ -206,6 +219,7 @@ module.exports = function(passport) {
 						} else {
 							// if there is no user, create them
 							var newUser            = new User();
+							// newUser.userinfo.appId = appId
 							newUser.twitter.id    = profile.id;
 							newUser.twitter.token = token;
 							newUser.twitter.displayName  = profile.displayName;
@@ -220,6 +234,7 @@ module.exports = function(passport) {
 				} else {
 					// user already exists and is logged in, we have to link accounts
 					var user            = req.user; // pull the user out of the session
+					// user.userinfo.appId = appId
 					user.twitter.id    = profile.id;
 					user.twitter.token = token;
 					user.twitter.displayName  = profile.displayName;
@@ -239,6 +254,9 @@ module.exports = function(passport) {
 	goStrategy.passReqToCallback = true;  // allows us to pass in the req from our route (lets us check if a user is logged in or not)
 	passport.use(new GoogleStrategy(goStrategy,
 		function(req, token, refreshToken, profile, done) {
+			cons.log(req)
+			//var appId=mf.parseBetween(req.headers.referer, '/spa/', '?')
+			//var appId='tauth_lo'
 			var email = (profile.emails[0].value || '').toLowerCase()
 			console.log(email)
 			process.nextTick(function() {
@@ -252,6 +270,7 @@ module.exports = function(passport) {
 						if (user) {
 							cons.log(user)
 							if (!user.google) { //add a new google user
+								//user.userinfo.appId = appId
 								user.google.id = profile.id
 								user.google.token = token;
 								user.google.displayName  = profile.displayName;
@@ -260,6 +279,7 @@ module.exports = function(passport) {
 									return done(null, user);
 								});
 							} else if (!user.google.token ) { 
+								//user.userinfo.appId = appId
 								user.google.token = token;
 								user.save(function(err) {
 									if (err) return done(err);
@@ -270,6 +290,7 @@ module.exports = function(passport) {
 						} else {
 							// if there is no user, create them
 							var newUser            = new User();
+							//newUser.userinfo.appId = appId
 							newUser.google.id    = profile.id;
 							newUser.google.token = token;
 							newUser.google.displayName  = profile.displayName;
@@ -283,6 +304,7 @@ module.exports = function(passport) {
 				} else {
 					// user already exists and is logged in, we have to link accounts
 					var user            = req.user; // pull the user out of the session
+					//user.userinfo.appId = appId
 					user.google.id    = profile.id;
 					user.google.token = token;
 					user.google.displayName  = profile.displayName;

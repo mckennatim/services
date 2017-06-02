@@ -1,6 +1,13 @@
 # services
 ## tags
+### 07-social-auth-redploy-w-query-for-facebook
+
+
 ### 06-social-auth-deployed
+but
+<s>facebook and github have `req.headers.referer` in the callback so you can dig out appId with `mf.parseBetween(req.headers.referer, '/spa/', '?')`. Too bad google and twitter don't have that header.</s> For facebook you can also use the query strategy described here http://blog.pingzhang.io/javascript/2016/09/22/passport-facebook/
+https://stackoverflow.com/questions/15513427/can-the-callback-for-facebook-pasport-be-dynamically-constructed
+
 HOORAY deployed as `https://services.sitebuilt.net/soauth` Up on forever, note cd first so all the app redirects work
 
 from sitebuilt.net root/forgone.sh

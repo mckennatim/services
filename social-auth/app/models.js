@@ -8,7 +8,8 @@ var userSchema = mongoose.Schema({
         emailkey    : String,
         tokenkey    : String,
         apps        : [String],
-        appInfo     : {}
+        appInfo     : {},
+        appId       : String, 
     },
     local            : {
         apikey     : String,
@@ -52,6 +53,7 @@ var appSchema = mongoose.Schema({
     appId: String,
     spaURL: String,
     apiURL: String,
+    cbPath: String,
     current: Boolean
 })
 

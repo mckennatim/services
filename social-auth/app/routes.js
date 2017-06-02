@@ -8,7 +8,8 @@ var mf = require('./funcs')
 var env = require('../env.json')
 //var cfg= env[process.env.NODE_ENV||'development']
 var cfg= mf.cfg
-cons.log(cfg.base) 
+// cons.log(cfg.base)
+var fbCallback=cfg.auth.facebookAuth.callbackURL 
 
 
 //module.exports = function(passport) {
@@ -27,7 +28,8 @@ module.exports = function(passport) {
     appInfo ={
       appId: req.params.appid,
       spaURL: req.headers.referer,
-      apiURL: req.query.apiURL
+      apiURL: req.query.apiURL,
+      cbPath: req.query.cbPath
     }
     mf.upsertSPAinfo(appInfo)
     appInfo.base=cfg.base
@@ -48,7 +50,42 @@ module.exports = function(passport) {
         cons.log(result.spaURL)
         const payload= {appId: appId, email: email}
         const token =jwt.encode(payload, cfg.apisecrets.geniot)
-        res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
+        res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+      })
+    })  
+  });
+  app.get('/back2app/:appId', isLoggedIn, function(req, res) {
+    //cons.log(req.user)
+    //const appId = mf.getCurrApp()
+    const appId = req.params.appId
+    const email = req.user.userinfo.emailkey
+    AppInfo.findOne({appId: appId}, function(err,result){
+      cons.log(result)
+      var apiURL = result.apiURL+'/api/reg/auth'
+      mf.sendToApi(appId, email, apiURL, function(){
+        cons.log("back from sendToApi")
+        cons.log(result.spaURL)
+        const payload= {appId: appId, email: email}
+        const token =jwt.encode(payload, cfg.apisecrets.geniot)
+        res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+      })
+    })  
+  });
+
+  app.get('/back2app', isLoggedIn, function(req, res) {
+    //cons.log(req.user)
+    //const appId = mf.getCurrApp()
+    const appId = req.user.userinfo.appId
+    const email = req.user.userinfo.emailkey
+    AppInfo.findOne({appId: appId}, function(err,result){
+      //cons.log(result)
+      var apiURL = result.apiURL+'/api/reg/auth'
+      mf.sendToApi(appId, email, apiURL, function(){
+        cons.log("back from sendToApi")
+        cons.log(result.spaURL)
+        const payload= {appId: appId, email: email}
+        const token =jwt.encode(payload, cfg.apisecrets.geniot)
+        res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
       })
     })  
   });
@@ -107,7 +144,7 @@ module.exports = function(passport) {
                     cons.log(result.spaURL)
                     const payload= {appId: appId, email: email}
                     const token =jwt.encode(payload, cfg.apisecrets.geniot)
-                    res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
+                    res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
                   })                
                 }else{
                   //res.end('signup didnt work')
@@ -163,7 +200,7 @@ module.exports = function(passport) {
                 cons.log(result.spaURL)
                 const payload= {appId: appId, email: email}
                 const token =jwt.encode(payload, cfg.apisecrets.geniot)
-                res.redirect(result.spaURL+'#registered?email='+email+'&token='+token);        
+                res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
               })                
             }else{
               //res.end('signup didnt work')
@@ -181,23 +218,41 @@ module.exports = function(passport) {
   // facebook -------------------------------
     // handle the callback after facebook has authenticated the user
     app.get('/auth/facebook/callback', function(req,res,next){
-      //cons.log(req.user)
+      cons.log('in callback')
       passport.authenticate('facebook', {
-        successRedirect : cfg.base+'profile',
+        callbackURL: fbCallback + "?appId=" + req.query.appId,
         failureRedirect : cfg.base+'message'
-      })(req,res,next);
-    });
+      })(req,res,next) }, function(req,res){
+        cons.log('returned from callback')
+        cons.log(req.query.appId)
+        const appId=req.query.appId
+        res.redirect(cfg.base+'back2app/'+appId)
+      });
 
     // send to facebook to do the authentication
     app.get('/auth/facebook/:appId', function(req,res,next){
       mf.setCurrApp(req.params.appId)
       cons.log(req.params.appId)
       //req.appId=req.params.appId
+      var callbackURL = fbCallback + "?appId=" + req.params.appId;
       passport.authenticate(
-        'facebook', { scope : 'email', appId: req.params.appId }
+        'facebook', { scope : 'email', appId: req.params.appId, callbackURL: callbackURL }
       )(req,res,next);
     });
+    // app.get('/auth/facebook/callback',
+    //   passport.authenticate('facebook', {
+    //     successRedirect : cfg.base+'profile',
+    //     failureRedirect : cfg.base+'message'
+    //   }));
 
+    // // send to github to do the authentication
+    // app.get('/auth/facebook/:appId', function(req,res,next){
+    //   //mf.setCurrApp(req.params.appId)
+    //   req.appId = req.params.appId;
+    //   passport.authenticate(
+    //     'facebook', { scope : 'email' }
+    //   )(req,res,next);
+    // });
 
 
   // github -------------------------------
@@ -211,7 +266,8 @@ module.exports = function(passport) {
 
     // send to github to do the authentication
     app.get('/auth/github/:appId', function(req,res,next){
-      mf.setCurrApp(req.params.appId)
+      //mf.setCurrApp(req.params.appId)
+      req.appId = req.params.appId;
       passport.authenticate(
         'github', { scope : 'email' }
       )(req,res,next);

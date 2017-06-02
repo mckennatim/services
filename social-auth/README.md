@@ -1,4 +1,6 @@
 # social-auth
+http://blog.pingzhang.io/javascript/2016/09/22/passport-facebook/
+https://stackoverflow.com/questions/15513427/can-the-callback-for-facebook-pasport-be-dynamically-constructed
 # deploy
 OK 
 

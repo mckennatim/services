@@ -9,6 +9,16 @@ var env = require('../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 //cons.log(process.env)
 //console.log(cfg)
+var referer = 'http://10.0.1.102:7080/spa/tauth_lo?apiURL=http%3A%2F%2F10.0.1.102%3A3332&cbPath=%23registered'
+const parseBetween=(str, fromhere, tohere)=>{
+  var flen=fromhere.length
+  var sstr= str.substring(str.indexOf(fromhere)+flen)
+  var middle= sstr.substring(0, sstr.indexOf(tohere))
+  return middle
+}
+//console.log(parseBetween(referer, '/spa/', '?'))
+
+
 var pmessage='yo what up'
 
 const setMessage = (message)=>{
@@ -225,5 +235,6 @@ module.exports = {
 	processUser: processUser,
   cfg: cfg,
   getMessage: getMessage,
-  setMessage: setMessage
+  setMessage: setMessage,
+  parseBetween: parseBetween
 }
