@@ -1,5 +1,8 @@
 # services
 ## tags
+### 08-social-auth-using cookies
+setin /spa/:appid
+read in /profile
 ### 07-social-auth-redploy-w-query-for-facebook
 
 

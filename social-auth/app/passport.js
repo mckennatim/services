@@ -254,7 +254,7 @@ module.exports = function(passport) {
 	goStrategy.passReqToCallback = true;  // allows us to pass in the req from our route (lets us check if a user is logged in or not)
 	passport.use(new GoogleStrategy(goStrategy,
 		function(req, token, refreshToken, profile, done) {
-			cons.log(req)
+			//cons.log(req)
 			//var appId=mf.parseBetween(req.headers.referer, '/spa/', '?')
 			//var appId='tauth_lo'
 			var email = (profile.emails[0].value || '').toLowerCase()

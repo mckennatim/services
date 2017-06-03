@@ -34,13 +34,24 @@ module.exports = function(passport) {
     mf.upsertSPAinfo(appInfo)
     appInfo.base=cfg.base
     cons.log(appInfo)
+    //res.setHeader('Set-Cookie','appId=fauth'); 
+    res.cookie('appId', req.params.appid, { maxAge: 900000, httpOnly: false});   
     res.render('index.ejs',appInfo);
   });
 
   // PROFILE SECTION =========================
   app.get('/profile', isLoggedIn, function(req, res) {
+    //cons.log(req.cookies.appId)
     //cons.log(req.user)
-    const appId = mf.getCurrApp()
+    //const appId = mf.getCurrApp()
+    var appId
+    if(req.cookies.appId){
+      cons.log('hay cookies')
+      appId = req.cookies.appId
+    }else{
+      cons.log('no hay cookies')
+      appId = mf.getCurrApp()
+    }
     const email = req.user.userinfo.emailkey
     AppInfo.findOne({appId: appId}, function(err,result){
       cons.log(result)
@@ -217,42 +228,42 @@ module.exports = function(passport) {
 
   // facebook -------------------------------
     // handle the callback after facebook has authenticated the user
-    app.get('/auth/facebook/callback', function(req,res,next){
-      cons.log('in callback')
-      passport.authenticate('facebook', {
-        callbackURL: fbCallback + "?appId=" + req.query.appId,
-        failureRedirect : cfg.base+'message'
-      })(req,res,next) }, function(req,res){
-        cons.log('returned from callback')
-        cons.log(req.query.appId)
-        const appId=req.query.appId
-        res.redirect(cfg.base+'back2app/'+appId)
-      });
-
-    // send to facebook to do the authentication
-    app.get('/auth/facebook/:appId', function(req,res,next){
-      //mf.setCurrApp(req.params.appId)
-      cons.log(req.params.appId)
-      //req.appId=req.params.appId
-      var callbackURL = fbCallback + "?appId=" + req.params.appId;
-      passport.authenticate(
-        'facebook', { scope : 'email', appId: req.params.appId, callbackURL: callbackURL }
-      )(req,res,next);
-    });
-    // app.get('/auth/facebook/callback',
+    // app.get('/auth/facebook/callback', function(req,res,next){
+    //   cons.log('in callback')
     //   passport.authenticate('facebook', {
-    //     successRedirect : cfg.base+'profile',
+    //     callbackURL: fbCallback + "?appId=" + req.query.appId,
     //     failureRedirect : cfg.base+'message'
-    //   }));
+    //   })(req,res,next) }, function(req,res){
+    //     cons.log('returned from callback')
+    //     cons.log(req.query.appId)
+    //     const appId=req.query.appId
+    //     res.redirect(cfg.base+'back2app/'+appId)
+    //   });
 
-    // // send to github to do the authentication
+    // // send to facebook to do the authentication
     // app.get('/auth/facebook/:appId', function(req,res,next){
     //   //mf.setCurrApp(req.params.appId)
-    //   req.appId = req.params.appId;
+    //   cons.log(req.params.appId)
+    //   //req.appId=req.params.appId
+    //   var callbackURL = fbCallback + "?appId=" + req.params.appId;
     //   passport.authenticate(
-    //     'facebook', { scope : 'email' }
+    //     'facebook', { scope : 'email', appId: req.params.appId, callbackURL: callbackURL }
     //   )(req,res,next);
     // });
+    app.get('/auth/facebook/callback',
+      passport.authenticate('facebook', {
+        successRedirect : cfg.base+'profile',
+        failureRedirect : cfg.base+'message'
+      }));
+
+    // send to github to do the authentication
+    app.get('/auth/facebook/:appId', function(req,res,next){
+      //mf.setCurrApp(req.params.appId)
+      req.appId = req.params.appId;
+      passport.authenticate(
+        'facebook', { scope : 'email' }
+      )(req,res,next);
+    });
 
 
   // github -------------------------------
