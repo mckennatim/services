@@ -1,6 +1,7 @@
 # services
 ## tags
-### 08-social-auth-using cookies
+### 09-geniot-bearerToken-dedata/dev+apps
+### 08-social-auth-using-cookies
 setin /spa/:appid
 read in /profile
 ### 07-social-auth-redploy-w-query-for-facebook

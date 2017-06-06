@@ -19,4 +19,6 @@ var devicesSchema = new Schema({
 	}
 }, { strict: false });
 
-module.exports = mongoose.model('Device', devicesSchema);
+var dModel = mongoose.model('Device', devicesSchema);
+
+module.exports = dModel;
