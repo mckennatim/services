@@ -1,8 +1,8 @@
 var mosca = require('mosca')
-var env = require('../../../env.json')
+var env = require('./env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 var currentPacket = {dog: "uli"};
-var sched =require('../schedule/schedutil')
+var sched =require('./sched')
 
 var pubsubsettings = {
   //using ascoltatore
@@ -23,7 +23,9 @@ moserver.on('ready', setup);  //on init it fires up setup()
 
 // fired when the mqtt server is ready
 function setup() {
-  console.log('Mosca server is up and running from')
+  console.log('Mosca server is up and running')
+  console.log('device mqtt running on port '+cfg.port.mqtt)
+  console.log('browser mqtt over ws port '+cfg.port.ws)
 }
 moserver.published = function(packet, client, cb) {
   if (packet.topic.indexOf('echo') === 0) {

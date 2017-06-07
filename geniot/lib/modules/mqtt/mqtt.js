@@ -22,7 +22,7 @@ moserver.on('ready', setup);  //on init it fires up setup()
 
 // fired when the mqtt server is ready
 function setup() {
-  console.log('Mosca server is up and running')
+  console.log('Mosca server is up and running from mqtt')
 }
 moserver.published = function(packet, client, cb) {
   if (packet.topic.indexOf('echo') === 0) {
