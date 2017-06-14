@@ -56,50 +56,58 @@ module.exports = function(passport) {
     AppInfo.findOne({appId: appId}, function(err,result){
       cons.log(result)
       var apiURL = result.apiURL+'/api/reg/auth'
-      mf.sendToApi(appId, email, apiURL, function(){
-        cons.log("back from sendToApi")
-        cons.log(result.spaURL)
-        const payload= {appId: appId, email: email}
-        const token =jwt.encode(payload, cfg.apisecrets.geniot)
-        res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+      mf.sendToApi(appId, email, apiURL, function(message){
+        var cburl = result.spaURL+result.cbPath
+        cons.log(message)
+        mf.sendToSpa(cburl, appId, email, message, res)        
+        // cons.log(message)
+        // if(message.auth){
+        //   cons.log("back from sendToApi in signup")
+        //   cons.log(result.spaURL)
+        //   const payload= {appId: appId, email: email}
+        //   const token =jwt.encode(payload, cfg.apisecrets.geniot)
+        //   res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+        // }else{
+        //   res.render('message.ejs', message);
+        // }        
       })
     })  
   });
-  app.get('/back2app/:appId', isLoggedIn, function(req, res) {
-    //cons.log(req.user)
-    //const appId = mf.getCurrApp()
-    const appId = req.params.appId
-    const email = req.user.userinfo.emailkey
-    AppInfo.findOne({appId: appId}, function(err,result){
-      cons.log(result)
-      var apiURL = result.apiURL+'/api/reg/auth'
-      mf.sendToApi(appId, email, apiURL, function(){
-        cons.log("back from sendToApi")
-        cons.log(result.spaURL)
-        const payload= {appId: appId, email: email}
-        const token =jwt.encode(payload, cfg.apisecrets.geniot)
-        res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
-      })
-    })  
-  });
+  // app.get('/back2app/:appId', isLoggedIn, function(req, res) {
+  //   //cons.log(req.user)
+  //   //const appId = mf.getCurrApp()
+  //   const appId = req.params.appId
+  //   const email = req.user.userinfo.emailkey
+  //   AppInfo.findOne({appId: appId}, function(err,result){
+  //     cons.log(result)
+  //     var apiURL = result.apiURL+'/api/reg/auth'
+  //     mf.sendToApi(appId, email, apiURL, function(){
+  //       cons.log("back from sendToApi back2app/:appId")
+  //       cons.log(result.spaURL)
+  //       const payload= {appId: appId, email: email}
+  //       const token =jwt.encode(payload, cfg.apisecrets.geniot)
+  //       res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+  //     })
+  //   })  
+  // });
 
-  app.get('/back2app', isLoggedIn, function(req, res) {
-    //cons.log(req.user)
-    //const appId = mf.getCurrApp()
-    const appId = req.user.userinfo.appId
-    const email = req.user.userinfo.emailkey
-    AppInfo.findOne({appId: appId}, function(err,result){
-      //cons.log(result)
-      var apiURL = result.apiURL+'/api/reg/auth'
-      mf.sendToApi(appId, email, apiURL, function(){
-        cons.log("back from sendToApi")
-        cons.log(result.spaURL)
-        const payload= {appId: appId, email: email}
-        const token =jwt.encode(payload, cfg.apisecrets.geniot)
-        res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
-      })
-    })  
-  });
+  // app.get('/back2app', isLoggedIn, function(req, res) {
+  //   //cons.log(req.user)
+  //   //const appId = mf.getCurrApp()
+  //   const appId = req.user.userinfo.appId
+  //   const email = req.user.userinfo.emailkey
+  //   AppInfo.findOne({appId: appId}, function(err,result){
+  //     //cons.log(result)
+  //     var apiURL = result.apiURL+'/api/reg/auth'
+  //     mf.sendToApi(appId, email, apiURL, function(){
+  //       cons.log("back from sendToApi back2app")
+  //       cons.log(result.spaURL)
+  //       const payload= {appId: appId, email: email}
+  //       const token =jwt.encode(payload, cfg.apisecrets.geniot)
+  //       res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+  //     })
+  //   })  
+  // });
 
   // LOGOUT ==============================
   app.get('/logout', function(req, res) {
@@ -150,12 +158,22 @@ module.exports = function(passport) {
                 cons.log(result)
                 var apiURL = result.apiURL+'/api/reg/auth'
                 if(mf.get('result.spaURL', result)){
-                  mf.sendToApi(appId, email, apiURL, function(){
-                    cons.log("back from sendToApi")
-                    cons.log(result.spaURL)
-                    const payload= {appId: appId, email: email}
-                    const token =jwt.encode(payload, cfg.apisecrets.geniot)
-                    res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+                  mf.sendToApi(appId, email, apiURL, function(message){
+                    var cburl = result.spaURL+result.cbPath
+                    cons.log(message)
+                    mf.sendToSpa(cburl, appId, email, message, res)
+                    // cons.log(message)
+                    // if(message.auth){
+                    //   cons.log("back from sendToApi in signup")
+                    //   cons.log(result.spaURL)
+                    //   const payload= {appId: appId, email: email}
+                    //   const token =jwt.encode(payload, cfg.apisecrets.geniot)
+                    //   res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+                    // }else{
+                    //   var qmess =encodeURIComponent(message.message)
+                    //   cons.log(qmess)
+                    //   res.render('message.ejs', message);
+                    // }        
                   })                
                 }else{
                   //res.end('signup didnt work')
@@ -206,12 +224,20 @@ module.exports = function(passport) {
             cons.log(result)
             var apiURL = result.apiURL+'/api/reg/auth'
             if(mf.get('result.spaURL', result)){
-              mf.sendToApi(appId, email, apiURL, function(){
-                cons.log("back from sendToApi")
-                cons.log(result.spaURL)
-                const payload= {appId: appId, email: email}
-                const token =jwt.encode(payload, cfg.apisecrets.geniot)
-                res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+              mf.sendToApi(appId, email, apiURL, function(message){
+                var cburl = result.spaURL+result.cbPath
+                cons.log(message)
+                mf.sendToSpa(cburl, appId, email, message, res)                
+                // cons.log(message)
+                // if(message.auth){
+                //   cons.log("back from sendToApi in signup")
+                //   cons.log(result.spaURL)
+                //   const payload= {appId: appId, email: email}
+                //   const token =jwt.encode(payload, cfg.apisecrets.geniot)
+                //   res.redirect(result.spaURL+result.cbPath+'?email='+email+'&token='+token);        
+                // }else{
+                //   res.render('message.ejs', message);
+                // }
               })                
             }else{
               //res.end('signup didnt work')

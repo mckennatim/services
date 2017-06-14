@@ -1,5 +1,14 @@
 # services
 ## tags
+### 12-IOTexpress-tells-social-auth-no
+Where are tables populated from?
+In theory..
+* unauthorized users can be created by either the superuser or the owner of a device.
+* once they log in then they are authorized
+* devices are added by the super and given to an owner. At the same time the owner is added to `devuserapp` for that device and each of its apps.
+* anybody can try an app and if they are not registered, they can register. When they come back from registering and are authenticated as who they be, if they are not authorized for that app then they won't be able to use it
+* putting it another way... `tim@sitebuilt.net` wants to use `pahoRawLo` on the `CYURD007`. `social-auth` enters a record with appid and userid no matter what!!! Is that right??? No, it should only continue with the registration if that user and that app is already registered for some device. If not, `social-auth` should fail!!!  It shouldn't return a token to the spa!!! Spa should deal with it. Maybe spa lets anybody observe the device from that app??? Maybe there is an `observer` role for listed users and an `any` role for anybody to observe???  <s>He can because he is the owner and has had an `devuserapp` record entered for that app and device.</s>
+
 ### 11-IOTbroker-dbAuth
 broker will authenticate with client.id using username=(owner or user) and passwork=(devpwd or token)
 ### 10-IOTbroker_IOTexpress-insteadof-geniot

@@ -46,19 +46,28 @@ module.exports = function() {
 			  	console.log(results.insertId);
 			  }
 			})
-			res.jsonp({message: 'authenticated a superuser'});
+			res.jsonp({auth:true, message: 'authenticated a superuser'});
 		}else{
-			//see if there are any apps/devices for that user or tell them they are shit outa luck and should contact the bossman to add your email to the system, meeanwhile you can put them in with no apps or devices or auth
-			conn.query('SELECT * FROM devuserapp  WHERE userid = ?', payload.email, function (error, results, fields) {
+			//see if there are any apps/devices for that user or tell them they are shit outa luck and should contact the bossman to add your email to the system. If there is a record(s) for the user/appid then make auth true for them. If not have them ask to be added. 
+			conn.query('SELECT * FROM devuserapp  WHERE userid = ? AND appid = ?', [payload.email, payload.appId], function (error, results, fields) {
 				if(results.length==0){
-					var ins4 = {userid: payload.email, appid: payload.appId, auth: true }
-					conn.query('INSERT INTO devuserapp SET ? ', ins4 , function (error, results, fields){
-							res.jsonp({message: 'added a new user'});
-						})
+					var mes = {auth:false, message: 'not approved, contact device owner'}
+					cons.log(mes)
+					res.jsonp(mes);
 				}else{
-					res.jsonp({message: 'user exists'});
+					//ok we will auth you for this app for whatever devices
+					var ins4 = {userid: payload.email, appid: payload.appId}
+					var query = conn.query("UPDATE devuserapp SET auth= true WHERE userid = ? AND appid = ?", [payload.email, payload.appId] , function (error, results, fields){
+						cons.log(query.sql)
+						cons.log(error)
+						if(error){
+							res.jsonp({auth:false, message: 'Sorry, database error '+ error.code +' occured.'});
+						}else{
+							cons.log(results)
+							res.jsonp({auth:true, message: payload.email +' is authorized for ' + payload.appId});
+						}
+					})					
 				}
-
 			})
 		}
 	})

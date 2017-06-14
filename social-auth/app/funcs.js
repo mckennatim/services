@@ -44,10 +44,23 @@ const sendToApi=(appId, email, apiURL, callback)=>{
     .post(apiURL)
     .send({token: token})
     .end(function(e, res){
-      cons.log(res.body)
-      callback()
+      //cons.log(res.body)
+      callback(res.body)
     })
   // setTimeout(callback, 2000)
+}
+
+const sendToSpa=(cburl,appId,email,message,res)=>{
+  cons.log(message)
+  if(message.auth){
+    const payload= {appId: appId, email: email}
+    const token =jwt.encode(payload, cfg.apisecrets.geniot)
+    res.redirect(cburl+'?email='+email+'&token='+token);        
+  }else{
+    var qmess =encodeURIComponent(message.message)
+    cons.log(qmess)
+    res.redirect(cburl+'?email='+email+'&message='+qmess); 
+  }
 }
 
 const getCurrApp=()=>{
@@ -137,11 +150,11 @@ const emailApikey = (apikey, email, appId, baseURL, callback) =>{
   var ret=""
   smtpTransport.sendMail(mailOptions, function(error, response){
       if(error){
-              console.log(error);
-              ret = error;
+        console.log(error);
+        ret = error;
       }else{
-              console.log("Message sent: " + response.message);
-              ret = {message: 'check your email and come back'} 
+        console.log("Message sent: " + response.message);
+        ret = {message: 'check your email and come back'} 
       }
       smtpTransport.close(); // shut down the connection pool, no more messages
       console.log(ret)
@@ -227,6 +240,7 @@ const processUser = (reqbody, baseURL, done)=>{
 
 module.exports = {
   sendToApi: sendToApi,
+  sendToSpa: sendToSpa,
 	upsertSPAinfo: upsertSPAinfo,
 	getCurrApp: getCurrApp,
 	setCurrApp: setCurrApp,
