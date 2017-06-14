@@ -30,7 +30,7 @@ const getMessage =()=>pmessage
 const sendToApi=(appId, email, apiURL, callback)=>{
   cons.log(appId)
   cons.log(email)
-  var expmin = cfg.apps[appId].expdays*24 
+  var expmin = (get('cfg.apps[appId].expdays',cfg)||0.5)*24 
   var data = {
     appId: appId, 
     email: email,

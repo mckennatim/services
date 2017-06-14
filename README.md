@@ -1,6 +1,21 @@
 # services
 ## tags
+### 11-IOTbroker-dbAuth
+broker will authenticate with client.id using username=(owner or user) and passwork=(devpwd or token)
 ### 10-IOTbroker_IOTexpress-insteadof-geniot
+todo-levels of authentication
+FIX social-auth so expdays comes from spa app
+
+* you get userName via `authenticate` on connection
+* the topic `set` needs to be restricted from all users and can only be published from server
+* clients can only subscribe and publish to/from devices in their `devappuser` records
+* some clients are only observers and cant change shit. This should be done somehow through the server (they can only req)
+
+dbAuth -two kinds of client.id's, device.id or appid.
+
+* devid.id  uses Devices, database for auth
+* appid uses devusersapps for auth
+
 
 ### 09-geniot-bearerToken-dedata/dev+apps
 ### 08-social-auth-using-cookies

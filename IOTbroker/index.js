@@ -1,6 +1,7 @@
 var mosca = require('mosca')
-var env = require('./env.json')
-var cfg= env[process.env.NODE_ENV||'development']
+var my=require('./mysqldb')
+var cfg= my.cfg
+//console.log(cfg.mysql)
 var currentPacket = {dog: "uli"};
 var sched =require('./sched')
 
@@ -20,12 +21,35 @@ var moscaSettings = {
 
 var moserver = new mosca.Server(moscaSettings);   //here we start mosca
 moserver.on('ready', setup);  //on init it fires up setup()
-
+moserver.on('clientConnected', function(client) {
+    console.log('client connected', client.id);
+    //console.log(client)
+});
+var authenticate = function(client, username, password, callback) {
+  console.log(client.id)
+  my.dbAuth(client.id, username,password.toString(), function(authorized){
+    console.log('authorized = ', authorized)
+    if (authorized) client.user = username;
+    console.log(client.user)
+    callback(null, authorized);
+  })
+  //var authorized = (username === 'tim@sitebuilt.net' && password.toString() === 'freddy');
+}
+var authorizePublish = function(client, topic, payload, callback) {
+  callback(null, true);
+}
+var authorizeSubscribe = function(client, topic, callback) {
+  callback(null, true);
+}
 // fired when the mqtt server is ready
 function setup() {
+  moserver.authenticate = authenticate;
+  moserver.authorizePublish = authorizePublish;
+  moserver.authorizeSubscribe = authorizeSubscribe;
   console.log('Mosca server is up and running')
   console.log('device mqtt running on port '+cfg.port.mqtt)
   console.log('browser mqtt over ws port '+cfg.port.ws)
+
 }
 moserver.published = function(packet, client, cb) {
   if (packet.topic.indexOf('echo') === 0) {
