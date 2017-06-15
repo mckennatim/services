@@ -1,5 +1,21 @@
 # services
 ## tags
+### 13-IOTbroker-connect-auth
+https://github.com/mcollina/mosca/wiki/Authentication-&-Authorization
+two types: if client starts with 'CY' then it is a device else client
+
+    const dbAuth = (client, username,password, cb)=>{
+        console.log(client.id, username, password)
+        if(client.id.substr(0,2)=="CY"){
+
+You can add data to a client but I ended up not using it `(35)client.appId= tokdata.appId` instead I get it from client.id ala `var appId = client.id.split('0.')[0]`. 
+
+For publishing I don't know, to handle observer case maybe just need to block certain topics TBD.
+
+client.connect sends username and token, simple is authenticate, harder is authorize.
+
+For subscribing, if its a device then go ahead subscribe. It ita a client then check for auth in `devuserapp` in `dbPubSub`. 
+
 ### 12-IOTexpress-tells-social-auth-no
 Where are tables populated from?
 In theory..

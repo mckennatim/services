@@ -1,4 +1,5 @@
 var mosca = require('mosca')
+var cons = require('tracer').console();
 var my=require('./mysqldb')
 var cfg= my.cfg
 //console.log(cfg.mysql)
@@ -27,9 +28,11 @@ moserver.on('clientConnected', function(client) {
 });
 var authenticate = function(client, username, password, callback) {
   console.log(client.id)
-  my.dbAuth(client.id, username,password.toString(), function(authorized){
-    console.log('authorized = ', authorized)
-    if (authorized) client.user = username;
+  my.dbAuth(client, username,password.toString(), function(authorized){
+    console.log('authorized = ', authorized, ',appid = '+ client.appId)
+    if (authorized) {
+      client.user = username;
+    }
     console.log(client.user)
     callback(null, authorized);
   })
@@ -39,7 +42,18 @@ var authorizePublish = function(client, topic, payload, callback) {
   callback(null, true);
 }
 var authorizeSubscribe = function(client, topic, callback) {
-  callback(null, true);
+  var dev = topic.split('/')[0]
+  var appId = client.id.split('0.')[0]
+  cons.log(client.id, appId, client.appId, dev, client.user)
+  if(client.id==dev){
+    callback(null,true)
+  }else{
+    var winp = [dev,appId,client.user]
+    my.dbSubscr(winp, function(cb){
+      console.log(cb)
+      callback(null, cb);      
+    })
+  }
 }
 // fired when the mqtt server is ready
 function setup() {
