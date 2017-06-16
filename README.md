@@ -1,5 +1,25 @@
 # services
 ## tags
+### 14-IOTbroker-authorizePublish
+Regarding `authorizePublish` if device its OK. For clients, return false for `cmd` and `prg` when role= `obs` or `any`.
+            
+    if(res.role=='obs' || res.role=='any'){
+        cb(false)
+    }
+
+    if(cb){
+        callback(null, cb);
+    }else{
+        if(topic=='cmd' || topic=='prg'){
+          callback(null, cb);
+        }else{
+          callback(null,true)
+        }
+    }
+
+
+
+
 ### 13-IOTbroker-connect-auth
 https://github.com/mcollina/mosca/wiki/Authentication-&-Authorization
 two types: if client starts with 'CY' then it is a device else client

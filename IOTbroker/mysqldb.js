@@ -27,22 +27,26 @@ const dbAuth = (client, username,password, cb)=>{
 	}else{
 		cons.log('is a client')
 		var clientid= client.id.split('0.')[0]
-		var tokdata = jwt.decode(password, cfg.secret)
-		cons.log(clientid)
-		cons.log(username)
-		cons.log(tokdata)
-		if(tokdata.appId==clientid && tokdata.email==username){
-			cons.log('should be true')
-			client.appId= tokdata.appId
-			cons.log(client.appId)
-			cb(true)
+		if(password){
+			var tokdata = jwt.decode(password, cfg.secret)
+			cons.log(clientid)
+			cons.log(username)
+			cons.log(tokdata)
+			if(tokdata.appId==clientid && tokdata.email==username){
+				cons.log('should be true')
+				client.appId= tokdata.appId
+				cons.log(client.appId)
+				cb(true)
+			}else{
+				cb(false)
+			}
 		}else{
 			cb(false)
 		}
 	}
 }
 
-const dbPubSub=(inp, cb)=>{
+const dbSubscr=(inp, cb)=>{
   var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
     cons.log(query.sql)
     cons.log(results[0])
@@ -59,9 +63,28 @@ const dbPubSub=(inp, cb)=>{
   })	
 }
 
+const dbPublish=(inp, cb)=>{
+  var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
+    cons.log(query.sql)
+    cons.log(results[0])
+		if(error){
+			cb(false)
+		}else {
+			var res = results[0];
+			cons.log(res)
+			if(res.role=='obs' || res.role=='any'){
+				cb(false)
+			} else {
+				cb(true)
+			}
+		}    
+  })	
+}
+
 module.exports = {
 	cfg: cfg,
 	conn: conn,
 	dbAuth: dbAuth,
-	dbPubSub: dbPubSub
+	dbSubscr: dbSubscr,
+	dbPublish: dbPublish
 }

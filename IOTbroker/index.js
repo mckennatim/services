@@ -38,9 +38,30 @@ var authenticate = function(client, username, password, callback) {
   })
   //var authorized = (username === 'tim@sitebuilt.net' && password.toString() === 'freddy');
 }
+
 var authorizePublish = function(client, topic, payload, callback) {
-  callback(null, true);
+  var dev = topic.split('/')[0]
+  var topic = topic.split('/')[1]
+  var appId = client.id.split('0.')[0]
+  cons.log(client.id, appId, client.appId, dev, client.user)
+  if(client.id==dev || dev=='presence'){
+    callback(null,true)
+  }else{
+    var winp = [dev,appId,client.user]
+    my.dbPublish(winp, function(cb){
+      if(cb){
+        callback(null, cb);
+      }else{
+        if(topic=='cmd' || topic=='prg'){
+          callback(null, cb);
+        }else{
+          callback(null,true)
+        }
+      }
+    })
+  }
 }
+
 var authorizeSubscribe = function(client, topic, callback) {
   var dev = topic.split('/')[0]
   var appId = client.id.split('0.')[0]
