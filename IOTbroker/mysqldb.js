@@ -1,10 +1,13 @@
 var mysql      = require('mysql');
 var jwt = require('jwt-simple');
 var cons = require('tracer').console();
+var ut = require('./utility')
 var env = require('./env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 //console.log(cfg.mysql)
 var conn = mysql.createConnection(cfg.mysql);
+
+//cons.log(ut.cfg)
 
 const dbAuth = (client, username,password, cb)=>{
 	console.log(client.id, username, password)
@@ -17,7 +20,7 @@ const dbAuth = (client, username,password, cb)=>{
 				cb(false)
 			}else {
 				var res = results[0];
-				if(res.devid==client.id && res.owner==username && res.devpwd==password){
+				if(ut.get('res.devid',res)==client.id && ut.get('res.owner',res)==username && ut.get('res.devpwd',res)==password){
 					cb(true)
 				} else {
 					cb(false)
@@ -45,40 +48,75 @@ const dbAuth = (client, username,password, cb)=>{
 		}
 	}
 }
-
+var mcache={inp:["", "", ""], res:false}
 const dbSubscr=(inp, cb)=>{
+	//cons.log(mcache.inp)
+	if(inp.every((v,i)=>v===mcache.inp[i])){
+		//cons.log('using CACHE')
+		cb(mcache.res)
+		return
+	}
   var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
     cons.log(query.sql)
-    cons.log(results[0])
+    //cons.log(results[0])
+    var cbv=false
 		if(error){
-			cb(false)
+			cbv= false
 		}else {
 			var res = results[0];
-			if(res.auth){
-				cb(true)
+			if(ut.get('res.auth', res)){
+				cbv=true
 			} else {
-				cb(false)
+				cbv=false
 			}
-		}    
+		}
+		mcache.inp = inp.slice()
+		mcache.res = cbv
+		cb(cbv)    
   })	
 }
 
+var pcache={inp:["", "", ""], res:false}
 const dbPublish=(inp, cb)=>{
+	//cons.log(pcache.inp)
+	if(inp.every((v,i)=>v===pcache.inp[i])){
+		//cons.log('using CACHE')
+		cb(pcache.res)
+		return
+	}
   var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
     cons.log(query.sql)
-    cons.log(results[0])
+    var cbv=false
 		if(error){
-			cb(false)
+			cbv=false
 		}else {
 			var res = results[0];
 			cons.log(res)
-			if(res.role=='obs' || res.role=='any'){
-				cb(false)
+			if(ut.get('res.role',res)=='obs' || ut.get('res.role', res)=='any'){
+				cbv=false
 			} else {
-				cb(true)
+				cbv=true
 			}
-		}    
+		}
+		pcache.inp = inp.slice()
+		pcache.res = cbv
+		cb(cbv)  		    
   })	
+}
+
+const dbPubSet=(inp,cb)=>{
+	var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND userid=? and role= 'admin'", inp, function(error,results,fields){
+		if(error){
+			cb(false)
+		}else {
+			cons.log(results)
+			if(results.length>0){
+				cb(true)
+			}else{
+				cb(false)
+			}
+		}	
+	})
 }
 
 module.exports = {
@@ -86,5 +124,6 @@ module.exports = {
 	conn: conn,
 	dbAuth: dbAuth,
 	dbSubscr: dbSubscr,
-	dbPublish: dbPublish
+	dbPublish: dbPublish,
+	dbPubSet: dbPubSet
 }

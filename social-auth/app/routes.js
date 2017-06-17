@@ -55,7 +55,7 @@ module.exports = function(passport) {
     const email = req.user.userinfo.emailkey
     AppInfo.findOne({appId: appId}, function(err,result){
       cons.log(result)
-      var apiURL = result.apiURL+'/api/reg/auth'
+      var apiURL = result.apiURL+'/reg/auth'
       mf.sendToApi(appId, email, apiURL, function(message){
         var cburl = result.spaURL+result.cbPath
         cons.log(message)

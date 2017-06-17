@@ -1,6 +1,12 @@
 # services
 ## tags
+### 15-added-new-device
+both admind and pahoRaw can register
 ### 14-IOTbroker-authorizePublish
+take2
+callback true unless topic is prg or cmd
+
+
 Regarding `authorizePublish` if device its OK. For clients, return false for `cmd` and `prg` when role= `obs` or `any`.
             
     if(res.role=='obs' || res.role=='any'){

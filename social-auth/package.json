@@ -6,7 +6,8 @@
     "dev": "export NODE_ENV=development&&nodemon -e .ejs,.js,.json server.js",
     "proddev": "export NODE_ENV=production&&nodemon -e .ejs,.js,.json server.js",
     "localprod": "set NODE_ENV=production&&nodemon -e .ejs,.js,.json server.js",
-    "localdev": "set NODE_ENV=development&&nodemon -e .ejs,.js,.json server.js"
+    "localdev": "set NODE_ENV=development&&nodemon -e .ejs,.js,.json server.js",
+    "start": "set NODE_ENV=development&&nodemon -e .ejs,.js,.json server.js"
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
