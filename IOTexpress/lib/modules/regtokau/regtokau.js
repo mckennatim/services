@@ -22,24 +22,24 @@ module.exports = function() {
 			//if you are a superuser add if no there the superuser records
 			const superdev = "CYURD14I"
 			cons.log('your are a superuser')
-			var ins = {devid: superdev, userid: payload.email, appid: 'superapp', role:'super', auth: true }
-			var ins2 = {devid: superdev, userid: payload.email, appid: 'admin', role:'admin', auth: true }
-			var ins3 = {devid: superdev, userid: payload.email, appid: payload.appId, role:'admin', auth: true }
-			conn.query('INSERT INTO devuserapp SET ?', ins , function (error, results, fields) {
+			var ins = {devid: superdev, userid:  payload.email, bizid:'sbs', appid: 'superapp', role:'super', auth: true }
+			var ins2 = {devid: superdev, userid: payload.email, bizid:'sbs', appid: 'admin', role:'admin', auth: true }
+			var ins3 = {devid: superdev, userid: payload.email, bizid:'sbs', appid: payload.appId, role:'admin', auth: true }
+			conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ins,ins] , function (error, results, fields) {
 			  if(error) {
 			  	console.log(error.code)
 			  }else {
 			  	console.log(results.insertId);
 			  }
 			})
-			conn.query('INSERT INTO devuserapp SET ?', ins2 , function (error, results, fields) {
+			conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ins2,ins2] , function (error, results, fields) {
 			  if(error) {
 			  	console.log(error.code)
 			  }else {
 			  	console.log(results.insertId);
 			  }
 			})
-			conn.query('INSERT INTO devuserapp SET ?', ins3 , function (error, results, fields) {
+			conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ins3,ins3] , function (error, results, fields) {
 			  if(error) {
 			  	console.log(error.code)
 			  }else {

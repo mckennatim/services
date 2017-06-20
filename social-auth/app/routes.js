@@ -156,7 +156,7 @@ module.exports = function(passport) {
               var email = req.params.email
               AppInfo.findOne({appId: appId}, function(err,result){
                 cons.log(result)
-                var apiURL = result.apiURL+'/api/reg/auth'
+                var apiURL = result.apiURL+'/reg/auth'
                 if(mf.get('result.spaURL', result)){
                   mf.sendToApi(appId, email, apiURL, function(message){
                     var cburl = result.spaURL+result.cbPath
@@ -222,7 +222,7 @@ module.exports = function(passport) {
           const email = req.body.email
           AppInfo.findOne({appId: appId}, function(err,result){
             cons.log(result)
-            var apiURL = result.apiURL+'/api/reg/auth'
+            var apiURL = result.apiURL+'/reg/auth'
             if(mf.get('result.spaURL', result)){
               mf.sendToApi(appId, email, apiURL, function(message){
                 var cburl = result.spaURL+result.cbPath

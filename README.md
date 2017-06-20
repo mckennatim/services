@@ -1,5 +1,7 @@
 # services
 ## tags
+### 16-IOTexpress-regotoku-IOTbroker-super
+fixes super duplicates, and makes super authorized
 ### 15-added-new-device
 both admind and pahoRaw can register
 ### 14-IOTbroker-authorizePublish

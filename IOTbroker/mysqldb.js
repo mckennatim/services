@@ -49,8 +49,12 @@ const dbAuth = (client, username,password, cb)=>{
 	}
 }
 var mcache={inp:["", "", ""], res:false}
+
 const dbSubscr=(inp, cb)=>{
-	//cons.log(mcache.inp)
+	if(inp[2]==cfg.super){
+		cb(true)
+		return
+	}
 	if(inp.every((v,i)=>v===mcache.inp[i])){
 		//cons.log('using CACHE')
 		cb(mcache.res)
@@ -78,7 +82,10 @@ const dbSubscr=(inp, cb)=>{
 
 var pcache={inp:["", "", ""], res:false}
 const dbPublish=(inp, cb)=>{
-	//cons.log(pcache.inp)
+	if(inp[2]==cfg.super){
+		cb(true)
+		return
+	}	
 	if(inp.every((v,i)=>v===pcache.inp[i])){
 		//cons.log('using CACHE')
 		cb(pcache.res)
@@ -119,11 +126,19 @@ const dbPubSet=(inp,cb)=>{
 	})
 }
 
+const dbGetTimezone=(devId, cb)=>{
+	var query=conn.query("SELECT timezone FROM devices WHERE devid=?", devId, function(error,results,fields){
+		cons.log(results[0].timezone)
+		cb(results[0].timezone)
+	})
+}
+
 module.exports = {
 	cfg: cfg,
 	conn: conn,
 	dbAuth: dbAuth,
 	dbSubscr: dbSubscr,
 	dbPublish: dbPublish,
-	dbPubSet: dbPubSet
+	dbPubSet: dbPubSet,
+	dbGetTimezone: dbGetTimezone
 }
