@@ -22,7 +22,7 @@ module.exports = function() {
 			//if you are a superuser add if no there the superuser records
 			const superdev = "CYURD14I"
 			cons.log('your are a superuser')
-			var ins = {devid: superdev, userid:  payload.email, bizid:'sbs', appid: 'superapp', role:'super', auth: true }
+			var ins = {devid: superdev, userid:  payload.email, bizid:'sbs', appid: 'super', role:'super', auth: true }
 			var ins2 = {devid: superdev, userid: payload.email, bizid:'sbs', appid: 'admin', role:'admin', auth: true }
 			var ins3 = {devid: superdev, userid: payload.email, bizid:'sbs', appid: payload.appId, role:'admin', auth: true }
 			conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ins,ins] , function (error, results, fields) {

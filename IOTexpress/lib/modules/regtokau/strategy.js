@@ -4,10 +4,16 @@ var cons = require('tracer').console();
 // var env = require('../../../env.json')
 // var cfg= env[process.env.NODE_ENV||'development']
 var cfg = require('../../utilities').cfg
+var get = require('../../utilities').get
 var conn = require('../../db/mysqldb')
 
 
 var bearerToken = function(req,res, next){
+	if(!get('req.headers.authorization', req)){
+		req.userTok = {auth: false, message: "no authorization header", emailId: ""}
+		next()
+		return
+	}
 	var toka = req.headers.authorization.split(' ')
 	cons.log(toka[1])
 	try { 
@@ -21,7 +27,8 @@ var bearerToken = function(req,res, next){
 	} 
 	//cons.log(tokdata)
 	var retu = 'duch'
-	conn.query('SELECT d.userid, d.devid, e.description as devdesc, d.bizid, d.appid,  a.desc as appdesc, d.role, d.auth FROM `devuserapp` d LEFT JOIN `devices` e ON d.devid=e.devid LEFT JOIN `apps` a ON d.appid=a.appid WHERE d.userid= ?', tokdata.email, function (error, results, fields) {
+	var q= conn.query('SELECT userid, devid FROM devuserapp WHERE userid= ?', tokdata.email, function (error, results, fields) {
+		cons.log(q.sql)
 		if (error){
 			cons.log(error.message)
 			req.userTok = {auth: false, message: error.message}
@@ -39,12 +46,7 @@ var bearerToken = function(req,res, next){
 				req.userTok = {auth: true, message: 'no apps', emailId: tokdata.email}
 				next()
 			}else{
-				var resu =[]
-				results.map((result)=>{
-					resu.push(Object.assign({}, result))
-				})
-				cons.log('should be returning results')
-				req.userTok = {auth: true, message: 'user has apps', apps: resu, emailId: tokdata.email}
+				req.userTok = {auth: true, message: 'user has apps', emailId: tokdata.email}
 				next()
 			}
 		}else{

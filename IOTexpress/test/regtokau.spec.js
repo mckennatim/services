@@ -75,7 +75,7 @@ describe('dedata token protected routes', function() {
 			.get(url)
 			.set('Authorization', 'Bearer ' + token)
 			.end(function(e, res) {
-				//console.log(res.body)
+				console.log(res.body)
 				expect(true).to.be(true);
 				done()
 			})
