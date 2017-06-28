@@ -1,6 +1,19 @@
 other sql files...
 /tmstack/hsc/sql/sql.sql
 
+DROP TABLE IF EXISTS `scheds`;
+CREATE TABLE `scheds` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `devid` varchar(30) NOT NULL,
+  `dow` int(2) NOT NULL,
+  `senrel` int(2) NOT NULL,
+  `sched` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `devid` (`devid`),
+  KEY `dow` (`dow`),
+  KEY `senrel` (`senrel`),
+  UNIQUE KEY `main` (`devid`, `dow`, `senrel`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1000 ;
 
 CREATE TABLE IF NOT EXISTS `bizapp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

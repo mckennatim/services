@@ -1,4 +1,5 @@
 var moment = require('moment-timezone');
+var cons = require('tracer').console();
 var my=require('./mysqldb')
 
 //console.log(moment.tz.names())
@@ -42,12 +43,10 @@ var getTime = function(devid, mosca, cb){
   //var spot="America/Los_Angeles"
   my.dbGetTimezone(devid, function(spot){
 	  console.log(spot)
+	  var dow = moment().tz(spot).isoWeekday()
 	  var nynf = parseInt(moment().tz(spot).format("X"))
 	  var nyf = moment().tz(spot).format('LLLL')
 	  var nyz = parseInt(moment().tz(spot).format('Z'))  
-	  // var nynf = parseInt(moment().tz("America/New_York").format("X"))
-	  // var nyf = moment().tz("America/New_York").format('LLLL')
-	  // var nyz = parseInt(moment().tz("America/New_York").format('Z'))
 	  var pkt = {
 	  	unix: nynf,
 	  	LLLL: nyf,
@@ -62,24 +61,37 @@ var getTime = function(devid, mosca, cb){
 			qos: 0
 	  };
 	  console.log(topi) 
-	  mosca.publish(oPacket, cb);
+	  mosca.publish(oPacket, function(){
+	  	console.log('dow is ', dow)
+	  	//var topic = devid+'/prg'
+	  	my.getTodaysSched(devid,dow,function(results){
+	  		results.map((res)=>{
+	  			cons.log(res)
+	  			var payload = `{"id":${res.senrel},"pro":${res.sched}}`
+	  			cons.log(payload)
+					setTimeout(function(){
+						sendSchedule(devid, mosca, payload, (payload)=>{
+							cons.log(payload, ' sent')
+						})
+					}, 1000)	  			
+	  		})
+	  	})
+	  });
 	})
-  var sched3 = "{\"crement\":5,\"serels\":[0,99,1,2],\"progs\":[[[0,0,80,77],[6,12,82,75],[8,20,85,75],[22,0,78,74],[23,30,85,75]],[[0,0,58],[18,0,68],[21,30,58]],[[0,0,0],[5,30,1],[6,10,0]]]}";
-  setTimeout(function(){
-  	sendSchedule(devid, mosca, sched3, cb)
-  }, 1000)
 }
 
+
 var sendSchedule= function(devid, mosca, payload, cb){
-	var topi = devid+'/progs'
+	var topi = devid+'/prg'
 	var oPacket = {
 		topic: topi,
 		payload: payload,
 		retain: false,
 		qos: 0
   };
-  console.log(topi) 
-  mosca.publish(oPacket, cb);		
+  mosca.publish(oPacket, ()=>{
+  	cons.log('prg sent')
+  });		
 }
 
 module.exports ={

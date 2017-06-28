@@ -128,8 +128,22 @@ const dbPubSet=(inp,cb)=>{
 
 const dbGetTimezone=(devId, cb)=>{
 	var query=conn.query("SELECT timezone FROM devices WHERE devid=?", devId, function(error,results,fields){
-		cons.log(results[0].timezone)
-		cb(results[0].timezone)
+		cons.log(results[0])
+		cb(results[0].timezone)	
+	})
+}
+
+const getTodaysSched=(devid, dow, cb)=>{
+	var query=conn.query("SELECT * FROM scheds WHERE devid=? AND dow=?", [devid,dow], function(error,results,fields){
+		cons.log(query.sql)
+		if (results.length==0){
+			//check it there is and everyday program
+			var query2=conn.query("SELECT * FROM scheds WHERE devid=? AND dow=0", devid, function(error,results0,fields){
+				cb(results0)
+			})
+		}else{
+			cb(results)
+		}
 	})
 }
 
@@ -140,5 +154,6 @@ module.exports = {
 	dbSubscr: dbSubscr,
 	dbPublish: dbPublish,
 	dbPubSet: dbPubSet,
-	dbGetTimezone: dbGetTimezone
+	dbGetTimezone: dbGetTimezone,
+	getTodaysSched: getTodaysSched
 }

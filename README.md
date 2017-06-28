@@ -1,7 +1,65 @@
 # services
 ## tags
-### 17-IOTexpress-strategy-handle-no-authorization-header-crash
+### 18-getTime-getTodaysSched
+Every time you get time you get that days programs too from the mysql scheds table. I think that is the end of using `devid/progs`
 
+    var getTime = function(devid, mosca, cb){
+      //var spot="America/Los_Angeles"
+      my.dbGetTimezone(devid, function(spot){
+          console.log(spot)
+          var dow = moment().tz(spot).isoWeekday()
+          var nynf = parseInt(moment().tz(spot).format("X"))
+          var nyf = moment().tz(spot).format('LLLL')
+          var nyz = parseInt(moment().tz(spot).format('Z'))  
+          var pkt = {
+            unix: nynf,
+            LLLL: nyf,
+            zone: nyz,
+          };    
+            console.log(JSON.stringify(pkt))
+            var topi = devid+'/devtime'
+            var oPacket = {
+                topic: topi,
+                payload: JSON.stringify(pkt),
+                retain: false,
+                qos: 0
+          };
+          console.log(topi) 
+          mosca.publish(oPacket, function(){
+            console.log('dow is ', dow)
+            //var topic = devid+'/prg'
+            my.getTodaysSched(devid,dow,function(results){
+                results.map((res)=>{
+                    cons.log(res)
+                    var payload = `{"id":${res.senrel},"pro":${res.sched}}`
+                    cons.log(payload)
+                        setTimeout(function(){
+                            sendSchedule(devid, mosca, payload, (payload)=>{
+                                cons.log(payload, ' sent')
+                            })
+                        }, 1000)                
+                })
+            })
+          });
+        })
+    }
+
+
+var sendSchedule= function(devid, mosca, payload, cb){
+    var topi = devid+'/prg'
+    var oPacket = {
+        topic: topi,
+        payload: payload,
+        retain: false,
+        qos: 0
+  };
+  mosca.publish(oPacket, ()=>{
+    cons.log('prg sent')
+  });       
+} 
+
+### 17-IOTexpress-strategy-handle-no-authorization-header-crash
+sched.js now uses my.dbGetTimezone(devid, cb) every time time is checked for device
 ### 16-IOTexpress-regotoku-IOTbroker-super
 fixes super duplicates, and makes super authorized
 ### 15-added-new-device
