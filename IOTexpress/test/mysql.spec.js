@@ -30,6 +30,29 @@ describe('device mysqldb:', function() {
 			.send(pdata)
 			.end(function(e, res) {
 				console.log(!!e ? e.status: 'no error')
+				//console.log(res.body)
+				expect(true).to.equal(true)
+				done()
+			})
+	})
+	it('posts to dedat/prg', function(done){
+		var url=cfg.url.local+":"+cfg.port.express+"/api/dedata/prg"
+		console.log(url)
+		var devid = "CYURD001"
+		var day = 4
+		var senrel= 0
+		var pro = "[[12,40,77,73]]"
+		var sdata=`{"devid":"${devid}","dow":${day},"senrel":${senrel},"sched":"${pro}"}`
+		console.log(sdata)
+		var pdata = JSON.parse(sdata)
+		//pdata.sched=pro
+		console.log(pdata)
+		//pdata=`{"device":${devid},"day":${day},"senrel":${senrel},"pro":${pro}`
+		superagent.post(url)
+			.set('Authorization', 'Bearer ' + token)
+			.send(pdata)
+			.end(function(e, res) {
+				console.log(!!e ? e.status: 'no error')
 				console.log(res.body)
 				expect(true).to.equal(true)
 				done()

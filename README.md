@@ -1,5 +1,7 @@
 # services
 ## tags
+### 19-dedata-post-prg
+Tested in mysql.spec.js and implemented in spas/apoj/rawPaho/utility/saveProg
 ### 18-getTime-getTodaysSched
 Every time you get time you get that days programs too from the mysql scheds table. I think that is the end of using `devid/progs`
 

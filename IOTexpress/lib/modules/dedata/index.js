@@ -18,7 +18,7 @@ module.exports = function() {
 		}else{
 			var q=conn.query('SELECT d.userid, d.devid, e.description as devdesc, d.bizid, d.appid,  a.desc as appdesc, d.role, d.auth FROM `devuserapp` d LEFT JOIN `devices` e ON d.devid=e.devid LEFT JOIN `apps` a ON d.appid=a.appid WHERE d.userid= ?', req.userTok.emailId, function (error, results, fields) {
 				cons.log(q.sql)
-				cons.log(results)
+				//cons.log(results)
 				if (error){
 					cons.log(error.message)
 					res.jsonp = {auth: false, message: error.message}
@@ -107,6 +107,23 @@ module.exports = function() {
 					console.log(results)
 					res.jsonp({message: results})
 				}
+			})
+		}
+	})
+	router.post('/prg', bearerToken, function(req,res){
+		var messa = 'in post dedata/prg'
+		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
+			var mess={message: 'not authoried-'+req.userTok.message}
+			cons.log(messa)
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{
+			cons.log(req.body)	
+			var query = conn.query('INSERT INTO scheds SET ? ON DUPLICATE KEY UPDATE ?', [req.body,req.body], function(error,results,fields){
+				cons.log(query.sql)
+				cons.log(results)
+				res.jsonp(results)
 			})
 		}
 	})
