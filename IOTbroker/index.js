@@ -139,6 +139,7 @@ var mq = {
         //sched.sendSchedule(this.devid, moserver, payload)
         break
       case "srstate":
+        //if (payload.rec)
         ;//console.log("srstate")
         break      
       case "dog":

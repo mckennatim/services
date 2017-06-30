@@ -1,5 +1,36 @@
 # services
 ## tags
+### 21-cassandra
+Cassandra is going to be used for devices and senrels that need their time series data stored. So far, there is a tstat_by_day table and a timr_by_month table
+
+* in sitebuilt and parleyvale but not on iotup.stream
+* tested in /services/testservice/cassandra.js. 
+* cql experiments in services/IOTbroker/cql.js 
+* Config is in /etc/cassandra/cassandra.yaml 
+* Use single quotes in WHERE clauses.
+* 16.04 didn't need java setup but 14.04 did
+
+https://academy.datastax.com/resources/getting-started-time-series-data-modeling
+
+https://www.digitalocean.com/community/tutorials/how-to-run-a-multi-node-cluster-database-with-cassandra-on-ubuntu-14-04
+
+https://hostpresto.com/community/tutorials/how-to-install-apache-cassandra-on-ubuntu-14-04/
+
+
+
+You can start Cassandra with sudo service cassandra start and stop it with sudo service cassandra stop. However, normally the service will start automatically. For this reason be sure to stop it if you need to make any configuration changes.
+Verify that Cassandra is running by invoking nodetool status from the command line.
+The default location of configuration files is /etc/cassandra.
+The default location of log and data directories is /var/log/cassandra/ and /var/lib/cassandra.
+Start-up options (heap size, etc) can be configured in /etc/default/cassandra.
+
+### 20-store-srstate
+For some sensors storing the data would be cool. In https://www.mongodb.com/presentations/mongodb-time-series-data-part-2-analyzing-time-series-data-using-aggregation-framework ~20min in they suggest...
+
+* deviceid:sensorid:timeperiod as _id:  use regular expressions to do a range query. Regex must be left-anchored&case-sensitive /^CYURD001:2:1403/
+
+
+
 ### 19-dedata-post-prg
 Tested in mysql.spec.js and implemented in spas/apoj/rawPaho/utility/saveProg
 ### 18-getTime-getTodaysSched

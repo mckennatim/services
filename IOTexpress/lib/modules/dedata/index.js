@@ -122,6 +122,7 @@ module.exports = function() {
 			cons.log(req.body)	
 			var query = conn.query('INSERT INTO scheds SET ? ON DUPLICATE KEY UPDATE ?', [req.body,req.body], function(error,results,fields){
 				cons.log(query.sql)
+				cons.log(error)
 				cons.log(results)
 				res.jsonp(results)
 			})

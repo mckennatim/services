@@ -12,6 +12,7 @@
     "assert": "1.4.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "1.17.1",
+    "cassandra-driver": "3.2.2",
     "chai-immutable": "1.6.0",
     "connect-flash": "0.1.1",
     "cookie-parser": "1.4.3",
