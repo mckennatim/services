@@ -2,9 +2,16 @@ var mosca = require('mosca')
 var cons = require('tracer').console();
 var my=require('./mysqldb')
 var cfg= my.cfg
-//console.log(cfg.mysql)
+console.log(cfg.db)
 var currentPacket = {dog: "uli"};
 var sched =require('./sched')
+var Reco = require('./reco').Reco
+
+var mongoose = require('mongoose');
+mongoose.connect(cfg.db.url);
+
+const cassandra = require('cassandra-driver');
+const client = new cassandra.Client({ contactPoints: ['sitebuilt.net'], keyspace: 'geniot' });
 
 var authenticate = function(client, username, password, callback) {
   console.log(client.id)
@@ -139,9 +146,43 @@ var mq = {
         //sched.sendSchedule(this.devid, moserver, payload)
         break
       case "srstate":
-        //if (payload.rec)
-        ;//console.log("srstate")
-        break      
+        var id=String.fromCharCode(payload[6])
+        var devid=this.devid
+        var key=devid+":"+id
+        // console.log("heading to find")
+        //Reco.find({_id:key},function(err,rec){
+        Reco.count({id:key}, function(err,count){
+          // console.log('IN FIND')
+          // console.log(err)
+          //console.log(count)
+          if (count>0){
+            console.log('count',count)
+            var pl = JSON.parse(payload.toString())
+            console.log('payload length = ',pl.darr.length)
+            var q1,vals,oldrelay
+            console.log(devid)
+            var d = new Date()
+            var iso=d.toISOString()
+            var day = iso.split('T')[0]
+            var mo =day.substring(0,7)
+            console.log(mo)
+            var ts = iso.replace('T',' ').split('.')[0]
+            if (pl.darr.length==4){
+              q1="INSERT INTO tstat_by_day(devid,senrel,date,event_time,temp,relay,hilimit,lolimit) VALUES (?,?,?,?,?,?,?,?);"
+              vals=[devid, pl.id,day,ts,pl.darr[0],pl.darr[1],pl.darr[2],pl.darr[3]]
+            }else{
+
+              q1="INSERT INTO timr_by_month(devid,senrel,month,event_time,relay) VALUES (?,?,?,?,?);"
+              vals=[devid, pl.id,mo,ts,pl.darr[0]]
+            }
+            client.execute(q1, vals, { prepare: true }, function(err){
+              if(err!=null){
+                console.log(err)
+              }
+            })
+          }
+        })
+        break
       case "dog":
         //console.log("dog")
         break

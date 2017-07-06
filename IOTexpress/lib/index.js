@@ -8,6 +8,11 @@ var schedrts = require('./modules/schedule/schedrts')();
 var mqtt = require('./modules/mqtt/mqttroutes')();
 var dedata = require('./modules/dedata')();
 
+var mongoose = require('mongoose');
+mongoose.connect(cfg.db.url);
+console.log(cfg.db.url)
+
+
 app.use('/api/sched', schedrts);
 app.use('/api/reg', regtokau);
 app.use('/api/mqtt', mqtt);

@@ -51,9 +51,21 @@ var appSchema = mongoose.Schema({
   node: String
 })
 
+
+var recoSchema = new Schema({
+	id:String
+})
+
+var Reco= mongoose.model('Reco', recoSchema)
+// Reco.findOne({id:"CYURD001:0"}, function(err, res){
+// 	console.log(err)
+// 	console.log(res)
+// })
+
 module.exports = {
 	Device: mongoose.model('Device', deviceSchema),
 	Uuser: mongoose.model('Uuser', userSchema),
 	App: mongoose.model('App', appSchema),
-	Sched: mongoose.model('Sched', schedSchema)
+	Sched: mongoose.model('Sched', schedSchema),
+	Reco: Reco
 }

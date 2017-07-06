@@ -5,13 +5,13 @@ var jwt = require('jwt-simple');
 var conn = require('../lib/db/mysqldb')
 var cfg = require('../lib/utilities').cfg
 
+var emailId="mckenna.tim@gmail.com"
+var pdata = {devid: "CYURBAD", devpwd: "nopwd", bizid: "sbs" }
+var jdata ={
+	email: emailId
+}
+var token = jwt.encode(jdata, cfg.secret)
 describe('device mysqldb:', function() {
-	var emailId="mckenna.tim@gmail.com"
-	var pdata = {devid: "CYURBAD", devpwd: "nopwd", bizid: "sbs" }
-	var jdata ={
-		email: emailId
-	}
-	var token = jwt.encode(jdata, cfg.secret)
 	it('save device to mysql', function(done){
 		var query = conn.query('INSERT INTO devices SET ? ON DUPLICATE KEY UPDATE ?', [pdata,pdata], function(error,results,fields){
 			if (error) throw error;
@@ -58,4 +58,40 @@ describe('device mysqldb:', function() {
 				done()
 			})
 	})
+})
+describe('device mongo:', function() {
+	it('posts to dedat/rec', function(done){
+		var url=cfg.url.local+":"+cfg.port.express+"/api/dedata/rec"
+		console.log(url)
+		var devid = "CYURD006"
+		var senrel= 0
+		var sdata=devid+':'+senrel
+		var odata ={id:sdata}
+		superagent.post(url)
+			.set('Authorization', 'Bearer ' + token)
+			.send(odata)
+			.end(function(e, res) {
+				console.log(!!e ? e.status: 'no error')
+				console.log(res.body)
+				expect(true).to.equal(true)
+				done()
+			})	
+	})	
+	it('deletes dedat/rec', function(done){
+		var url=cfg.url.local+":"+cfg.port.express+"/api/dedata/rec"
+		console.log(url)
+		var devid = "CYURD006"
+		var senrel= 0
+		var sdata=devid+':'+senrel
+		var odata ={id:sdata}
+		superagent.delete(url)
+			.set('Authorization', 'Bearer ' + token)
+			.send(odata)
+			.end(function(e, res) {
+				console.log(!!e ? e.status: 'no error')
+				console.log(res.body)
+				expect(true).to.equal(true)
+				done()
+			})	
+	})	
 })

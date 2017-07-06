@@ -11,7 +11,7 @@ INSERT INTO test(devid,date,event_time,temp) VALUES ('CYURD001','2017-06-30','20
 
 CREATE TABLE tstat_by_day (
 devid text,
-senrel text,
+senrel int,
 date text,
 event_time timestamp,
 temp int,
@@ -30,7 +30,7 @@ SELECT * FROM tstat_by_day WHERE devid='CYURD001';///wont worjk wo index on devi
 
 CREATE TABLE timr_by_month (
 devid text,
-senrel text,
+senrel int,
 month text,
 event_time timestamp,
 relay int,

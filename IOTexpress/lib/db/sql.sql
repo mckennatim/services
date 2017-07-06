@@ -23,12 +23,13 @@ CREATE TABLE IF NOT EXISTS `bizapp` (
   KEY `bizid` (`bizid`),
   KEY `appid` (`appid`),
   UNIQUE KEY `main` (`bizid`, `appid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=145 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=300 ;
 
 CREATE TABLE IF NOT EXISTS `devuserapp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `devid` varchar(30) DEFAULT NULL,
   `userid` varchar(24) NOT NULL,
+  `bizid` varchar(20) DEFAULT NULL,
   `appid` varchar(20) DEFAULT NULL,
   `role` varchar(20) DEFAULT NULL,
   `auth` boolean DEFAULT NULL,
@@ -39,39 +40,43 @@ CREATE TABLE IF NOT EXISTS `devuserapp` (
   KEY `role` (`role`),
   KEY `auth` (`auth`),
   UNIQUE KEY `main` (`devid`, `userid`, `bizid`, `appid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=145 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=200 ;
 
+DROP TABLE IF EXISTS `devices`;
 CREATE TABLE IF NOT EXISTS `devices` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `devid` varchar(30) NOT NULL,
   `devpwd` varchar(24) DEFAULT NULL,
-  `bizid` varchar(20) DEFAULT NULL,
   `description` varchar(220) DEFAULT NULL,
-  `server` varchar(120) DEFAULT NULL,
-  `sensortype` varchar(20) DEFAULT NULL,
-  `owner` varchar(30) DEFAULT NULL,
+  `bizid` varchar(20) DEFAULT NULL,
+  `address` varchar(120) DEFAULT NULL,
   `location` varchar(100) DEFAULT NULL,
-  `zipcode` varchar(12) DEFAULT NULL,
   `timezone` varchar(40) DEFAULT NULL,
+  `server` varchar(120) DEFAULT NULL,
+  `specs` varchar(120) DEFAULT NULL,
+  `owner` varchar(60) DEFAULT NULL,
+  `apps` varchar(120) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `devid` (`devid`),
   KEY `bizid` (`bizid`),
-  KEY `sensortype` (`sensortype`),
+  KEY `specs` (`specs`),
   KEY `owner` (`owner`),
-  KEY `zipcode` (`zipcode`),
+  KEY `location` (`location`),
   KEY `timezone` (`timezone`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=145 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=100 ;
 
-CREATE TABLE IF NOT EXISTS `apps` (
+DROP TABLE IF EXISTS `apps`;
+CREATE TABLE `apps` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `appid` varchar(20) NOT NULL,
   `appurl` varchar(30) DEFAULT NULL,
   `apiurl` varchar(30) DEFAULT NULL,
+  `desc` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `appid` (`appid`),
   KEY `appurl` (`appurl`),
   KEY `apiurl` (`apiurl`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=145 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=400 ;
 
 CREATE TABLE IF NOT EXISTS `biz` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -84,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `biz` (
   KEY `bizid` (`bizid`),
   KEY `bizname` (`bizname`),
   KEY `owner` (`owner`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=145 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=500 ;
 
 -- a slow build
 SELECT * FROM `devuserapp` d 

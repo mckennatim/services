@@ -1,5 +1,22 @@
 # services
 ## tags
+### 22-servers-almost-done
+no frontend yet for post and remove recorder (dome in mysql,spec.js)
+
+summary of database stuff
+
+https://blog.serverdensity.com/checking-if-a-document-exists-mongodb-slow-findone-vs-find/
+
+mongodb
+* mosca for internal use
+* social-auth soauth for users and apps
+* IOTbroker for checking if srstates should be saved (quick read of {id:"CYURD001:0"}
+* IOTexpress `dedata/index.js` `/dedata/rec` for posting {id:"CYURD001:0"} as to be recorded or delete/remove it 
+cassandra
+* IOTbroker in index.js:mq.processIncoming/srtate to either `tstat_by_day` or `timr_by_month`
+mysql
+* IOTexpress `devices` `devuserapps` `dedata/prg scheds`
+
 ### 21-cassandra
 Cassandra is going to be used for devices and senrels that need their time series data stored. So far, there is a tstat_by_day table and a timr_by_month table
 
@@ -16,7 +33,11 @@ https://www.digitalocean.com/community/tutorials/how-to-run-a-multi-node-cluster
 
 https://hostpresto.com/community/tutorials/how-to-install-apache-cassandra-on-ubuntu-14-04/
 
+http://www.datastax.com/wp-content/uploads/2012/01/DS_CQL_web.pdf cheat sheet
 
+    cqlsh 162.217.250.109 9042 
+    cqlsh>USE geniot;
+    cqlsh:geniot>SELECT * FROM tstat_by_day ;
 
 You can start Cassandra with sudo service cassandra start and stop it with sudo service cassandra stop. However, normally the service will start automatically. For this reason be sure to stop it if you need to make any configuration changes.
 Verify that Cassandra is running by invoking nodetool status from the command line.

@@ -3,6 +3,7 @@ var cons = require('tracer').console();
 var conn = require('../../db/mysqldb')
 var bearerToken = require('../regtokau/strategy').bearerToken
 var cfg = require('../../utilities').cfg
+var Reco = require('../../db/models').Reco
 
 var router = express.Router();
 
@@ -126,6 +127,34 @@ module.exports = function() {
 				cons.log(results)
 				res.jsonp(results)
 			})
+		}
+	})
+	router.post('/rec', bearerToken, function(req,res){
+		var messa = 'in post dedata/rec'
+		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
+			var mess={message: 'not authoried-'+req.userTok.message}
+			cons.log(messa)
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{
+			cons.log(req.body)
+			Reco.update(req.body, req.body, {upsert: true}, function(err,result){})
+			res.jsonp({message: 'authoried'})
+		}
+	})
+	router.delete('/rec', bearerToken, function(req,res){
+		var messa = 'in delete dedata/rec'
+		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
+			var mess={message: 'not authoried-'+req.userTok.message}
+			cons.log(messa)
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{
+			cons.log(req.body)
+			Reco.remove(req.body, function(err,result){})
+			res.jsonp({message: 'authoried'})
 		}
 	})
 	return router
