@@ -16,6 +16,9 @@ module.exports = function() {
 	});
 
 	router.post('/auth', function(req, res){
+		cons.log("in api/reg/auth")
+		cons.log(req.body)
+		cons.log(secret)
 		const payload = jwt.decode(req.body.token, secret)
 		cons.log(payload)
 		if (payload.email==cfg.super){

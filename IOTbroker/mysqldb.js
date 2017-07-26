@@ -16,6 +16,7 @@ const dbAuth = (client, username,password, cb)=>{
 		var query=conn.query("SELECT devid, devpwd, owner FROM devices WHERE devid=?", client.id, function(error,results,fields){
 			console.log(query.sql)
 			console.log(results)
+			console.log(error)
 			if(error){
 				cb(false)
 			}else {
@@ -51,12 +52,13 @@ const dbAuth = (client, username,password, cb)=>{
 var mcache={inp:["", "", ""], res:false}
 
 const dbSubscr=(inp, cb)=>{
+	// cons.log(inp)
 	if(inp[2]==cfg.super){
 		cb(true)
 		return
 	}
 	if(inp.every((v,i)=>v===mcache.inp[i])){
-		//cons.log('using CACHE')
+		// cons.log(mcache)
 		cb(mcache.res)
 		return
 	}

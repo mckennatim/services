@@ -9,3 +9,4 @@ scp server.js root@$server:$pat
 scp appid root@$server:$pat
 scp app/* root@$server:$pat/app
 scp views/* root@$server:$pat/views
+

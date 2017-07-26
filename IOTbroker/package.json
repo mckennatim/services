@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "set NODE_ENV=development&&nodemon -e .js,.json index.js",
-    "prod": "export NODE_ENV=production&&node index.js"
+    "prod": "export NODE_ENV=production&&node index.js",
+    "dprod": "export NODE_ENV=production&&nodemon index.js"
   },
   "keywords": [],
   "author": "Timothy S. McKenna <mckenna.tim@gmail.com> (http://mckennatim.github.io/mckennatim/)",

@@ -1,5 +1,24 @@
 # services
 ## tags
+### 24-que-pasa
+#### On recording senrel data
+To record or stop recording a sensor or relay 
+1. you make a post/delete to iotex/api/dedata/rec with a body that looks like `{id:"CYURD001:1}`
+2. the express router iotex/api/dedata/rec makes a mongoose database call `Reco.update` or `Reco.remove` which uses mongo/demiot/recos and adds/updates/removes that id.
+3. Now, in `IOTbrokey/index.js` whenever a packet comes in `moserver.published` runs `mq.selectAction(packet.topic)` to find the devices and job and then `mq.processIncoming(packet.payload)` . If the job is `srstate` and `payload.new=true`(the data is new, not just a request for a copy(inside device C code)) then it does a quick check for devid:id in mongo/recos and if it is there the data for that sensor is saved to cassandra.
+
+#### On using stored programs
+In order to use programs with these devices one must:
+1. save a program the client must make a post to `IOTexpress/api/dedata/prg` with a body like this: `{"devid":"CYURD001","dow":4,"senrel":2,"sched":"[[12,20,77,75]]" }`
+2. The program is saved to mysql/geniot/sched.
+3. 
+
+### 23-deplay-api2
+1. copy mysql
+2. copy mongo -no
+3. redeploy social-auth - from sitebuilt.net/services/social-auth `rm -r *` `mkdir app views`. From wamp64/www/services/social-auth `./deploy.sh`
+4. deploy IOTexpress - ./deploy.sh in wamp64/www/services/IOTexpress
+5. deploy IOTbroker - ./deploy.sh in wamp64/www/services/IOTbroker
 ### 22-servers-almost-done
 no frontend yet for post and remove recorder (dome in mysql,spec.js)
 
@@ -38,6 +57,7 @@ http://www.datastax.com/wp-content/uploads/2012/01/DS_CQL_web.pdf cheat sheet
     cqlsh 162.217.250.109 9042 
     cqlsh>USE geniot;
     cqlsh:geniot>SELECT * FROM tstat_by_day ;
+    cqlsh:geniot> truncate timr_by_month ;
 
 You can start Cassandra with sudo service cassandra start and stop it with sudo service cassandra stop. However, normally the service will start automatically. For this reason be sure to stop it if you need to make any configuration changes.
 Verify that Cassandra is running by invoking nodetool status from the command line.

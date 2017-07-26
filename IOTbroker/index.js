@@ -15,14 +15,20 @@ const client = new cassandra.Client({ contactPoints: ['sitebuilt.net'], keyspace
 
 var authenticate = function(client, username, password, callback) {
   console.log(client.id)
-  my.dbAuth(client, username,password.toString(), function(authorized){
-    console.log('authorized = ', authorized, ',appid = '+ client.appId)
-    if (authorized) {
-      client.user = username;
-    }
-    console.log(client.user)
-    callback(null, authorized);
-  })
+  cons.log(username)
+  cons.log(password)
+  if(!username || !password){
+    callback(null,false)
+  }else{
+    my.dbAuth(client, username,password.toString(), function(authorized){
+      console.log('authorized = ', authorized, ',appid = '+ client.appId)
+      if (authorized) {
+        client.user = username;
+      }
+      console.log(client.user)
+      callback(null, authorized);
+    })
+  }
   //var authorized = (username === 'tim@sitebuilt.net' && password.toString() === 'freddy');
 }
 
@@ -66,7 +72,7 @@ var authorizeSubscribe = function(client, topic, callback) {
   }else{
     var winp = [dev,appId,client.user]
     my.dbSubscr(winp, function(cb){
-      cons.log(cb)
+      //cons.log(cb)
       callback(null, cb);      
     })
   }
@@ -146,42 +152,33 @@ var mq = {
         //sched.sendSchedule(this.devid, moserver, payload)
         break
       case "srstate":
-        var id=String.fromCharCode(payload[6])
-        var devid=this.devid
-        var key=devid+":"+id
-        // console.log("heading to find")
-        //Reco.find({_id:key},function(err,rec){
-        Reco.count({id:key}, function(err,count){
-          // console.log('IN FIND')
-          // console.log(err)
-          //console.log(count)
-          if (count>0){
-            console.log('count',count)
-            var pl = JSON.parse(payload.toString())
-            console.log('payload length = ',pl.darr.length)
-            var q1,vals,oldrelay
-            console.log(devid)
-            var d = new Date()
-            var iso=d.toISOString()
-            var day = iso.split('T')[0]
-            var mo =day.substring(0,7)
-            console.log(mo)
-            var ts = iso.replace('T',' ').split('.')[0]
-            if (pl.darr.length==4){
-              q1="INSERT INTO tstat_by_day(devid,senrel,date,event_time,temp,relay,hilimit,lolimit) VALUES (?,?,?,?,?,?,?,?);"
-              vals=[devid, pl.id,day,ts,pl.darr[0],pl.darr[1],pl.darr[2],pl.darr[3]]
-            }else{
-
-              q1="INSERT INTO timr_by_month(devid,senrel,month,event_time,relay) VALUES (?,?,?,?,?);"
-              vals=[devid, pl.id,mo,ts,pl.darr[0]]
-            }
-            client.execute(q1, vals, { prepare: true }, function(err){
-              if(err!=null){
-                console.log(err)
+        var pl = JSON.parse(payload.toString())
+        if (pl.new){
+          var devid=this.devid
+          var key=devid+":"+pl.id
+          Reco.count({id:key}, function(err,count){
+            if (count>0){
+              var q1,vals,oldrelay
+              var d = new Date()
+              var iso=d.toISOString()
+              var day = iso.split('T')[0]
+              var mo =day.substring(0,7)
+              var ts = iso.replace('T',' ').split('.')[0]
+              if (pl.darr.length==4){
+                q1="INSERT INTO tstat_by_day(devid,senrel,date,event_time,temp,relay,hilimit,lolimit) VALUES (?,?,?,?,?,?,?,?);"
+                vals=[devid, pl.id,day,ts,pl.darr[0],pl.darr[1],pl.darr[2],pl.darr[3]]
+              }else{
+                q1="INSERT INTO timr_by_month(devid,senrel,month,event_time,relay) VALUES (?,?,?,?,?);"
+                vals=[devid, pl.id,mo,ts,pl.darr[0]]
               }
-            })
-          }
-        })
+              client.execute(q1, vals, { prepare: true }, function(err){
+                if(err!=null){
+                  console.log(err)
+                }
+              })
+            }
+          })
+        }
         break
       case "dog":
         //console.log("dog")

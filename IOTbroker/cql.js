@@ -27,15 +27,15 @@ SELECT * FROM tstat_by_day WHERE devid='CYURD001' AND senrel='0' AND date='2017-
 
 SELECT * FROM tstat_by_day WHERE devid='CYURD001';///wont worjk wo index on devid
 
-
+DROP TABLE timr_by_month;
 CREATE TABLE timr_by_month (
 devid text,
 senrel int,
 month text,
 event_time timestamp,
 relay int,
-PRIMARY KEY ((devid,senrel,month),event_time)
-);
+PRIMARY KEY ((devid,month,senrel),event_time)
+)WITH CLUSTERING ORDER BY (event_time DESC);
 
 INSERT INTO timr_by_month(devid,senrel,month,event_time,relay) VALUES ('CYURD001','0','2017-06','2017-06-30 07:01:00',1);
 
