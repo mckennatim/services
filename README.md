@@ -1,6 +1,7 @@
 # services
 ## tags
-### 24-que-pasa
+### 24-iotex-get-apps
+dedata/apps query changed to only get admin and super appids
 #### On recording senrel data
 To record or stop recording a sensor or relay 
 1. you make a post/delete to iotex/api/dedata/rec with a body that looks like `{id:"CYURD001:1}`

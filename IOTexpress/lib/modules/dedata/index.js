@@ -17,7 +17,7 @@ module.exports = function() {
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
-			var q=conn.query('SELECT d.userid, d.devid, e.description as devdesc, d.bizid, d.appid,  a.desc as appdesc, d.role, d.auth FROM `devuserapp` d LEFT JOIN `devices` e ON d.devid=e.devid LEFT JOIN `apps` a ON d.appid=a.appid WHERE d.userid= ?', req.userTok.emailId, function (error, results, fields) {
+			var q=conn.query('SELECT d.userid, d.devid, e.description as devdesc, d.bizid, d.appid,  a.desc as appdesc, d.role, d.auth FROM `devuserapp` d LEFT JOIN `devices` e ON d.devid=e.devid LEFT JOIN `apps` a ON d.appid=a.appid WHERE d.userid= ? AND (d.appid="admin" OR d.appid="super")', req.userTok.emailId, function (error, results, fields) {
 				cons.log(q.sql)
 				//cons.log(results)
 				if (error){

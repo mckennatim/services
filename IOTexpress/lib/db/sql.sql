@@ -125,4 +125,64 @@ ON d.devid=e.devid
 LEFT JOIN `apps` a 
 ON d.appid=a.appid
 WHERE d.userid="mckenna.tim@gmail.com"
+
+
+SELECT
+  d.userid,
+  d.devid,
+  e.description AS devdesc,
+  d.bizid,
+  d.appid,
+  d.role,
+  d.auth
+FROM
+  devuserapp d
+LEFT JOIN
+  devices e ON d.devid = e.devid
+WHERE
+  d.userid = 'mckenna.tim@gmail.com'
+
+SELECT
+  devid,
+  description,
+  owner
+FROM
+  `devices`
+WHERE 
+  owner ='tim@sitebuilt.net'
+ORDER BY
+  devid;  
 -- last is it
+SELECT
+  d.userid,
+  d.devid,
+  e.description AS devdesc,
+  d.bizid,
+  d.appid,
+  d.role,
+  d.auth
+FROM
+  `devuserapp` d
+LEFT JOIN
+  `devices` e ON d.devid = e.devid
+WHERE
+  d.userid = 'tim@sitebuilt.net'
+AND
+(d.appid='admin' OR d.appid='super')
+
+SELECT
+  d.userid,
+  d.devid,
+  e.description AS devdesc,
+  d.bizid,
+  d.appid,
+  d.role,
+  d.auth
+FROM
+  `devuserapp` d
+LEFT JOIN
+  `devices` e ON d.devid = e.devid
+WHERE
+  d.userid = 'mckenna.tim@gmail.com'
+AND
+(d.appid='admin' OR d.appid='super') 
