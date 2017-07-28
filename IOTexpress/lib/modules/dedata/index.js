@@ -54,7 +54,7 @@ module.exports = function() {
 			cons.log(mess.message)
 			if(req.userTok.emailId==cfg.super){
 				cons.log('yo super')
-				var q =conn.query('SELECT * FROM devices ORDER BY bizid, owner', function(error, results, fields){
+				var q =conn.query('SELECT devid, devpwd, description, bizid, address, location, timezone, server, specs, owner, apps FROM devices ORDER BY bizid, owner', function(error, results, fields){
 					cons.log(q.sql)
 					res.jsonp(results)
 				})
@@ -101,6 +101,7 @@ module.exports = function() {
 			})
 			// save a new device
 			var query = conn.query('INSERT INTO devices SET ? ON DUPLICATE KEY UPDATE ?', [pdata,pdata], function(error,results,fields){
+				cons.log(query.sql)
 				if (error) {
 					throw error;
 					res.jsonp({message: error})
