@@ -40,6 +40,20 @@ module.exports = function() {
 			})			
 		}
 	})
+	router.get('/users/:devid', bearerToken, function(req,res){
+		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
+			var mess={message: 'in get /dedata/users/:devid (not authoried)-'+req.userTok.message}
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{			
+			console.log('in devid/users', req.params)
+			var q =conn.query('SELECT userid, bizid, appid, role FROM devuserapp WHERE devid=?', req.params.devid, function(error, results, fields){
+					cons.log(q.sql)
+					res.jsonp(results)
+				})
+		}
+	})
 	router.get('/dev', bearerToken, function(req,res){
 		if(!req.userTok.auth){
 			//console.log(req.userTok.message)

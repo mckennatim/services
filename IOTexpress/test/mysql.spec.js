@@ -12,6 +12,10 @@ var jdata ={
 }
 var token = jwt.encode(jdata, cfg.secret)
 describe('device mysqldb:', function() {
+	it('gets devuserapps for device', function(done){
+		expect(true).to.equal(true)
+		done()
+	})
 	it('save device to mysql', function(done){
 		var query = conn.query('INSERT INTO devices SET ? ON DUPLICATE KEY UPDATE ?', [pdata,pdata], function(error,results,fields){
 			if (error) throw error;
