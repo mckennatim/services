@@ -1,5 +1,10 @@
 # services
 ## tags
+### 26 mosca-problem
+https://www.bountysource.com/issues/41088112-client-connection-closed-if-publish-is-not-authorized
+
+also..
+IOTexpress got modified to add `get dedata/users/:devid` and `post dedata/users`
 ### 25-iotex-dedata-users
 ### 24-iotex-get-apps
 dedata/apps query changed to only get admin and super appids

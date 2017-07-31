@@ -40,6 +40,9 @@ module.exports = function() {
 			})			
 		}
 	})
+
+
+
 	router.get('/users/:devid', bearerToken, function(req,res){
 		if(!req.userTok.auth){
 			//console.log(req.userTok.message)
@@ -77,6 +80,31 @@ module.exports = function() {
 			}
 		}
 	})
+
+	router.post('/users', bearerToken, function(req,res){
+		cons.log('in post users')
+		var mess = 'what up post dedata/users'
+		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
+			mess={message: 'not authoried-'+req.userTok.message}
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{
+			var pdata=req.body
+			cons.log(pdata)	
+			var query = conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [pdata,pdata], function(error,results,fields){
+				cons.log(query.sql)
+					if (error) {
+						throw error;
+						console.log({message: error})
+					}else{
+						console.log(results)
+					}					
+			})			
+			res.jsonp({message:mess})
+		}	
+	})
+
 	router.post('/dev', bearerToken, function(req,res){
 		cons.log('in post dev')
 		//cons.log(req.userTok)

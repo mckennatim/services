@@ -84,15 +84,16 @@ const dbSubscr=(inp, cb)=>{
 
 var pcache={inp:["", "", ""], res:false}
 const dbPublish=(inp, cb)=>{
+	cons.log(inp)
 	if(inp[2]==cfg.super){
 		cb(true)
 		return
 	}	
-	if(inp.every((v,i)=>v===pcache.inp[i])){
-		//cons.log('using CACHE')
-		cb(pcache.res)
-		return
-	}
+	// if(inp.every((v,i)=>v===pcache.inp[i])){
+	// 	//cons.log('using CACHE')
+	// 	cb(pcache.res)
+	// 	return
+	// }
   var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
     cons.log(query.sql)
     var cbv=false

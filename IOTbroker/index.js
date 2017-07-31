@@ -35,8 +35,8 @@ var authenticate = function(client, username, password, callback) {
 var authorizePublish = function(client, topic, payload, callback) {
   var dev = topic.split('/')[0]
   var topic = topic.split('/')[1]   
-  var winp = [dev,appId,client.user]
   var appId = client.id.split('0.')[0]
+  var winp = [dev,appId,client.user]
   switch(true){
     case client.id==dev || dev=='presence':
       callback(null,true)
@@ -44,7 +44,14 @@ var authorizePublish = function(client, topic, payload, callback) {
     case topic=='cmd' || topic=='prg':
       my.dbPublish(winp, function(cb){
         cons.log(`${client.user} can publish ${dev}/cmd||prg?: ${cb}`)
-        callback(null,cb)
+          if(!cb){
+            cons.log('in error for ',cb)
+            //callback (new Error('wrong topic'), true)
+            callback (null, true)
+          }else{
+            cons.log('should be true ' ,cb)
+            callback(null,cb)
+          }
       }) 
       break
     case topic=='set':
@@ -54,7 +61,11 @@ var authorizePublish = function(client, topic, payload, callback) {
       }else{
         my.dbPubSet([dev, client.user], function(cb){
           cons.log(`${client.user} can publish ${dev}/set?: ${cb}`)
-          callback(null,cb)
+          if(!cb){
+            callback (new Error('wrong topic'), true)
+          }else{
+            callback(null,cb)
+          }
         }) 
       }
       break

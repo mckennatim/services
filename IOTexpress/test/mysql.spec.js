@@ -29,6 +29,7 @@ describe('device mysqldb:', function() {
 		var url=cfg.url.local+":"+cfg.port.express+"/api/dedata/dev"
 		console.log(url)
 		pdata.devpwd='froggy'
+		console.log(pdata)
 		superagent.post(url)
 			.set('Authorization', 'Bearer ' + token)
 			.send(pdata)
@@ -39,7 +40,21 @@ describe('device mysqldb:', function() {
 				done()
 			})
 	})
-	it('posts to dedat/prg', function(done){
+	it('posts to users', function(done){
+		var url=cfg.url.local+":"+cfg.port.express+"/api/dedata/users"
+		console.log(url)
+		pdata.devpwd='froggy'
+		superagent.post(url)
+			.set('Authorization', 'Bearer ' + token)
+			.send(pdata)
+			.end(function(e, res) {
+				console.log(!!e ? e.status: 'no error')
+				//console.log(res.body)
+				expect(true).to.equal(true)
+				done()
+			})
+	})
+	it('posts to dedata/prg', function(done){
 		var url=cfg.url.local+":"+cfg.port.express+"/api/dedata/prg"
 		console.log(url)
 		var devid = "CYURD001"
