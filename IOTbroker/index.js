@@ -6,12 +6,13 @@ console.log(cfg.db)
 var currentPacket = {dog: "uli"};
 var sched =require('./sched')
 var Reco = require('./reco').Reco
+var get = require('./utility').get
 
 var mongoose = require('mongoose');
 mongoose.connect(cfg.db.url);
 
 const cassandra = require('cassandra-driver');
-const client = new cassandra.Client({ contactPoints: ['sitebuilt.net'], keyspace: 'geniot' });
+const cassClient = new cassandra.Client({ contactPoints: ['sitebuilt.net'], keyspace: 'geniot' });
 
 var authenticate = function(client, username, password, callback) {
   console.log(client.id)
@@ -105,7 +106,7 @@ var moscaSettings = {
 // fired when the mqtt server is ready
 function setup() {
   moserver.authenticate = authenticate;
-  moserver.authorizePublish = authorizePublish;
+  //moserver.authorizePublish = authorizePublish;
   moserver.authorizeSubscribe = authorizeSubscribe;
   console.log('Mosca server is up and running')
   console.log('device mqtt running on port '+cfg.port.mqtt)
@@ -114,34 +115,53 @@ function setup() {
 
 var moserver = new mosca.Server(moscaSettings);   //here we start mosca
 moserver.on('ready', setup);  //on init it fires up setup()
-moserver.on('clientConnected', function(client) {
+var moclient= moserver.on('clientConnected', function(client) {
     console.log('client connected', client.id);
+    return client;
     //console.log(client)
 });
 
-moserver.published = function(packet, client, cb) {
+moserver.published = function(packet, moclient, cb) {
   if (packet.topic.indexOf('echo') === 0) {
     return cb();
   }
+  var dev = packet.topic.split('/')[0]
+  var topic = packet.topic.split('/')[1]
+  //var appId = client.id.split('0.')[0]
+  //var winp = [dev,appId,client.user]  
+  mq.selectAction(packet.topic)
+  mq.processIncoming(packet.payload)  
+  if(get('moclient.id', moclient)){
+    //console.log('client is', moclient.id)
+    //console.log(moclient.user)
+    var appId = moclient.id.split('0.')[0]
+    var winp = [dev,appId,moclient.user] 
+    mq.publishAuthorized(packet, winp)  
+  }  
+  //console.log(client.appid)
+  //console.log(client.user)
   //if(client){console.log(client.id)};
   //console.log(packet.topic)
-  mq.selectAction(packet.topic)
-  mq.processIncoming(packet.payload)
 
-  var newPacket = {
-    topic: 'echo/' + packet.topic,
-    payload: packet.payload,
-    retain: packet.retain || false,
-    qos: packet.qos || 0
-  };
-  currentPacket= newPacket;
-  console.log('Pkt',  packet.topic , newPacket.payload.toString());
-  //console.log(currentPacket.payload.toString())
-  exports.currentPacket
-  moserver.publish(newPacket, cb);
+  //mq.publishAuthorized(packet, winp)
+  //mq.publish(packet,cb)
+  //   var newPacket = {
+  //     topic: 'echo/' + packet.topic,
+  //     payload: packet.payload,
+  //     retain: packet.retain || false,
+  //     qos: packet.qos || 0
+  //   };
+  //   currentPacket= newPacket;
+  //   console.log('Pkt',  packet.topic , newPacket.payload.toString());
+  //   //console.log(currentPacket.payload.toString())
+  //   exports.currentPacket
+  //   moserver.publish(newPacket, cb);
+  // }
 }
 
 var mq = {
+  job: '',
+  devid: '', 
   selectAction: function(topic){
     var sp = topic.split("/")
     this.devid = sp[0];
@@ -149,20 +169,76 @@ var mq = {
     //console.log(this.devid, this.job)
     this[this.job]
   },
+  publish: function(packet){
+    var newPacket = {
+      topic: 'echo/' + packet.topic,
+      payload: packet.payload,
+      retain: packet.retain || false,
+      qos: packet.qos || 0
+    };
+    currentPacket= newPacket;
+    // console.log('Pkt',  packet.topic , newPacket.payload.toString());
+    //console.log(currentPacket.payload.toString())
+    exports.currentPacket
+    moserver.publish(newPacket, function(){
+      console.log('Pkt',  packet.topic , newPacket.payload.toString());
+    });    
+  },
+  publishAuthorized: function(packet, winp){
+    var topic = this.job
+    var dev = this.device
+
+    switch(true){
+      case topic=='cmd' || topic=='prg':
+        console.log(topic)
+        console.log(topic=='cmd' || topic=='prg')
+        console.log('topic is cmd or prg')
+        my.dbPublish(winp, function(cb){
+          cons.log(`${winp[2]} can publish ${dev}/cmd||prg?: ${cb}`)
+          if(!cb){
+            cons.log('in error for cmd||prg')
+          }else{
+            cons.log('should be true ' )
+            //this.publish(packet)
+          }
+        }) 
+        break
+      case topic=='set':
+        if(client.user==cfg.super){
+          cons.log(`${moclient.user} is super and can publish ${dev}/set`)
+          //this.publish(packet)
+        }else{
+          my.dbPubSet([dev, winp[2]], function(cb){
+            cons.log(`${winp[2]} can publish ${dev}/set?: ${cb}`)
+            if(!cb){
+              cons.log('in error for ')
+            }else{
+              cons.log('should be true ' )
+              //this.publish(packet)
+            }
+          }) 
+        }
+        break
+      default:
+        //console.log('in default')
+        //this.publish(packet)
+    }
+    this.publish(packet)
+  },
   processIncoming: function(payload){
-    switch(this.job){
-      case "cmd":
+    switch(true){
+      case this.job=="cmd":
         //console.log("cmd")
         break
-      case "time":
+      case this.job=="time":
         console.log("time")
         sched.getTime(this.devid, moserver)
         break
-      case "sched":
+      case this.job=="sched":
         //console.log("sched")
         //sched.sendSchedule(this.devid, moserver, payload)
         break
-      case "srstate":
+      case this.job=="srstate":
         var pl = JSON.parse(payload.toString())
         if (pl.new){
           var devid=this.devid
@@ -182,7 +258,7 @@ var mq = {
                 q1="INSERT INTO timr_by_month(devid,senrel,month,event_time,relay) VALUES (?,?,?,?,?);"
                 vals=[devid, pl.id,mo,ts,pl.darr[0]]
               }
-              client.execute(q1, vals, { prepare: true }, function(err){
+              cassClient.execute(q1, vals, { prepare: true }, function(err){
                 if(err!=null){
                   console.log(err)
                 }
@@ -191,14 +267,12 @@ var mq = {
           })
         }
         break
-      case "dog":
+      case this.job=="dog":
         //console.log("dog")
         break
       default:
         //console.log("in default")  
         //console.log(this.job)  
     }
-  },
-  job: '',
-  devid: ''
+  }
 }

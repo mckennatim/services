@@ -52,7 +52,8 @@ module.exports = function() {
 			res.jsonp({auth:true, message: 'authenticated a superuser'});
 		}else{
 			//see if there are any apps/devices for that user or tell them they are shit outa luck and should contact the bossman to add your email to the system. If there is a record(s) for the user/appid then make auth true for them. If not have them ask to be added. 
-			conn.query('SELECT * FROM devuserapp  WHERE userid = ? AND appid = ?', [payload.email, payload.appId], function (error, results, fields) {
+			var query1= conn.query('SELECT * FROM devuserapp  WHERE userid = ? AND appid = ?', [payload.email, payload.appId], function (error, results, fields) {
+				cons.log(query1.sql)
 				if(results.length==0){
 					var mes = {auth:false, message: 'You are not authorized for this app on any device. Contact device owner'}
 					cons.log(mes)

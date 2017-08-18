@@ -1,6 +1,14 @@
 # services
 ## tags
-### 26 mosca-problem
+### 27-iotb-publishAuthorized
+Right now it lets everyone publish but the nuts and bolts are almost in place.
+
+    SELECT * FROM devuserapp WHERE devid='CYURD001' AND appid='pahoRawSB' AND userid='tim@sitebuilt.net' 
+
+This should return a role for that user for that app on that device. Then `mysqldb.js/dbBublish` should be able to a) make sure there is an entry, b)check if the role listed is `user` or `admin`. If anybody can view an app than there should be an `anybody` user with `obs` role. Register has to be jiggered so that's OK.
+
+TODO move cascada over to api2
+### 26-mosca-problem
 https://www.bountysource.com/issues/41088112-client-connection-closed-if-publish-is-not-authorized
 
 also..
