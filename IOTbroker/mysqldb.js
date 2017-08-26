@@ -14,9 +14,9 @@ const dbAuth = (client, username,password, cb)=>{
 	if(client.id.substr(0,2)=="CY"){
 		console.log('is a device')
 		var query=conn.query("SELECT devid, devpwd, owner FROM devices WHERE devid=?", client.id, function(error,results,fields){
-			console.log(query.sql)
-			console.log(results)
-			console.log(error)
+			cons.log(query.sql)
+			cons.log(results)
+			cons.log(error)
 			if(error){
 				cb(false)
 			}else {
@@ -31,7 +31,19 @@ const dbAuth = (client, username,password, cb)=>{
 	}else{
 		cons.log('is a client')
 		var clientid= client.id.split('0.')[0]
-		if(password){
+		if(username=='anybody'){
+			cons.log('ck if anybody is allowed')
+			var query = conn.query("SELECT * FROM devuserapp WHERE appid=? AND userid=?",[clientid, username] , function(error,results,fields){
+				cons.log(query.sql)
+				if(results[0] && results[0].role=='obs'){
+					cons.log('anybody is allowed as obs')
+					cb(true)
+				}else{
+					cons.log('anybody is not allowed')
+					cb(false)
+				}
+			})
+		}else if(password){
 			var tokdata = jwt.decode(password, cfg.secret)
 			cons.log(clientid)
 			cons.log(username)
@@ -49,22 +61,22 @@ const dbAuth = (client, username,password, cb)=>{
 		}
 	}
 }
-var mcache={inp:["", "", ""], res:false}
 
+var mcache={inp:["", "", ""], res:false}
 const dbSubscr=(inp, cb)=>{
-	// cons.log(inp)
+	cons.log(inp)
 	if(inp[2]==cfg.super){
 		cb(true)
 		return
 	}
-	if(inp.every((v,i)=>v===mcache.inp[i])){
-		// cons.log(mcache)
-		cb(mcache.res)
-		return
-	}
+	// if(inp.every((v,i)=>v===mcache.inp[i])){
+	// 	// cons.log(mcache)
+	// 	cb(mcache.res)
+	// 	return
+	// }
   var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
     cons.log(query.sql)
-    //cons.log(results[0])
+    cons.log(results[0])
     var cbv=false
 		if(error){
 			cbv= false
@@ -76,8 +88,8 @@ const dbSubscr=(inp, cb)=>{
 				cbv=false
 			}
 		}
-		mcache.inp = inp.slice()
-		mcache.res = cbv
+		// mcache.inp = inp.slice()
+		// mcache.res = cbv
 		cb(cbv)    
   })	
 }

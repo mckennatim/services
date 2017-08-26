@@ -20,9 +20,10 @@ var authenticate = function(client, username, password, callback) {
   cons.log(password)
   if(!username || !password){
     callback(null,false)
+    cons.log('!username or !password')
   }else{
     my.dbAuth(client, username,password.toString(), function(authorized){
-      console.log('authorized = ', authorized, ',appid = '+ client.appId)
+      console.log('authorized = ', authorized, ',appid = '+ client.id)
       if (authorized) {
         client.user = username;
       }
@@ -46,11 +47,11 @@ var authorizePublish = function(client, topic, payload, callback) {
       my.dbPublish(winp, function(cb){
         cons.log(`${client.user} can publish ${dev}/cmd||prg?: ${cb}`)
           if(!cb){
-            cons.log('in error for ',cb)
+            cons.log('no publishing for you, connected: ',cb)
             //callback (new Error('wrong topic'), true)
-            callback (null, true)
+            callback (null, cb)
           }else{
-            cons.log('should be true ' ,cb)
+            cons.log('you can publish: ' ,cb)
             callback(null,cb)
           }
       }) 
@@ -63,7 +64,7 @@ var authorizePublish = function(client, topic, payload, callback) {
         my.dbPubSet([dev, client.user], function(cb){
           cons.log(`${client.user} can publish ${dev}/set?: ${cb}`)
           if(!cb){
-            callback (new Error('wrong topic'), true)
+            callback (null,cb)
           }else{
             callback(null,cb)
           }
@@ -78,13 +79,13 @@ var authorizePublish = function(client, topic, payload, callback) {
 var authorizeSubscribe = function(client, topic, callback) {
   var dev = topic.split('/')[0]
   var appId = client.id.split('0.')[0]
-  //cons.log(client.id, appId, dev, client.user)
+  cons.log(client.id, dev, appId, client.user)
   if(client.id==dev){
     callback(null,true)
   }else{
     var winp = [dev,appId,client.user]
     my.dbSubscr(winp, function(cb){
-      //cons.log(cb)
+      cons.log(cb)
       callback(null, cb);      
     })
   }
@@ -106,7 +107,7 @@ var moscaSettings = {
 // fired when the mqtt server is ready
 function setup() {
   moserver.authenticate = authenticate;
-  //moserver.authorizePublish = authorizePublish;
+  moserver.authorizePublish = authorizePublish;
   moserver.authorizeSubscribe = authorizeSubscribe;
   console.log('Mosca server is up and running')
   console.log('device mqtt running on port '+cfg.port.mqtt)
@@ -125,19 +126,24 @@ moserver.published = function(packet, moclient, cb) {
   if (packet.topic.indexOf('echo') === 0) {
     return cb();
   }
-  var dev = packet.topic.split('/')[0]
-  var topic = packet.topic.split('/')[1]
-  //var appId = client.id.split('0.')[0]
-  //var winp = [dev,appId,client.user]  
+  console.log('Pkt:',packet.topic,packet.payload.toString())
+  // var dev = packet.topic.split('/')[0]
+  // var topic = packet.topic.split('/')[1]
+  // //var appId = client.id.split('0.')[0]
+  // //var winp = [dev,appId,client.user]  
   mq.selectAction(packet.topic)
   mq.processIncoming(packet.payload)  
-  if(get('moclient.id', moclient)){
-    //console.log('client is', moclient.id)
-    //console.log(moclient.user)
-    var appId = moclient.id.split('0.')[0]
-    var winp = [dev,appId,moclient.user] 
-    mq.publishAuthorized(packet, winp)  
-  }  
+  // if(get('moclient.id', moclient)){
+  //   //console.log('client is', moclient.id)
+  //   //console.log(moclient.user)
+  //   var appId = moclient.id.split('0.')[0]
+  //   var winp = [dev,appId,moclient.user] 
+  //   //cons.log(winp)
+  //   mq.publishAuthorized(packet, winp)  
+  // } else{
+  //   //cons.log('moclient.id downt exist')
+  //   //cons.log(packet)
+  // } 
   //console.log(client.appid)
   //console.log(client.user)
   //if(client){console.log(client.id)};
@@ -170,6 +176,7 @@ var mq = {
     this[this.job]
   },
   publish: function(packet){
+    cons.log ('PUBLISHED')
     var newPacket = {
       topic: 'echo/' + packet.topic,
       payload: packet.payload,
@@ -184,47 +191,46 @@ var mq = {
       console.log('Pkt',  packet.topic , newPacket.payload.toString());
     });    
   },
-  publishAuthorized: function(packet, winp){
-    var topic = this.job
-    var dev = this.device
-
-    switch(true){
-      case topic=='cmd' || topic=='prg':
-        console.log(topic)
-        console.log(topic=='cmd' || topic=='prg')
-        console.log('topic is cmd or prg')
-        my.dbPublish(winp, function(cb){
-          cons.log(`${winp[2]} can publish ${dev}/cmd||prg?: ${cb}`)
-          if(!cb){
-            cons.log('in error for cmd||prg')
-          }else{
-            cons.log('should be true ' )
-            //this.publish(packet)
-          }
-        }) 
-        break
-      case topic=='set':
-        if(client.user==cfg.super){
-          cons.log(`${moclient.user} is super and can publish ${dev}/set`)
-          //this.publish(packet)
-        }else{
-          my.dbPubSet([dev, winp[2]], function(cb){
-            cons.log(`${winp[2]} can publish ${dev}/set?: ${cb}`)
-            if(!cb){
-              cons.log('in error for ')
-            }else{
-              cons.log('should be true ' )
-              //this.publish(packet)
-            }
-          }) 
-        }
-        break
-      default:
-        //console.log('in default')
-        //this.publish(packet)
-    }
-    this.publish(packet)
-  },
+  // publishAuthorized: function(packet, winp){
+  //   var topic = this.job
+  //   var dev = this.device
+  //   switch(true){
+  //     case topic=='cmd' || topic=='prg':
+  //       console.log(topic)
+  //       console.log(topic=='cmd' || topic=='prg')
+  //       console.log('topic is cmd or prg')
+  //       my.dbPublish(winp, function(cb){
+  //         cons.log(`${winp[2]} can publish ${dev}/cmd||prg?: ${cb}`)
+  //         if(!cb){
+  //           cons.log('in error for cmd||prg')
+  //         }else{
+  //           cons.log('should be true ' )
+  //           this.publish(packet)
+  //         }
+  //       }.bind(this)) 
+  //       break
+  //     case topic=='set':
+  //       if(client.user==cfg.super){
+  //         cons.log(`${moclient.user} is super and can publish ${dev}/set`)
+  //         this.publish(packet)
+  //       }else{
+  //         my.dbPubSet([dev, winp[2]], function(cb){
+  //           cons.log(`${winp[2]} can publish ${dev}/set?: ${cb}`)
+  //           if(!cb){
+  //             cons.log('in error for ')
+  //           }else{
+  //             cons.log('should be true ' )
+  //             this.publish(packet)
+  //           }
+  //         }.bind(this)) 
+  //       }
+  //       break
+  //     default:
+  //       //console.log('in default')
+  //       this.publish(packet)
+  //   }
+  //   //this.publish(packet)
+  // },
   processIncoming: function(payload){
     switch(true){
       case this.job=="cmd":
