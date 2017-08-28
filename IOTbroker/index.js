@@ -117,7 +117,7 @@ function setup() {
 var moserver = new mosca.Server(moscaSettings);   //here we start mosca
 moserver.on('ready', setup);  //on init it fires up setup()
 var moclient= moserver.on('clientConnected', function(client) {
-    console.log('client connected', client.id);
+    console.log('client connected', client.id, client.user);
     return client;
     //console.log(client)
 });
@@ -183,10 +183,10 @@ var mq = {
       retain: packet.retain || false,
       qos: packet.qos || 0
     };
-    currentPacket= newPacket;
+    //currentPacket= newPacket;
     // console.log('Pkt',  packet.topic , newPacket.payload.toString());
     //console.log(currentPacket.payload.toString())
-    exports.currentPacket
+    //exports.currentPacket
     moserver.publish(newPacket, function(){
       console.log('Pkt',  packet.topic , newPacket.payload.toString());
     });    
@@ -244,6 +244,24 @@ var mq = {
         //console.log("sched")
         //sched.sendSchedule(this.devid, moserver, payload)
         break
+      case this.job=="user":
+        var pl = JSON.parse(payload.toString())
+        var top =`${this.devid}/userInf`
+        cons.log(pl.user)
+        my.dbGetUser([this.devid,pl.appId,pl.user], function(cbv){
+          var pla= `{"canPublish":${cbv}}`
+          var oPacket = {
+            topic: top,
+            payload: pla,
+            retain: false,
+            qos: 0
+          };    
+          console.log(oPacket)    
+          moserver.publish(oPacket, ()=>{
+            cons.log('did')
+          })          
+        })
+        break  
       case this.job=="srstate":
         var pl = JSON.parse(payload.toString())
         if (pl.new){

@@ -125,6 +125,26 @@ const dbPublish=(inp, cb)=>{
 		cb(cbv)  		    
   })	
 }
+const dbGetUser=(params,cb)=>{
+	cons.log(params)
+	var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND (userid=? OR userid='anybody')",params , function(error,results,fields){
+    cons.log(query.sql)
+    var cbv=false
+		if(error){
+			cbv=false
+		}else {
+			var res = results[0];
+			cons.log(res)
+			if(ut.get('res.role',res)=='obs' || ut.get('res.role', res)=='any'){
+				cbv=false
+			} else {
+				cbv=true
+			}
+		}
+		cb(cbv)    
+  })
+
+}
 
 const dbPubSet=(inp,cb)=>{
 	var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND userid=? and role= 'admin'", inp, function(error,results,fields){
@@ -169,6 +189,7 @@ module.exports = {
 	dbSubscr: dbSubscr,
 	dbPublish: dbPublish,
 	dbPubSet: dbPubSet,
+	dbGetUser: dbGetUser,
 	dbGetTimezone: dbGetTimezone,
 	getTodaysSched: getTodaysSched
 }

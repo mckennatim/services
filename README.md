@@ -1,5 +1,7 @@
 # services
 ## tags
+### 29-iotb-intercepts-user-messages
+and tells you if they can publish, 
 ### 28-iotb-notpubAuthorizeddisconnects
 ### 27-iotb-publishAuthorized
 Right now it lets everyone publish but the nuts and bolts are almost in place.
