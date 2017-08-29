@@ -1,5 +1,7 @@
 # services
 ## tags
+### 31-recording-srstate
+Recording srstate data take place on a cassandra cluster via iotb.index.js.processIncoming.srstate cassClient.execute(q1). Reco.count is a mongo query which stores which dev/senrels are currently being recorded.
 ### 30-dow-programs
 iotex handles saving a program through dedata/prg but iotb is the server that loads the current programs for each device into the device on every timecheck
 

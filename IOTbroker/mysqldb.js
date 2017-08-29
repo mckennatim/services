@@ -76,7 +76,7 @@ const dbSubscr=(inp, cb)=>{
 	// }
   var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
     cons.log(query.sql)
-    cons.log(results[0])
+    //cons.log(results[0])
     var cbv=false
 		if(error){
 			cbv= false
