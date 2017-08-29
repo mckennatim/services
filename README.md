@@ -1,5 +1,30 @@
 # services
 ## tags
+### 30-dow-programs
+iotex handles saving a program through dedata/prg but iotb is the server that loads the current programs for each device into the device on every timecheck
+
+Avoiding the now working publish callback, so moved sched.js.getTime.my.getTodaysSchedule out of the sched.js.getTime.mosca.publish 
+#### question
+I'm running mosca: 2.3.0 and wanted to do some work in the service publish callback but it never seems to fire even though the message gets delivered. Here I just published a simple message after mosca is ready but console.log('done! SUPER SIMPLE') never runs.  Any ideas?
+
+    moserver.on('ready', setup);
+
+    function setup() {
+      console.log('Mosca server is up and running')
+      console.log('device mqtt running on port '+cfg.port.mqtt)
+      console.log('browser mqtt over ws port '+cfg.port.ws)
+      var message = {
+        topic: '/hello/world',
+        payload: 'abcde', // or a Buffer
+        qos: 0, // 0, 1, or 2
+        retain: false // or true
+      };
+      moserver.publish(message, function() {
+        console.log('done! SUPER SIMPLE');
+      });  
+    }
+#### answer
+Actually the callback works on a new simple server, Something is fucking with it in the code I wrote. 
 ### 29-iotb-intercepts-user-messages
 and tells you if they can publish, 
 ### 28-iotb-notpubAuthorizeddisconnects

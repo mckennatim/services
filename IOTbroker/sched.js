@@ -60,23 +60,25 @@ var getTime = function(devid, mosca, cb){
 			retain: false,
 			qos: 0
 	  };
-	  console.log(topi) 
+	  cons.log(topi) 
 	  mosca.publish(oPacket, function(){
-	  	console.log('dow is ', dow)
+	  	cons.log('just published devtime')
 	  	//var topic = devid+'/prg'
-	  	my.getTodaysSched(devid,dow,function(results){
-	  		results.map((res)=>{
-	  			cons.log(res)
-	  			var payload = `{"id":${res.senrel},"pro":${res.sched}}`
-	  			cons.log(payload)
-					setTimeout(function(){
-						sendSchedule(devid, mosca, payload, (payload)=>{
-							cons.log(payload, ' sent')
-						})
-					}, 1000)	  			
-	  		})
-	  	})
-	  });
+	  });	  	
+  	my.getTodaysSched(devid,dow,function(results){
+  		cons.log('dow is ', dow)
+  		results.map((res)=>{
+  			//cons.log(res)
+  			var payload = `{"id":${res.senrel},"pro":${res.sched}}`
+  			//cons.log(payload)
+				setTimeout(function(){
+					sendSchedule(devid, mosca, payload, (payload)=>{
+						cons.log(payload, ' sent')
+					})
+				}, 1000)	  			
+  		})
+  	})
+
 	})
 }
 

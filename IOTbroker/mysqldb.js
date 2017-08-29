@@ -134,7 +134,7 @@ const dbGetUser=(params,cb)=>{
 			cbv=false
 		}else {
 			var res = results[0];
-			cons.log(res)
+			//cons.log(res)
 			if(ut.get('res.role',res)=='obs' || ut.get('res.role', res)=='any'){
 				cbv=false
 			} else {
@@ -169,16 +169,21 @@ const dbGetTimezone=(devId, cb)=>{
 }
 
 const getTodaysSched=(devid, dow, cb)=>{
-	var query=conn.query("SELECT * FROM scheds WHERE devid=? AND dow=?", [devid,dow], function(error,results,fields){
+	/*
+	first there is the inner query which groups by senrel taking only the max dow which eliminates dow=0 values when there is a record for the actual dow. The inner join is used to filter all the records to just take that.
+	SELECT * FROM scheds a
+	INNER JOIN (SELECT MAX(dow)as mdow, senrel 
+		FROM scheds
+		WHERE devid='CYURD002' AND (dow=2 OR dow=0) 
+		GROUP BY senrel)b
+	ON a.dow=b.mdow AND a.senrel=b.senrel
+
+	SELECT * FROM scheds a INNER JOIN (SELECT MAX(dow)as mdow, senrel FROM scheds WHERE devid=? AND (dow=? OR dow=0) GROUP BY senrel)b ON a.dow=b.mdow AND a.senrel=b.senrel
+	*/
+	//var query=conn.query("SELECT * FROM scheds WHERE devid=? AND (dow=? OR dow=0) ORDER BY dow", [devid,dow], function(error,results,fields){
+	var query=conn.query("SELECT * FROM scheds a INNER JOIN (SELECT MAX(dow)as mdow, senrel FROM scheds WHERE devid=? AND (dow=? OR dow=0) GROUP BY senrel)b ON a.dow=b.mdow AND a.senrel=b.senrel", [devid,dow], function(error,results,fields){
 		cons.log(query.sql)
-		if (results.length==0){
-			//check it there is and everyday program
-			var query2=conn.query("SELECT * FROM scheds WHERE devid=? AND dow=0", devid, function(error,results0,fields){
-				cb(results0)
-			})
-		}else{
-			cb(results)
-		}
+		cb(results)
 	})
 }
 

@@ -112,6 +112,15 @@ function setup() {
   console.log('Mosca server is up and running')
   console.log('device mqtt running on port '+cfg.port.mqtt)
   console.log('browser mqtt over ws port '+cfg.port.ws)
+  var message = {
+    topic: '/hello/world',
+    payload: 'abcde', // or a Buffer
+    qos: 0, // 0, 1, or 2
+    retain: false // or true
+  };
+  moserver.publish(message, function() {
+    console.log('done! SUPER SIMPLE');
+  });  
 }
 
 var moserver = new mosca.Server(moscaSettings);   //here we start mosca
@@ -188,7 +197,7 @@ var mq = {
     //console.log(currentPacket.payload.toString())
     //exports.currentPacket
     moserver.publish(newPacket, function(){
-      console.log('Pkt',  packet.topic , newPacket.payload.toString());
+      console.log('Pukt',  packet.topic , newPacket.payload.toString());
     });    
   },
   // publishAuthorized: function(packet, winp){
@@ -256,9 +265,9 @@ var mq = {
             retain: false,
             qos: 0
           };    
-          console.log(oPacket)    
+          //console.log(oPacket)    
           moserver.publish(oPacket, ()=>{
-            cons.log('did')
+            cons.log('did PUBLISH IT')
           })          
         })
         break  
