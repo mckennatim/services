@@ -1,6 +1,33 @@
 other sql files...
 /tmstack/hsc/sql/sql.sql
 
+DROP TABLE IF EXISTS `locations`;
+CREATE TABLE `locations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `locid` varchar(20) NOT NULL,
+  `address` varchar(120) NOT NULL,
+  `latlng` varchar(100) DEFAULT NULL,
+  `timezone` varchar(40) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `locid` (`locid`),
+  KEY `timezone` (`timezone`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1000 ;
+
+INSERT INTO locations (locid, address, latlng, timezone)
+  VALUES (
+    '12ParleyVale',
+    '12 Parley Vale, Boston, MA 02130, USA',
+    '{"lat":42.3150229,"lng":-71.111138}',
+    'America/New_York'
+  )
+  INSERT INTO locations (locid, address, latlng, timezone)
+    VALUES (
+      '255Chestnut',
+      '255 Chestnut Ave, Jamaica Plain, MA 02130, USA',
+      '{"lat":42.31381409999999,"lng":-71.10874749999999}',
+      'America/New_York'
+    )
+
 DROP TABLE IF EXISTS `scheds`;
 CREATE TABLE `scheds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -65,6 +92,26 @@ CREATE TABLE IF NOT EXISTS `devices` (
   KEY `timezone` (`timezone`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=100 ;
 
+DROP TABLE IF EXISTS `devs`;
+CREATE TABLE IF NOT EXISTS `devs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `devid` varchar(30) NOT NULL,
+  `devpwd` varchar(24) DEFAULT NULL,
+  `description` varchar(220) DEFAULT NULL,
+  `bizid` varchar(20) DEFAULT NULL,
+  `locid` varchar(20) DEFAULT NULL,
+  `server` varchar(120) DEFAULT NULL,
+  `specs` varchar(120) DEFAULT NULL,
+  `owner` varchar(60) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `devid` (`devid`),
+  KEY `bizid` (`bizid`),
+  KEY `locid` (`locid`),
+  KEY `owner` (`owner`),
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=100 ;
+
+
+
 DROP TABLE IF EXISTS `apps`;
 CREATE TABLE `apps` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -92,37 +139,37 @@ CREATE TABLE IF NOT EXISTS `biz` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=500 ;
 
 -- a slow build
-SELECT * FROM `devuserapp` d 
-LEFT JOIN `devices`e 
+SELECT * FROM `devuserapp` d
+LEFT JOIN `devices`e
 ON d.devid=e.devid
 
-SELECT * FROM `devuserapp` d 
-LEFT JOIN `devices` e 
+SELECT * FROM `devuserapp` d
+LEFT JOIN `devices` e
 ON d.devid=e.devid
-LEFT JOIN `apps` a 
+LEFT JOIN `apps` a
 ON d.appid=a.appid
 
 
-SELECT d.userid, d.devid, d.appid, e.description, a.desc 
-FROM `devuserapp` d 
-LEFT JOIN `devices` e 
+SELECT d.userid, d.devid, d.appid, e.description, a.desc
+FROM `devuserapp` d
+LEFT JOIN `devices` e
 ON d.devid=e.devid
-LEFT JOIN `apps` a 
+LEFT JOIN `apps` a
 ON d.appid=a.appid
 
-SELECT d.userid, d.devid, d.appid, e.description, a.desc 
-FROM `devuserapp` d 
-LEFT JOIN `devices` e 
+SELECT d.userid, d.devid, d.appid, e.description, a.desc
+FROM `devuserapp` d
+LEFT JOIN `devices` e
 ON d.devid=e.devid
-LEFT JOIN `apps` a 
+LEFT JOIN `apps` a
 ON d.appid=a.appid
 WHERE d.userid="mckenna.tim@gmail.com"
 
 SELECT d.userid, d.devid, e.description as devdesc, d.appid,  a.desc as appdesc, d.role, d.auth
-FROM `devuserapp` d 
-LEFT JOIN `devices` e 
+FROM `devuserapp` d
+LEFT JOIN `devices` e
 ON d.devid=e.devid
-LEFT JOIN `apps` a 
+LEFT JOIN `apps` a
 ON d.appid=a.appid
 WHERE d.userid="mckenna.tim@gmail.com"
 
@@ -148,10 +195,10 @@ SELECT
   owner
 FROM
   `devices`
-WHERE 
+WHERE
   owner ='tim@sitebuilt.net'
 ORDER BY
-  devid;  
+  devid;
 -- last is it
 SELECT
   d.userid,
@@ -185,4 +232,4 @@ LEFT JOIN
 WHERE
   d.userid = 'mckenna.tim@gmail.com'
 AND
-(d.appid='admin' OR d.appid='super') 
+(d.appid='admin' OR d.appid='super')

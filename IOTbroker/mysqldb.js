@@ -127,20 +127,26 @@ const dbPublish=(inp, cb)=>{
 }
 const dbGetUser=(params,cb)=>{
 	cons.log(params)
+  if(params[2]==cfg.super){
+  	cb(true)
+  	return
+ 	}	
 	var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND (userid=? OR userid='anybody')",params , function(error,results,fields){
     cons.log(query.sql)
+    //cons.log(results)
     var cbv=false
 		if(error){
 			cbv=false
-		}else {
-			var res = results[0];
-			//cons.log(res)
-			if(ut.get('res.role',res)=='obs' || ut.get('res.role', res)=='any'){
-				cbv=false
-			} else {
-				cbv=true
-			}
+		}else if(results.length>0) {
+			results.map((x)=>{
+				if(x.role=='user' || x.role=='admin'){
+					cbv=true
+				}
+			})
+		} else{
+			cbv=false
 		}
+		//cons.log(cbv)
 		cb(cbv)    
   })
 
