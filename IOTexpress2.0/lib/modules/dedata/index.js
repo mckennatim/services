@@ -41,14 +41,14 @@ module.exports = function() {
 		}
 	})
 
-	router.get('/locids/:appid/:userid', bearerToken, function(req,res){
+	router.get('/loclist/:appid/:userid', bearerToken, function(req,res){
 		if(!req.userTok.auth){
 			//console.log(req.userTok.message)
 			var mess={message: 'in get /dedata/locids (not authoried)-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
-			console.log('in /dedata/locids', req.params)
+			console.log('in /dedata/loclist', req.params)
 			var q =conn.query('SELECT DISTINCT locid FROM `user_app_loc` WHERE userid=? AND appid=? ORDER BY `locid` ASC', [req.params.userid, req.params.appid] , function(error, results, fields){
 				cons.log(q.sql)
 				var arrres = results.map((loc)=>loc.locid)

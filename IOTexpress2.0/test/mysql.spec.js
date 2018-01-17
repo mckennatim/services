@@ -117,7 +117,7 @@ describe('device mongo:', function() {
 		var userid='tim@sitebuilt.net'
 		var appid='hvac'
 		var params = `/${appid}/${userid}`
-		var url = cfg.url.local+":"+cfg.port.express + '/api/dedata/locids' + params
+		var url = cfg.url.local+":"+cfg.port.express + '/api/dedata/loclist' + params
 		console.log(url);
 		superagent
 			.get(url)
