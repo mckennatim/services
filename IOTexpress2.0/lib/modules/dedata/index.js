@@ -40,16 +40,31 @@ module.exports = function() {
 			})
 		}
 	})
-
-	router.get('/loclist/:appid/:userid', bearerToken, function(req,res){
+	router.get('/loclist', bearerToken, function(req,res){
 		if(!req.userTok.auth){
 			//console.log(req.userTok.message)
 			var mess={message: 'in get /dedata/locids (not authoried)-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
+			cons.log(req.userTok);
+			cons.log('in /dedata/loclist no params')
+			var q =conn.query('SELECT DISTINCT locid FROM `user_app_loc` WHERE userid=? AND appid=? ORDER BY `locid` ASC', [req.userTok.emailId, req.userTok.appId] , function(error, results, fields){
+				cons.log(q.sql)
+				var arrres = results.map((loc)=>loc.locid)
+				res.jsonp(arrres)
+			})
+		}
+	})
+	router.get('/loc/:locid', bearerToken, function(req,res){
+		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
+			var mess={message: 'in get /dedata/loc (not authoried)-'+req.userTok.message}
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{
 			console.log('in /dedata/loclist', req.params)
-			var q =conn.query('SELECT DISTINCT locid FROM `user_app_loc` WHERE userid=? AND appid=? ORDER BY `locid` ASC', [req.params.userid, req.params.appid] , function(error, results, fields){
+			var q =conn.query('SELECT DISTINCT locid FROM `user_app_loc` WHERE userid=? AND appid=? ORDER BY `locid` ASC', [req.userTok.userId, req.params.appid] , function(error, results, fields){
 				cons.log(q.sql)
 				var arrres = results.map((loc)=>loc.locid)
 				res.jsonp(arrres)

@@ -16,7 +16,7 @@ var bearerToken = function(req,res, next){
 	}
 	var toka = req.headers.authorization.split(' ')
 	cons.log(toka[1])
-	try { 
+	try {
 		var tokdata = jwt.decode(toka[1], cfg.secret)
 		cons.log(tokdata)
 	} catch(e){
@@ -24,7 +24,7 @@ var bearerToken = function(req,res, next){
 		req.userTok = {auth: false, message: e.message, emailId: ""}
 		next()
 		return
-	} 
+	}
 	//cons.log(tokdata)
 	var retu = 'duch'
 	var q= conn.query('SELECT userid, devid FROM devuserapp WHERE userid= ?', tokdata.email, function (error, results, fields) {
@@ -46,13 +46,13 @@ var bearerToken = function(req,res, next){
 				req.userTok = {auth: true, message: 'no apps', emailId: tokdata.email}
 				next()
 			}else{
-				req.userTok = {auth: true, message: 'user has apps', emailId: tokdata.email}
+				req.userTok = {auth: true, message: 'user has apps', emailId: tokdata.email, appId: tokdata.appId}
 				next()
 			}
 		}else{
 			req.userTok = {auth: false, message: 'no user'}
 			next()
-		}	
+		}
 	})
 }
 

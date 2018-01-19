@@ -10,7 +10,9 @@ var pdata = {devid: "CYURBAD", devpwd: "nopwd", bizid: "sbs" }
 var jdata ={
 	email: emailId
 }
-var token = jwt.encode(jdata, cfg.secret)
+//var token = jwt.encode({ appId: 'hvac', email: 'tim@sitebuilt.net' }, cfg.secret)
+var token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhcHBJZCI6Imh2YWMiLCJlbWFpbCI6InRpbUBzaXRlYnVpbHQubmV0In0.e8oviN49uxjbc9FgcyPWV-vQYp0YlD183FhqCWzpuT0"
+
 describe('device mysqldb:', function() {
 	it('gets devuserapps for device', function(done){
 		expect(true).to.equal(true)
@@ -113,11 +115,10 @@ describe('device mongo:', function() {
 				done()
 			})
 	})
-	it('GETs locids', function(done) {
+	it('GETs locids w/o params', function(done) {
 		var userid='tim@sitebuilt.net'
-		var appid='hvac'
-		var params = `/${appid}/${userid}`
-		var url = cfg.url.local+":"+cfg.port.express + '/api/dedata/loclist' + params
+
+		var url = cfg.url.local+":"+cfg.port.express + '/api/dedata/loclist'
 		console.log(url);
 		superagent
 			.get(url)
