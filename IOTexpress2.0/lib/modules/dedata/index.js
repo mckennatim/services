@@ -17,7 +17,7 @@ module.exports = function() {
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
-			var q=conn.query('SELECT d.userid, d.devid, e.description as devdesc, d.bizid, d.appid,  a.desc as appdesc, d.role, d.auth FROM `devuserapp` d LEFT JOIN `devices` e ON d.devid=e.devid LEFT JOIN `apps` a ON d.appid=a.appid WHERE d.userid= ? AND (d.appid="admin" OR d.appid="super")', req.userTok.emailId, function (error, results, fields) {
+			var q=conn.query('SELECT * FROM user_app_loc WHERE userid =? AND devid IS NOT null AND (role="admin" OR role="super")', req.userTok.emailId, function (error, results, fields) {
 				cons.log(q.sql)
 				//cons.log(results)
 				if (error){
@@ -59,14 +59,15 @@ module.exports = function() {
 	router.get('/loc/:locid', bearerToken, function(req,res){
 		if(!req.userTok.auth){
 			//console.log(req.userTok.message)
-			var mess={message: 'in get /dedata/loc (not authoried)-'+req.userTok.message}
+			var mess={message: 'in get /dedata/loc/:locid (not authoried)-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
-			console.log('in /dedata/loclist', req.params)
-			var q =conn.query('SELECT DISTINCT locid FROM `user_app_loc` WHERE userid=? AND appid=? ORDER BY `locid` ASC', [req.userTok.userId, req.params.appid] , function(error, results, fields){
+			console.log('in /dedata/loc/:locid', req.params)
+			var q =conn.query('SELECT devid FROM `user_app_loc` WHERE userid=? AND appid=? AND locid=?', [req.userTok.emailId, req.userTok.appId, req.params.locid] , function(error, results, fields){
 				cons.log(q.sql)
-				var arrres = results.map((loc)=>loc.locid)
+				console.log(results);
+				var arrres = results.map((loc)=>loc.devid)
 				res.jsonp(arrres)
 			})
 		}
@@ -147,37 +148,74 @@ module.exports = function() {
 			cons.log(pdata)
 			var appArr = JSON.parse(pdata.apps)
 			var ddata={devid:pdata.devid, userid:pdata.owner, bizid:pdata.bizid, role:'admin'}
+			var udata={userid:pdata.owner, role:'admin', locid:pdata.locid, devid:pdata.devid}
+			var ndata={devid:pdata.devid, bizid:pdata.bizid, description:pdata.description, locid:pdata.locid, server:pdata.server, specs:pdata.specs, owner:pdata.owner, apps:pdata.apps }
+			var odata={devid:pdata.devid, description:pdata.description, bizid:pdata.bizid, address:pdata.address, location:pdata.location, timezone: pdata.timezone, server:pdata.server, specs:pdata.specs,  owner:pdata.owner, apps:pdata.apps }
+			var ldata={locid:pdata.locid, address:pdata.address, latlng:pdata.location, timezone: pdata.timezone}
 			cons.log(ddata)
-			cons.log(appArr)
+			cons.log(udata)
+			cons.log(ndata)
+			cons.log(odata)
+			cons.log(ldata)
 			appArr.map((appid)=>{
 				var bdata = {bizid: pdata.bizid, appid: appid }
 				ddata.appid=appid
-				console.log(ddata)
+				udata.appid=appid
+				cons.log(ddata)
 				var query1 = conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ddata,ddata], function(error,results,fields){
+						cons.log(query1.sql)
 						if (error) {
 							throw error;
-							console.log({message: error})
+							cons.log({message: error})
 						}else{
-							console.log(results)
+							cons.log(results)
 						}
 				})
 				var query2 = conn.query('INSERT INTO bizapp SET ? ON DUPLICATE KEY UPDATE ?', [bdata,bdata], function(error,results,fields){
+						cons.log(query2.sql)
 						if (error) {
 							throw error;
-							console.log({message: error})
+							cons.log({message: error})
 						}else{
-							console.log(results)
+							cons.log(results)
+						}
+				})
+				var query2a = conn.query('INSERT INTO user_app_loc SET ? ON DUPLICATE KEY UPDATE ?', [udata,udata], function(error,results,fields){
+						cons.log(query2a.sql)
+						if (error) {
+							throw error;
+							cons.log({message: error})
+						}else{
+							cons.log(results)
 						}
 				})
 			})
 			// save a new device
-			var query = conn.query('INSERT INTO devices SET ? ON DUPLICATE KEY UPDATE ?', [pdata,pdata], function(error,results,fields){
+			var query = conn.query('INSERT INTO devices SET ? ON DUPLICATE KEY UPDATE ?', [odata,odata], function(error,results,fields){
 				cons.log(query.sql)
 				if (error) {
 					throw error;
 					res.jsonp({message: error})
 				}else{
-					console.log(results)
+					cons.log(results)
+				}
+			})
+			var query1a = conn.query('INSERT INTO locations SET ? ON DUPLICATE KEY UPDATE ?', [ldata,ldata], function(error,results,fields){
+					cons.log(query1a.sql)
+					if (error) {
+						throw error;
+						cons.log({message: error})
+					}else{
+						cons.log(results)
+					}
+			})			
+			var queryn = conn.query('INSERT INTO devs SET ? ON DUPLICATE KEY UPDATE ?', [ndata,ndata], function(error,results,fields){
+				cons.log(queryn.sql)
+				if (error) {
+					throw error;
+					res.jsonp({message: error})
+				}else{
+					cons.log(results)
 					res.jsonp({message: results})
 				}
 			})

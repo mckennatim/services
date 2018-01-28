@@ -115,10 +115,23 @@ describe('device mongo:', function() {
 				done()
 			})
 	})
-	it('GETs locids w/o params', function(done) {
+	it('GETs locids ', function(done) {
 		var userid='tim@sitebuilt.net'
 
 		var url = cfg.url.local+":"+cfg.port.express + '/api/dedata/loclist'
+		console.log(url);
+		superagent
+			.get(url)
+			.set('Authorization', 'Bearer ' + token)
+			.end(function(e, res) {
+				console.log(res.body)
+				expect(true).to.be(true);
+				done()
+			})
+	})
+	it('GETs loc/:locid devices', function(done) {
+		var locid='12ParleyVale'
+		var url = cfg.url.local+":"+cfg.port.express + '/api/dedata/loc/'+locid
 		console.log(url);
 		superagent
 			.get(url)

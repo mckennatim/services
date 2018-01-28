@@ -1,12 +1,6 @@
 other sql files...
 /tmstack/hsc/sql/sql.sql
 
-
-
-
-
-
-/*
 -------------------new IOTexress2.0 tables---------------
 locations, devs, user-app-loc
 */
@@ -166,8 +160,68 @@ WHERE locid = '12parleyVale'
 INSERT into user_app_loc (userid, appid, role, locid, devid)
 VALUES ('tim@sitebuilt.net', 'hvac', 'user', '12parleyVale', 'CYURD003')
 ---------------end of IOTexpress2.0 table creation------------
+---------------- exploratory queries--------
+SELECT *
+FROM user_app_loc
+WHERE userid ='mckenna.tim@gmail.com'
 
-----------------queries in the api2.0---------------------
+SELECT *
+FROM user_app_loc
+WHERE userid ='tim@sitebuilt.net'
+AND devid IS NOT null
+
+SELECT *
+FROM user_app_loc
+WHERE userid ='mckenna.tim@gmail.com'
+AND devid IS NOT null
+AND (role="admin" OR role="super") 
+
+INSERT INTO `user_app_loc` 
+(`id`, `userid`, `appid`, `role`, `locid`, `devid`) 
+VALUES 
+(NULL, 'mckenna.tim@gmail.com', 'admind', 'super', '1NearwaterAve', 'CYURD14I');
+
+ALTER TABLE `geniot`.`devuserapp` 
+DROP INDEX `main`, 
+ADD UNIQUE `main` (`devid`, `userid`, `bizid`, `appid`) 
+USING BTREE;
+
+ALTER TABLE `geniot`.`devuserapp` 
+DROP INDEX `main`, 
+ADD UNIQUE `main` (`devid`, `userid`, `bizid`, `appid`) 
+USING BTREE;
+
+ALTER TABLE `geniot`.`devuserapp` 
+DROP INDEX `main`, 
+ADD UNIQUE `main` (`devid`, `userid`, `bizid`, `appid`) 
+USING BTREE;
+
+ALTER TABLE `geniot`.`user_app_loc` 
+DROP INDEX `locid`, 
+ADD INDEX `locid` (`locid`) 
+USING BTREE;
+
+ALTER TABLE `geniot`.`user_app_loc` 
+ADD INDEX `userid` (`userid`) 
+USING BTREE;
+
+ALTER TABLE `geniot`.`user_app_loc` 
+ADD INDEX `appid` (`appid`) 
+USING BTREE;
+
+ALTER TABLE `geniot`.`user_app_loc` 
+ADD INDEX `role` (`role`) 
+USING BTREE;
+
+ALTER TABLE `geniot`.`user_app_loc` 
+ADD UNIQUE `main` (`userid`, `appid`, `devid`, `role`, `locid`) 
+USING BTREE;
+
+SELECT * FROM `user_app_loc` 
+ORDER BY `userid`, `appid`, `role`, `locid`, `devid`  
+ASC 
+
+ALTER TABLE `geniot`.`user_app_loc` DROP INDEX `locid`, ADD INDEX `locid` (`locid`) USING BTREE;ALTER TABLE `geniot`.`user_app_loc` DROP INDEX `locid`, ADD INDEX `locid` (`locid`) USING BTREE;----------------queries in the api2.0---------------------
 ---get locids
 SELECT DISTINCT locid
 FROM `user_app_loc`

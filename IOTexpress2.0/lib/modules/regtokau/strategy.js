@@ -27,7 +27,7 @@ var bearerToken = function(req,res, next){
 	}
 	//cons.log(tokdata)
 	var retu = 'duch'
-	var q= conn.query('SELECT userid, devid FROM devuserapp WHERE userid= ?', tokdata.email, function (error, results, fields) {
+	var q= conn.query('SELECT userid, devid FROM user_app_loc WHERE userid= ? AND devid IS NOT null', tokdata.email, function (error, results, fields) {
 		cons.log(q.sql)
 		if (error){
 			cons.log(error.message)
