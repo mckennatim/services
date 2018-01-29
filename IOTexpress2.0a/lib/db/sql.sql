@@ -260,44 +260,6 @@ SELECT devs.devid,
 FROM devs, locations       
 WHERE devs.locid = locations.locid
 ORDER BY devs.devid
-
-SELECT DISTINCT u.devid
-FROM user_app_loc u, devs d
-WHERE d.devid=u.devid
-    AND u.userid='tim@sitebuilt.net'
-    AND u.appid='hvac'
-    AND d.locid='12ParleyVale'
-
-
-SELECT DISTINCT d.locid
-FROM user_app_loc u , devs d
-WHERE u.devid=d.devid
-    AND u.userid='tim@sitebuilt.net'
-    AND u.appid='hvac'
-ORDER BY d.locid ASC
-
-INSERT INTO user_app_loc
-SET `devid` = 'CYURD14I',
-    `userid` = 'tim3@sitebuilt.net',
-    `appid` = 'hvac',
-    `role` = 'user' 
-ON DUPLICATE KEY
-UPDATE `devid` = 'CYURD14I',
-       `userid` = 'tim2@sitebuilt.net',
-       `appid` = 'hvac',
-       `role` = 'user'
-
-
-INSERT INTO devuserapp
-SET `devid` = 'CYURD14I',
-    `userid` = 'tim2@sitebuilt.net',
-    `appid` = 'hvac',
-    `role` = 'user' ON DUPLICATE KEY
-UPDATE `devid` = 'CYURD14I',
-       `userid` = 'tim2@sitebuilt.net',
-       `appid` = 'hvac',
-       `role` = 'user'
-
 ----------------equeries in the api -----------------
 
 --ex2.0/strategy/ln30
@@ -356,33 +318,6 @@ UPDATE `devid` = 'CYURD007',
 `specs` = '{\"HAStIMER\":28,\"notTimerTags\":[\"temp\",\"onoff\",\"hilimit\",\"lolimit\"]}',
 `owner` = 'tim@sitebuilt.net',
 `apps` = '[\"admin\", \"user\"]'
-
-------dedata/index.js:108.get/dev  /super/CYURD14I 
-SELECT d.devid,
-       d.devpwd,
-       d.description,
-       d.bizid,
-       d.locid,
-       l.address,
-       l.latlng,
-       l.timezone,
-       d.server,
-       d.specs,
-       d.owner,
-       d.apps
-FROM devs d, locations l
-WHERE d.locid=l.locid
-ORDER BY d.devid
-
-SELECT l.timezone
-FROM locations l,
-     devs d
-WHERE l.locid=d.locid
-    AND d.devid='CYURD003'
-------dedata/index.js:84.get/users/:devid  /admin/CYURD14I 
-SELECT * 
-FROM user_app_loc 
-WHERE devid='CYURD003'
 
 SELECT DISTINCT locid
 FROM `user_app_loc`

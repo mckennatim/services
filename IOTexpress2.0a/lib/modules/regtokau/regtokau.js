@@ -18,22 +18,31 @@ module.exports = function() {
 	router.post('/auth', function(req, res){
 		cons.log("in api/reg/auth")
 		cons.log(req.body)
+		cons.log(secret)
 		const payload = jwt.decode(req.body.token, secret)
 		cons.log(payload)
 		if (payload.email==cfg.super){
 			//if you are a superuser add if no there the superuser records
 			const superdev = "CYURD14I"
 			cons.log('your are a superuser')
-			var ins = {devid: superdev, userid:  payload.email, appid: payload.appId, role:'super', auth: true }
-			var ins3 = {devid: superdev, userid: payload.email, appid: payload.appId, role:'admin', auth: true }
-			conn.query('INSERT INTO user_app_loc SET ? ON DUPLICATE KEY UPDATE ?', [ins,ins] , function (error, results, fields) {
+			var ins = {devid: superdev, userid:  payload.email, bizid:'sbs', appid: 'super', role:'super', auth: true }
+			var ins2 = {devid: superdev, userid: payload.email, bizid:'sbs', appid: 'admin', role:'admin', auth: true }
+			var ins3 = {devid: superdev, userid: payload.email, bizid:'sbs', appid: payload.appId, role:'admin', auth: true }
+			conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ins,ins] , function (error, results, fields) {
 			  if(error) {
 			  	console.log(error.code)
 			  }else {
 			  	console.log(results.insertId);
 			  }
 			})
-			conn.query('INSERT INTO user_app_loc SET ? ON DUPLICATE KEY UPDATE ?', [ins3,ins3] , function (error, results, fields) {
+			conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ins2,ins2] , function (error, results, fields) {
+			  if(error) {
+			  	console.log(error.code)
+			  }else {
+			  	console.log(results.insertId);
+			  }
+			})
+			conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ins3,ins3] , function (error, results, fields) {
 			  if(error) {
 			  	console.log(error.code)
 			  }else {
@@ -43,7 +52,7 @@ module.exports = function() {
 			res.jsonp({auth:true, message: 'authenticated a superuser'});
 		}else{
 			//see if there are any apps/devices for that user or tell them they are shit outa luck and should contact the bossman to add your email to the system. If there is a record(s) for the user/appid then make auth true for them. If not have them ask to be added. 
-			var query1= conn.query('SELECT * FROM user_app_loc  WHERE userid = ? AND appid = ?', [payload.email, payload.appId], function (error, results, fields) {
+			var query1= conn.query('SELECT * FROM devuserapp  WHERE userid = ? AND appid = ?', [payload.email, payload.appId], function (error, results, fields) {
 				cons.log(query1.sql)
 				if(results.length==0){
 					var mes = {auth:false, message: 'You are not authorized for this app on any device. Contact device owner'}
@@ -52,7 +61,7 @@ module.exports = function() {
 				}else{
 					//ok we will auth you for this app for whatever devices
 					var ins4 = {userid: payload.email, appid: payload.appId}
-					var query = conn.query("UPDATE user_app_loc SET auth= true WHERE userid = ? AND appid = ?", [payload.email, payload.appId] , function (error, results, fields){
+					var query = conn.query("UPDATE devuserapp SET auth= true WHERE userid = ? AND appid = ?", [payload.email, payload.appId] , function (error, results, fields){
 						cons.log(query.sql)
 						cons.log(error)
 						if(error){

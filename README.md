@@ -1,5 +1,7 @@
 # services
 ## tags
+### 32-IOTexpess-broker-2.0
+Normalized databases are in place and queries have been written for version 2.0
 ### 31-recording-srstate
 Recording srstate data take place on a cassandra cluster via iotb.index.js.processIncoming.srstate cassClient.execute(q1). Reco.count is a mongo query which stores which dev/senrels are currently being recorded.
 ### 30-dow-programs

@@ -13,7 +13,7 @@ const dbAuth = (client, username,password, cb)=>{
 	console.log(client.id, username, password)
 	if(client.id.substr(0,2)=="CY"){
 		console.log('is a device')
-		var query=conn.query("SELECT devid, devpwd, owner FROM devices WHERE devid=?", client.id, function(error,results,fields){
+		var query=conn.query("SELECT devid, devpwd, owner FROM devs WHERE devid=?", client.id, function(error,results,fields){
 			cons.log(query.sql)
 			cons.log(results)
 			cons.log(error)
@@ -33,7 +33,7 @@ const dbAuth = (client, username,password, cb)=>{
 		var clientid= client.id.split('0.')[0]
 		if(username=='anybody'){
 			cons.log('ck if anybody is allowed')
-			var query = conn.query("SELECT * FROM devuserapp WHERE appid=? AND userid=?",[clientid, username] , function(error,results,fields){
+			var query = conn.query("SELECT * FROM user_app_loc WHERE appid=? AND userid=?",[clientid, username] , function(error,results,fields){
 				cons.log(query.sql)
 				if(results[0] && results[0].role=='obs'){
 					cons.log('anybody is allowed as obs')
@@ -74,7 +74,7 @@ const dbSubscr=(inp, cb)=>{
 	// 	cb(mcache.res)
 	// 	return
 	// }
-  var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
+  var query = conn.query("SELECT * FROM user_app_loc WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
     cons.log(query.sql)
     //cons.log(results[0])
     var cbv=false
@@ -106,7 +106,7 @@ const dbPublish=(inp, cb)=>{
 	// 	cb(pcache.res)
 	// 	return
 	// }
-  var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
+  var query = conn.query("SELECT * FROM user_app_loc WHERE devid=? AND appid=? AND userid=?",inp , function(error,results,fields){
     cons.log(query.sql)
     var cbv=false
 		if(error){
@@ -131,7 +131,7 @@ const dbGetUser=(params,cb)=>{
   	cb(true)
   	return
  	}	
-	var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND appid=? AND (userid=? OR userid='anybody')",params , function(error,results,fields){
+	var query = conn.query("SELECT * FROM user_app_loc WHERE devid=? AND appid=? AND (userid=? OR userid='anybody')",params , function(error,results,fields){
     cons.log(query.sql)
     //cons.log(results)
     var cbv=false
@@ -153,7 +153,7 @@ const dbGetUser=(params,cb)=>{
 }
 
 const dbPubSet=(inp,cb)=>{
-	var query = conn.query("SELECT * FROM devuserapp WHERE devid=? AND userid=? and role= 'admin'", inp, function(error,results,fields){
+	var query = conn.query("SELECT * FROM user_app_loc WHERE devid=? AND userid=? and role= 'admin'", inp, function(error,results,fields){
 		if(error){
 			cb(false)
 		}else {
@@ -168,7 +168,7 @@ const dbPubSet=(inp,cb)=>{
 }
 
 const dbGetTimezone=(devId, cb)=>{
-	var query=conn.query("SELECT timezone FROM devices WHERE devid=?", devId, function(error,results,fields){
+	var query=conn.query("SELECT l.timezone FROM locations l, devs d WHERE l.locid=d.locid AND d.devid=?", devId, function(error,results,fields){
 		cons.log(results[0])
 		cb(results[0].timezone)	
 	})

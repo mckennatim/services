@@ -19,6 +19,7 @@ module.exports = function() {
 		}else{
 			var q=conn.query('SELECT * FROM user_app_loc WHERE userid =? AND devid IS NOT null AND (role="admin" OR role="super")', req.userTok.emailId, function (error, results, fields) {
 				cons.log(q.sql)
+				//cons.log(results)
 				if (error){
 					cons.log(error.message)
 					res.jsonp = {auth: false, message: error.message}
@@ -41,13 +42,14 @@ module.exports = function() {
 	})
 	router.get('/loclist', bearerToken, function(req,res){
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			var mess={message: 'in get /dedata/locids (not authoried)-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
 			cons.log(req.userTok);
 			cons.log('in /dedata/loclist no params')
-			var q =conn.query('SELECT DISTINCT d.locid FROM user_app_loc u , devs d WHERE u.devid=d.devid AND u.userid=? AND u.appid=? ORDER BY d.locid ASC', [req.userTok.emailId, req.userTok.appId] , function(error, results, fields){
+			var q =conn.query('SELECT DISTINCT locid FROM `user_app_loc` WHERE userid=? AND appid=? ORDER BY `locid` ASC', [req.userTok.emailId, req.userTok.appId] , function(error, results, fields){
 				cons.log(q.sql)
 				var arrres = results.map((loc)=>loc.locid)
 				res.jsonp(arrres)
@@ -56,12 +58,13 @@ module.exports = function() {
 	})
 	router.get('/loc/:locid', bearerToken, function(req,res){
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			var mess={message: 'in get /dedata/loc/:locid (not authoried)-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
 			console.log('in /dedata/loc/:locid', req.params)
-			var q =conn.query('SELECT DISTINCT u.devid FROM user_app_loc u, devs d WHERE d.devid=u.devid AND u.userid=? AND u.appid=? AND d.locid=?', [req.userTok.emailId, req.userTok.appId, req.params.locid] , function(error, results, fields){
+			var q =conn.query('SELECT devid FROM `user_app_loc` WHERE userid=? AND appid=? AND locid=?', [req.userTok.emailId, req.userTok.appId, req.params.locid] , function(error, results, fields){
 				cons.log(q.sql)
 				console.log(results);
 				var arrres = results.map((loc)=>loc.devid)
@@ -72,12 +75,13 @@ module.exports = function() {
 
 	router.get('/users/:devid', bearerToken, function(req,res){
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			var mess={message: 'in get /dedata/users/:devid (not authoried)-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
 			console.log('in devid/users', req.params)
-			var q =conn.query('SELECT userid, appid, role FROM user_app_loc WHERE devid=?', req.params.devid, function(error, results, fields){
+			var q =conn.query('SELECT userid, bizid, appid, role FROM devuserapp WHERE devid=?', req.params.devid, function(error, results, fields){
 					cons.log(q.sql)
 					res.jsonp(results)
 				})
@@ -85,6 +89,7 @@ module.exports = function() {
 	})
 	router.get('/dev', bearerToken, function(req,res){
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			var mess={message: 'in get /dedata/dev (not authoried)-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
@@ -96,6 +101,10 @@ module.exports = function() {
 			cons.log(mess.message)
 			if(req.userTok.emailId==cfg.super){
 				cons.log('yo super')
+				// var q =conn.query('SELECT devid, devpwd, description, bizid, address, location, timezone, server, specs, owner, apps FROM devices ORDER BY bizid, owner', function(error, results, fields){
+				// 	cons.log(q.sql)
+				// 	res.jsonp(results)
+				// })
 				var q =conn.query('SELECT d.devid, d.devpwd, d.description, d.bizid, d.locid, l.address, l.latlng, l.timezone, d.server, d.specs, d.owner, d.apps FROM devs d, locations l WHERE d.locid=l.locid ORDER BY d.devid', function(error, results, fields){
 					cons.log(q.sql)
 					res.jsonp(results)
@@ -110,13 +119,14 @@ module.exports = function() {
 		cons.log('in post users')
 		var mess = 'what up post dedata/users'
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			mess={message: 'not authoried-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
 		}else{
 			var pdata=req.body
 			cons.log(pdata)
-			var query = conn.query('INSERT INTO user_app_loc SET ? ON DUPLICATE KEY UPDATE ?', [pdata,pdata], function(error,results,fields){
+			var query = conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [pdata,pdata], function(error,results,fields){
 				cons.log(query.sql)
 					if (error) {
 						throw error;
@@ -131,7 +141,9 @@ module.exports = function() {
 
 	router.post('/dev', bearerToken, function(req,res){
 		cons.log('in post dev')
+		//cons.log(req.userTok)
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			var mess={message: 'not authoried-'+req.userTok.message}
 			cons.log(mess)
 			res.jsonp(mess)
@@ -139,15 +151,30 @@ module.exports = function() {
 			var pdata=req.body
 			cons.log(pdata)
 			var appArr = JSON.parse(pdata.apps)
-			var udata={userid:pdata.owner, role:'admin', devid:pdata.devid}
+			var ddata={devid:pdata.devid, userid:pdata.owner, bizid:pdata.bizid, role:'admin'}
+			var udata={userid:pdata.owner, role:'admin', locid:pdata.locid, devid:pdata.devid}
 			var ndata={devid:pdata.devid, devpwd:pdata.devpwd, bizid:pdata.bizid, description:pdata.description, locid:pdata.locid, server:pdata.server, specs:pdata.specs, owner:pdata.owner, apps:pdata.apps }
-			var ldata={locid:pdata.locid, address:pdata.address, latlng:pdata.latlng, timezone: pdata.timezone}
+			var odata={devid:pdata.devid, devpwd:pdata.devpwd, description:pdata.description, bizid:pdata.bizid, address:pdata.address, location:pdata.location, timezone: pdata.timezone, server:pdata.server, specs:pdata.specs,  owner:pdata.owner, apps:pdata.apps }
+			var ldata={locid:pdata.locid, address:pdata.address, latlng:pdata.location, timezone: pdata.timezone}
+			cons.log(ddata)
 			cons.log(udata)
 			cons.log(ndata)
+			cons.log(odata)
 			cons.log(ldata)
 			appArr.map((appid)=>{
 				var bdata = {bizid: pdata.bizid, appid: appid }
+				ddata.appid=appid
 				udata.appid=appid
+				cons.log(ddata)
+				var query1 = conn.query('INSERT INTO devuserapp SET ? ON DUPLICATE KEY UPDATE ?', [ddata,ddata], function(error,results,fields){
+						cons.log(query1.sql)
+						if (error) {
+							throw error;
+							cons.log({message: error})
+						}else{
+							cons.log(results)
+						}
+				})
 				var query2 = conn.query('INSERT INTO bizapp SET ? ON DUPLICATE KEY UPDATE ?', [bdata,bdata], function(error,results,fields){
 						cons.log(query2.sql)
 						if (error) {
@@ -166,6 +193,16 @@ module.exports = function() {
 							cons.log(results)
 						}
 				})
+			})
+			// save a new device
+			var query = conn.query('INSERT INTO devices SET ? ON DUPLICATE KEY UPDATE ?', [odata,odata], function(error,results,fields){
+				cons.log(query.sql)
+				if (error) {
+					throw error;
+					res.jsonp({message: error})
+				}else{
+					cons.log(results)
+				}
 			})
 			var query1a = conn.query('INSERT INTO locations SET ? ON DUPLICATE KEY UPDATE ?', [ldata,ldata], function(error,results,fields){
 					cons.log(query1a.sql)
@@ -191,6 +228,7 @@ module.exports = function() {
 	router.post('/prg', bearerToken, function(req,res){
 		var messa = 'in post dedata/prg'
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			var mess={message: 'not authoried-'+req.userTok.message}
 			cons.log(messa)
 			cons.log(mess)
@@ -208,6 +246,7 @@ module.exports = function() {
 	router.post('/rec', bearerToken, function(req,res){
 		var messa = 'in post dedata/rec'
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			var mess={message: 'not authoried-'+req.userTok.message}
 			cons.log(messa)
 			cons.log(mess)
@@ -221,6 +260,7 @@ module.exports = function() {
 	router.delete('/rec', bearerToken, function(req,res){
 		var messa = 'in delete dedata/rec'
 		if(!req.userTok.auth){
+			//console.log(req.userTok.message)
 			var mess={message: 'not authoried-'+req.userTok.message}
 			cons.log(messa)
 			cons.log(mess)
