@@ -1,5 +1,8 @@
 # services
 ## tags
+https://cloudinary.com/console/welcome
+### 33-exprss-test-mysql-2.0b
+starting to think about changing both to get holds 
 ### 32-IOTexpess-broker-2.0
 Normalized databases are in place and queries have been written for version 2.0
 ### 31-recording-srstate
