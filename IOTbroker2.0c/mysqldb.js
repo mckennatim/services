@@ -173,6 +173,7 @@ const dbGetTimezone=(devId, cb)=>{
 	})
 }
 
+const getTodaysSched=(devid, dow, cb)=>{
 	/*
 	first there is the inner query which groups by senrel taking only the max dow which eliminates dow=0 values when there is a record for the actual dow. The inner join is used to filter all the records to just take that.
 	SELECT * FROM scheds a
@@ -185,19 +186,12 @@ const dbGetTimezone=(devId, cb)=>{
 	SELECT * FROM scheds a INNER JOIN (SELECT MAX(dow)as mdow, senrel FROM scheds WHERE devid=? AND (dow=? OR dow=0) GROUP BY senrel)b ON a.dow=b.mdow AND a.senrel=b.senrel
 	*/
 	//var query=conn.query("SELECT * FROM scheds WHERE devid=? AND (dow=? OR dow=0) ORDER BY dow", [devid,dow], function(error,results,fields){
-const getTodaysSched=(devid, dow, cb)=>{
 	var query=conn.query("SELECT * FROM scheds a INNER JOIN (SELECT MAX(dow)as mdow, senrel FROM scheds WHERE devid=? AND (dow=? OR dow=0) GROUP BY senrel)b ON a.dow=b.mdow AND a.senrel=b.senrel", [devid,dow], function(error,results,fields){
 		cons.log(query.sql)
 		cb(results)
 	})
 }
 
-const getSenRelSched=(devid,senrel,dow,cb)=>{
-	var query=conn.query("SELECT * FROM scheds a INNER JOIN (SELECT MAX(dow)as mdow, senrel FROM scheds WHERE devid=? AND senrel=? AND (dow=? OR dow=0) GROUP BY senrel)b ON a.dow=b.mdow AND a.senrel=b.senrel", [devid, senrel, dow], function(error,results,fields){
-		//cons.log(query.sql)
-		cb(results)
-	})	
-}
 
 module.exports = {
 	cfg: cfg,
@@ -208,6 +202,5 @@ module.exports = {
 	dbPubSet: dbPubSet,
 	dbGetUser: dbGetUser,
 	dbGetTimezone: dbGetTimezone,
-	getTodaysSched: getTodaysSched,
-	getSenRelSched: getSenRelSched
+	getTodaysSched: getTodaysSched
 }

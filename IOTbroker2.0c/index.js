@@ -31,6 +31,7 @@ var authenticate = function(client, username, password, callback) {
       callback(null, authorized);
     })
   }
+  //var authorized = (username === 'tim@sitebuilt.net' && password.toString() === 'freddy');
 }
 
 var authorizePublish = function(client, topic, payload, callback) {
@@ -129,6 +130,7 @@ moserver.on('ready', setup);  //on init it fires up setup()
 var moclient= moserver.on('clientConnected', function(client) {
     console.log('client connected', client.id, client.user);
     return client;
+    //console.log(client)
 });
 
 moserver.published = function(packet, moclient, cb) {
@@ -136,8 +138,42 @@ moserver.published = function(packet, moclient, cb) {
     return cb();
   }
   console.log('Pkt:',packet.topic,packet.payload.toString())
+  // var dev = packet.topic.split('/')[0]
+  // var topic = packet.topic.split('/')[1]
+  // //var appId = client.id.split('0.')[0]
+  // //var winp = [dev,appId,client.user]  
   mq.selectAction(packet.topic)
   mq.processIncoming(packet.payload)  
+  // if(get('moclient.id', moclient)){
+  //   //console.log('client is', moclient.id)
+  //   //console.log(moclient.user)
+  //   var appId = moclient.id.split('0.')[0]
+  //   var winp = [dev,appId,moclient.user] 
+  //   //cons.log(winp)
+  //   mq.publishAuthorized(packet, winp)  
+  // } else{
+  //   //cons.log('moclient.id downt exist')
+  //   //cons.log(packet)
+  // } 
+  //console.log(client.appid)
+  //console.log(client.user)
+  //if(client){console.log(client.id)};
+  //console.log(packet.topic)
+
+  //mq.publishAuthorized(packet, winp)
+  //mq.publish(packet,cb)
+  //   var newPacket = {
+  //     topic: 'echo/' + packet.topic,
+  //     payload: packet.payload,
+  //     retain: packet.retain || false,
+  //     qos: packet.qos || 0
+  //   };
+  //   currentPacket= newPacket;
+  //   console.log('Pkt',  packet.topic , newPacket.payload.toString());
+  //   //console.log(currentPacket.payload.toString())
+  //   exports.currentPacket
+  //   moserver.publish(newPacket, cb);
+  // }
 }
 
 var mq = {
@@ -158,21 +194,67 @@ var mq = {
       retain: packet.retain || false,
       qos: packet.qos || 0
     };
+    //currentPacket= newPacket;
+    // console.log('Pkt',  packet.topic , newPacket.payload.toString());
+    //console.log(currentPacket.payload.toString())
+    //exports.currentPacket
     moserver.publish(newPacket, function(){
       console.log('Pukt',  packet.topic , newPacket.payload.toString());
     });    
   },
+  // publishAuthorized: function(packet, winp){
+  //   var topic = this.job
+  //   var dev = this.device
+  //   switch(true){
+  //     case topic=='cmd' || topic=='prg':
+  //       console.log(topic)
+  //       console.log(topic=='cmd' || topic=='prg')
+  //       console.log('topic is cmd or prg')
+  //       my.dbPublish(winp, function(cb){
+  //         cons.log(`${winp[2]} can publish ${dev}/cmd||prg?: ${cb}`)
+  //         if(!cb){
+  //           cons.log('in error for cmd||prg')
+  //         }else{
+  //           cons.log('should be true ' )
+  //           this.publish(packet)
+  //         }
+  //       }.bind(this)) 
+  //       break
+  //     case topic=='set':
+  //       if(client.user==cfg.super){
+  //         cons.log(`${moclient.user} is super and can publish ${dev}/set`)
+  //         this.publish(packet)
+  //       }else{
+  //         my.dbPubSet([dev, winp[2]], function(cb){
+  //           cons.log(`${winp[2]} can publish ${dev}/set?: ${cb}`)
+  //           if(!cb){
+  //             cons.log('in error for ')
+  //           }else{
+  //             cons.log('should be true ' )
+  //             this.publish(packet)
+  //           }
+  //         }.bind(this)) 
+  //       }
+  //       break
+  //     default:
+  //       //console.log('in default')
+  //       this.publish(packet)
+  //   }
+  //   //this.publish(packet)
+  // },
   processIncoming: function(payload){
     switch(true){
       case this.job=="cmd":
+        //console.log("cmd")
         break
       case this.job=="time":
         console.log("time")
-        sched.setTimeAndSched(this.devid, moserver, (results)=>{
-          console.log(results)
-        })
+        //sched.getTime(this.devid, moserver)
+        sched.getTimeAndSched(this.devid, moserver)
         break
       case this.job=="sched":
+        //console.log("sched")
+        //sched.sendSchedule(this.devid, moserver, payload)
         break
       case this.job=="user":
         var pl = JSON.parse(payload.toString())
@@ -222,8 +304,11 @@ var mq = {
         }
         break
       case this.job=="dog":
+        //console.log("dog")
         break
       default:
+        //console.log("in default")  
+        //console.log(this.job)  
     }
   }
 }

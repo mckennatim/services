@@ -4,10 +4,9 @@ var prog = require('./prog.json')
 
 
 describe('datetime dtutils', function(){
-	// it('flattenProgObj', function(done){
-	// 	var ans = schedut.flattenProgObj(prog)
-	// 	console.log(ans[1])
-	// 	expect(typeof(ans[0])).to.equal("object");
-	// 	done()			
-	// })
+	it('flattenProgObj', function(done){
+		var ans = [{dog:'fred'}]
+		expect(typeof(ans[0])).to.equal("object");
+		done()			
+	})
 })

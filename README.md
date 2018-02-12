@@ -1,6 +1,13 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 35-broker2.0d-sched.setTimAndSched
+cleaned up and replaced getTime
+### 34-after-broker2.0c
+TODO need to final mod my.getTodaysSched to incorporate holds
+TODO implement sched.modSchedIfHoldEndsToday
+
+testing mocha now using mocha-clean and npm run test in IOTbroker2.0. reformulating processMessage getTime to gettimeandsched. Need to have sendsSched use the mapping as in sched.js:132
 ### 33-exprss-test-mysql-2.0b
 starting to think about changing both to get holds 
 ### 32-IOTexpess-broker-2.0
