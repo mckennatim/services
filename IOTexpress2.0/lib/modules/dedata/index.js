@@ -39,21 +39,21 @@ module.exports = function() {
 			})
 		}
 	})
-	// router.get('/loclist', bearerToken, function(req,res){
-	// 	if(!req.userTok.auth){
-	// 		var mess={message: 'in get /dedata/locids (not authoried)-'+req.userTok.message}
-	// 		cons.log(mess)
-	// 		res.jsonp(mess)
-	// 	}else{
-	// 		cons.log(req.userTok);
-	// 		cons.log('in /dedata/loclist no params')
-	// 		var q =conn.query('SELECT DISTINCT d.locid FROM user_app_loc u , devs d WHERE u.devid=d.devid AND u.userid=? AND u.appid=? ORDER BY d.locid ASC', [req.userTok.emailId, req.userTok.appId] , function(error, results, fields){
-	// 			cons.log(q.sql)
-	// 			var arrres = results.map((loc)=>loc.locid)
-	// 			res.jsonp(arrres)
-	// 		})
-	// 	}
-	// })
+	router.get('/loclist', bearerToken, function(req,res){
+		if(!req.userTok.auth){
+			var mess={message: 'in get /dedata/locids (not authoried)-'+req.userTok.message}
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{
+			cons.log(req.userTok);
+			cons.log('in /dedata/loclist no params')
+			var q =conn.query('SELECT DISTINCT d.locid FROM user_app_loc u , devs d WHERE u.devid=d.devid AND u.userid=? AND u.appid=? ORDER BY d.locid ASC', [req.userTok.emailId, req.userTok.appId] , function(error, results, fields){
+				cons.log(q.sql)
+				var arrres = results.map((loc)=>loc.locid)
+				res.jsonp(arrres)
+			})
+		}
+	})
 	router.get('/loc/:locid', bearerToken, function(req,res){
 		if(!req.userTok.auth){
 			var mess={message: 'in get /dedata/loc/:locid (not authoried)-'+req.userTok.message}
@@ -61,7 +61,7 @@ module.exports = function() {
 			res.jsonp(mess)
 		}else{
 			console.log('in /dedata/loc/:locid', req.params)
-			var q =conn.query('SELECT * FROM app_loc WHERE appid=? AND locid=? ', [req.userTok.appId, req.params.locid] , function(error, results, fields){
+			var q =conn.query('SELECT a.appid, a.locid, a.devs, a.zones, l.timezone FROM app_loc a LEFT JOIN locations l ON a.locid=l.locid WHERE a.appid=? AND a.locid=? ', [req.userTok.appId, req.params.locid] , function(error, results, fields){
 				cons.log(q.sql)
 				console.log(results);
 				res.jsonp(results)

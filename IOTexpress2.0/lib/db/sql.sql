@@ -2,15 +2,46 @@ other sql files...
 /tmstack/hsc/sql/sql.sql
 
 ------------------- IOTbroker2.0 queries---------------
-SELECT * FROM scheds a INNER JOIN (SELECT MAX(dow)as mdow, senrel FROM scheds WHERE devid='CYURD002' AND (dow=4 OR dow=0) GROUP BY senrel)b ON a.dow=b.mdow AND a.senrel=b.senrel 
+SELECT * FROM scheds a INNER JOIN (SELECT MAX(dow)as mdow, senrel FROM scheds WHERE devid='CYURD001' AND (dow=4 OR dow=0) GROUP BY senrel)b ON a.dow=b.mdow AND a.senrel=b.senrel 
 
-SELECT * FROM scheds a 
-INNER JOIN (
-  SELECT MAX(dow)as mdow, senrel 
+SELECT * FROM scheds a INNER JOIN (SELECT MAX(dow)as mdow, senrel FROM scheds WHERE devid='CYURD001' AND senrel=0 AND (dow=5 OR dow=0) GROUP BY senrel)b ON a.dow=b.mdow AND a.senrel=b.senrel
+
+-------
+
+SELECT * FROM scheds 
+WHERE devid= 'CYURD001' 
+AND senrel=0 
+AND (dow=0 OR dow=5) 
+ORDER BY dow DESC LIMIT 0,1 
+
+SELECT id, devid, dow, senrel, sched, until FROM scheds
+ORDER BY devid, dow, senrel
+
+SELECT id, devid, dow, senrel, sched, until FROM scheds
+ORDER BY devid, senrel, dow
+
+-----------------now used in my.getTodaysSchedule called by sched/findSched------
+SELECT * FROM scheds 
+WHERE (devid,senrel,dow) 
+IN ( 
+  SELECT devid, senrel, MAX(dow) 
   FROM scheds 
-  WHERE devid='CYURD002' 
-  AND (dow=2 OR dow=0) GROUP BY senrel) b 
-ON a.dow=b.mdow AND a.senrel=b.senrel 
+  WHERE (dow=0 OR dow=1 OR dow=8) 
+  AND (until = '0000-00-00 00:00' OR '2018-03-12' <= until) 
+  GROUP BY devid, senrel 
+  ) 
+AND devid = 'CYURD001'
+
+
+SELECT * FROM scheds WHERE (devid,senrel,dow) IN ( SELECT devid, senrel, MAX(dow) FROM scheds WHERE (dow=0 OR dow=? OR dow=8) AND (until = '0000-00-00 00:00' OR ? <=until) GROUP BY devid, senrel ) AND devid = ?
+
+----------------------my.getSenRelSched ---called by sched/modSchedIfHoldEndsToday--
+SELECT * FROM scheds 
+WHERE devid= 'CYURD001' 
+AND senrel=0 AND (dow=0 OR dow=1) 
+ORDER BY dow DESC LIMIT 0,1
+
+---------------------------------------------------------------
 
 DROP TABLE IF EXISTS `holds`;
 CREATE TABLE IF NOT EXISTS `holds` (
@@ -293,6 +324,23 @@ WHERE d.devid=u.devid
     AND u.appid='hvac'
     AND d.locid='12ParleyVale'
 
+SELECT a.appid, a.locid, a.devs, a.zones 
+FROM app_loc a
+WHERE appid='hvac' 
+AND locid='12ParleyVale' 
+
+SELECT a.appid, a.locid, a.devs, a.zones, l.timezone 
+FROM app_loc a
+LEFT JOIN locations l ON a.locid=l.locid
+WHERE a.appid='hvac' 
+AND a.locid='12ParleyVale'   
+
+SELECT *
+FROM app_loc a
+LEFT JOIN devs d ON d.locid= u.locid
+WHERE u.userid = 'tim@sitebuilt.net'
+  AND u.appid= 'hvac';  
+
   ----------------queries in the api2.0---------------------
 
 SELECT d.devid,
@@ -378,6 +426,32 @@ AND devid IS NOT null
 AND (role="admin" OR role="super")
 
 ---dedata/index:184.post/dev 
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD003',
+`senrel` = 0,
+`dow` = 0,
+`sched` = '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD003',
+`senrel` = 0,
+`dow` = 0,
+`sched` = '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]'
+
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD003',
+`senrel` = 1,
+`dow` = 0,
+`sched` = '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD003',
+`senrel` = 1,
+`dow` = 0,
+`sched` = '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]'
+
 INSERT INTO user_app_loc
 SET `userid` = 'tim@sitebuilt.net',
 `role` = 'admin',
@@ -401,6 +475,87 @@ UPDATE `locid` = '12ParleyVale',
 `latlng` = '{\"lat\":42.315,\"lng\":-71.111}',
 `timezone` = 'America/New_York'
 
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD001',
+`senrel` = 1,
+`dow` = 0,
+`sched` = '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD001',
+`senrel` = 1,
+`dow` = 0,
+`sched` = '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]'
+
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD001',
+`senrel` = 0,
+`dow` = 1,
+`sched` = '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD001',
+`senrel` = 0,
+`dow` = 1,
+`sched` = '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]'
+
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD001',
+`senrel` = 0,
+`dow` = 5,
+`sched` = '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD001',
+`senrel` = 0,
+`dow` = 5,
+`sched` = '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]'
+
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD001',
+`senrel` = 0,
+`dow` = 8,
+`sched` = '[[0,0,55,53]]',
+`until` = '2018-03-12 10:15'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD001',
+`senrel` = 0,
+`dow` = 8,
+`sched` = '[[0,0,55,53]]',
+`until` = '2018-03-12 10:15'
+
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD001',
+`senrel` = 1,
+`dow` = 8,
+`sched` = '[[0,0,55,53]]',
+`until` = '2018-03-12 10:15'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD001',
+`senrel` = 1,
+`dow` = 8,
+`sched` = '[[0,0,55,53]]',
+`until` = '2018-03-12 10:15'
+
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD001',
+`senrel` = 1,
+`dow` = 4,
+`sched` = '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD001',
+`senrel` = 1,
+`dow` = 4,
+`sched` = '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]'
 ---dedata/index.js:213.post/dev  /super/CYURD14I 
 INSERT INTO devs
 SET `devid` = 'CYURD007',
@@ -443,6 +598,8 @@ FROM locations l,
 WHERE l.locid=d.locid
     AND d.devid='CYURD003'
 ------dedata/index.js:84.get/users/:devid  /admin/CYURD14I 
+
+
 SELECT * 
 FROM user_app_loc 
 WHERE devid='CYURD003'
@@ -677,3 +834,79 @@ WHERE
   d.userid = 'mckenna.tim@gmail.com'
 AND
 (d.appid='admin' OR d.appid='super')
+
+-- phpMyAdmin SQL Dump
+-- version 4.5.4.1deb2ubuntu2
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Mar 09, 2018 at 03:53 PM
+-- Server version: 5.7.16-0ubuntu0.16.04.1
+-- PHP Version: 7.0.22-0ubuntu0.16.04.1
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+--
+-- Database: `geniot`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `scheds`
+--
+
+CREATE TABLE `scheds` (
+  `id` int(11) NOT NULL,
+  `devid` varchar(30) NOT NULL,
+  `senrel` int(2) NOT NULL,
+  `dow` int(2) NOT NULL,
+  `sched` varchar(200) DEFAULT NULL,
+  `until` varchar(16) NOT NULL DEFAULT '0000-00-00 00:00'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `scheds`
+--
+
+INSERT INTO `scheds` (`id`, `devid`, `senrel`, `dow`, `sched`, `until`) VALUES
+(1000, 'CYURD001', 1, 4, '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00'),
+(1001, 'CYURD001', 0, 4, '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00'),
+(1002, 'CYURD002', 3, 2, '[[0,0,0],[9,15,1],[9,45,0],[17,0,1],[17,56,0]]', '0000-00-00 00:00'),
+(1003, 'CYURD002', 4, 0, '[[0,0,0],[9,10,1],[9,40,0],[17,0,1],[17,50,0]]', '0000-00-00 00:00'),
+(1004, 'CYURD002', 4, 2, '[[0,0,0],[9,12,1],[9,44,0],[17,5,1],[17,56,0]]', '0000-00-00 00:00'),
+(1005, 'CYURD002', 2, 0, '[[0,0,1]]', '0000-00-00 00:00'),
+(1007, 'CYURD002', 3, 0, '[[0,0,1]]', '0000-00-00 00:00'),
+(1008, 'CYURD001', 1, 5, '[[0,0,77,75]]', '0000-00-00 00:00'),
+(1009, 'CYURD003', 0, 0, '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]', '0000-00-00 00:00'),
+(1010, 'CYURD003', 1, 0, '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]', '0000-00-00 00:00'),
+(1011, 'CYURD001', 1, 0, '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]', '0000-00-00 00:00'),
+(1012, 'CYURD001', 0, 0, '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]', '0000-00-00 00:00'),
+(1015, 'CYURD001', 1, 2, '[[0,0,58,54],[12,20,77,75]]', '0000-00-00 00:00'),
+(1016, 'CYURD001', 0, 8, '[[0,0,55,53]]', '2018-06-02 10:15');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `scheds`
+--
+ALTER TABLE `scheds`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `main` (`devid`,`senrel`,`dow`) USING BTREE,
+  ADD KEY `devid` (`devid`),
+  ADD KEY `dow` (`dow`),
+  ADD KEY `senrel` (`senrel`),
+  ADD KEY `until` (`until`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `scheds`
+--
+ALTER TABLE `scheds`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1019;

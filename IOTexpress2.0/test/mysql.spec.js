@@ -4,6 +4,7 @@ var mysql = require('mysql')
 var jwt = require('jwt-simple');
 var conn = require('../lib/db/mysqldb')
 var cfg = require('../lib/utilities').cfg
+console.log(cfg)
 
 var emailId="mckenna.tim@gmail.com"
 var pdata = {devid: "CYURBAD", devpwd: "nopwd", bizid: "sbs" }

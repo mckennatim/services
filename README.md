@@ -1,8 +1,96 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 36-broker2.0e-setTimeAndSched
+https://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
+Some cool SQL added to some code to combineScheds() on the day the hold is over. The hold ends at a time at which point the normal schedule for that day resumes.
+
+    const combineScheds=(holdsched, resumesched, daymin)=>{
+      let holdarr = JSON.parse(holdsched)
+      let resuarr = JSON.parse(resumesched)
+      let hrmin = daymin.split(':')
+      let hr=hrmin[0]*1
+      let min =hrmin[1]*1
+      let srdlen=holdarr[0].length - 2
+      let res= holdarr.slice()
+      resuarr.map((prg,i)=>{
+        if(prg[0]==hr){
+          let np = [hr, min].concat(prg.slice(-srdlen))
+          res.push(np)
+        }else if(prg[0]>hr){
+          let tmp = resuarr[i-1]
+          if (tmp[0]<hr){
+            tmp[0]=hr
+            tmp[1]=min
+            res.push(tmp)
+          }
+          res.push(prg)
+        }
+      })
+      let resstr = JSON.stringify(res)
+      return resstr
+    }
+
+#### greatest-n-per-group.
+All tests are in IOTbroker2.0/tests/atest.spec.js. Just run `mocha`
+
+my.getTodaysSched
+
+    SELECT * FROM scheds 
+    WHERE (devid,senrel,dow) 
+    IN ( 
+      SELECT devid, senrel, MAX(dow) 
+      FROM scheds 
+      WHERE (dow=0 OR dow=1 OR dow=8) 
+      AND (until = '0000-00-00 00:00' OR '2018-03-12' <= until) 
+      GROUP BY devid, senrel 
+      ) 
+    AND devid = 'CYURD001' 
+
+Device gets the schedule every day by calling `my.grtTodyasSched` which searches for the schedule with the `max dow` It doesn't work yet.
+
+Should return a the appropriate schedule record for each senrel of a device. 
+
+Inserting  a hold should look something like this
+
+    INSERT INTO scheds
+    SET 
+    `devid` = 'CYURD001',
+    `senrel` = 0,
+    `dow` = 8,
+    `sched` = '[[0,0,55,53]]',
+    `until` = '2018-06-02 10:15'
+    ON DUPLICATE KEY
+    UPDATE 
+    `devid` = 'CYURD001',
+    `senrel` = 0,
+    `dow` = 8,
+    `sched` = '[[0,0,55,53]]',
+    `until` = '2018-06-02 10:15'
+
 ### 35-broker2.0d-sched.setTimAndSched
-cleaned up and replaced getTime
+cleaned up and replaced getTime.
+
+Holds are now incorporated into the sched table and queries.
+
+Its the day the hold is over. Move in the schedule that will come back into force now that the hold is done. Figuring that the day started with the hold still in play, start with the hold array. Push on all the regularly scheduled progs that start after after the hold is over. But before that... If there is a regularly scheduled prog for the hold end hour, replace its hours and minutes. For the regularly scheduled prog that would have been running before the hold ends, plug in the latter start time of the hold so it can start to run as soon as the hold is over. 
+
+    let srdlen=holdarr[0].length - 2
+    let res= holdarr.slice()
+    resuarr.map((prg,i)=>{
+      if(prg[0]==hr){
+        let np = [hr, min].concat(prg.slice(-srdlen))
+        res.push(np)
+      }else if(prg[0]>hr){
+        let tmp = resuarr[i-1]
+        if (tmp[0]<hr){
+          tmp[0]=hr
+          tmp[1]=min
+          res.push(tmp)
+        }
+        res.push(prg)
+      }
+    })
 ### 34-after-broker2.0c
 TODO need to final mod my.getTodaysSched to incorporate holds
 TODO implement sched.modSchedIfHoldEndsToday
