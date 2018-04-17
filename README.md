@@ -1,6 +1,8 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 37-express2.0c-index-post-scheds
+post a whole week of scheds
 ### 36-broker2.0e-setTimeAndSched
 https://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
 Some cool SQL added to some code to combineScheds() on the day the hold is over. The hold ends at a time at which point the normal schedule for that day resumes.

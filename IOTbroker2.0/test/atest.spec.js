@@ -116,5 +116,230 @@ describe('atest.spec  ', function(){
     expect(res.length).to.be.above(1);
     done()
   })
+  let tsched
+  it('tries gets some sched data to play with',(done)=>{
+    var devid='CYURD001'
+    var senrel= 0
+    var query=my.conn.query("SELECT * FROM scheds WHERE devid= ? AND senrel=? ORDER BY dow", [devid,senrel], function(error,results,fields){
+      console.log(query.sql)
+      tsched = JSON.parse(JSON.stringify(results))
+      console.log(tsched)
+      expect(results.length).to.be.above(1);
+      done()
+    })
+  })
+  it('tries bitwise',(done)=>{
+    console.log(bitwise(202))
+    console.log((202*1).toString(2))
+    expect('dog').to.equal('dog');
+    done()
+  })
+
+ 
+
+let dowo  =[ 
+  { devid: 'CYURD001',
+    senrel: 0,
+    bitd: 1,
+    sched: '[[0,0,55,53],[20,12,78,76],[22,50,56,52],[23,50,64,61]]',
+    until: '0000-00-00 00:00' },
+  { devid: 'CYURD001',
+    senrel: 0,
+    bitd: 6,
+    sched: '[[0,0,64,62],[20,12,78,76],[22,50,56,52],[23,50,64,61]]',
+    until: '0000-00-00 00:00' },
+  { devid: 'CYURD001',
+    senrel: 0,
+    bitd: 202,
+    sched: '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]',
+    until: '0000-00-00 00:00' },
+  { devid: 'CYURD001',
+    senrel: 0,
+    bitd: 32,
+    sched: '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]',
+    until: '0000-00-00 00:00' },
+  { devid: 'CYURD001',
+    senrel: 0,
+    bitd: 256,
+    sched: '[[0,0,55,53]]',
+    until: '2018-03-09 10:15' } ]
+
+// let dowb  =[ 
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     sr: 'lr',
+//     bitd: '00000001',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12pm", setpt: 77 }, { time: "10:50pm", setpt: 54 }]
+//   },
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     sr: 'lr',
+//     bitd: '00000110',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12am", setpt: 77 }, { time: "10:50pm", setpt: 34 }]
+//   },
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     bitd: '11000000',
+//     sr: 'lr',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12pm", setpt: 42 }, { time: "5:50pm", setpt: 54 }]
+//   },
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     bitd: '00101000',
+//     sr: 'lr',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "6:12am", setpt: 77 }, { time: "10:50am", setpt: 54 }]
+//   },
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     sr: 'lr',
+//     bitd: '100000000',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 655 }, { time: "8:12am", setpt: 68 }, { time: "10:50pm", setpt: 67 }]
+//   }
+// ]
+// let dowb  =[ 
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     sr: 'lr',
+//     bitd: '00000001',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12pm", setpt: 77 }, { time: "10:50pm", setpt: 54 }]
+//   },
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     sr: 'lr',
+//     bitd: '00000110',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12am", setpt: 77 }, { time: "10:50pm", setpt: 34 }]
+//   },
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     bitd: '11000000',
+//     sr: 'lr',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12pm", setpt: 42 }, { time: "5:50pm", setpt: 54 }]
+//   },
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     bitd: '00101000',
+//     sr: 'lr',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "6:12am", setpt: 77 }, { time: "10:50am", setpt: 54 }]
+//   },
+//   { devid: 'CYURD001',
+//     senrel: 0,
+//     sr: 'lr',
+//     bitd: '100000000',
+//     sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 655 }, { time: "8:12am", setpt: 68 }, { time: "10:50pm", setpt: 67 }]
+//   }
+// ]
+let dowb  =[ 
+  { devid: 'CYURD001',
+    senrel: 0,
+    sr: 'lr',
+    days: 'def',
+    sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12pm", setpt: 77 }, { time: "10:50pm", setpt: 54 }]
+  },
+  { devid: 'CYURD001',
+    senrel: 0,
+    sr: 'lr',
+    days: 'M T',
+    sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12am", setpt: 77 }, { time: "10:50pm", setpt: 34 }]
+  },
+  { devid: 'CYURD001',
+    senrel: 0,
+    days: 'S Su',
+    sr: 'lr',
+    sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12pm", setpt: 42 }, { time: "5:50pm", setpt: 54 }]
+  },
+  { devid: 'CYURD001',
+    senrel: 0,
+    days: 'W F',
+    sr: 'lr',
+    sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "6:12am", setpt: 77 }, { time: "10:50am", setpt: 54 }]
+  },
+  { devid: 'CYURD001',
+    senrel: 0,
+    sr: 'lr',
+    days: 'hld',
+    sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 655 }, { time: "8:12am", setpt: 68 }, { time: "10:50pm", setpt: 67 }]
+  }
+]
     
+
+let dn =['def', 'M', 'T', 'W', 'Th', 'F', 'S', 'Su', 'hld']
+let dn2 =['d', 'M', 'T', 'W', 'Th', 'F', 'S', 'Su', 'h']
+
+let newrec = {
+  devid: 'CYURD001',
+  senrel: 0,
+  sr: 'lr',
+  days:'T W F',
+  sched:[{time:'10:15am', setpt: 66}, { time: "12:00am", setpt: 64 }, { time: "8:12pm", setpt: 77 }, { time: "10:50pm", setpt: 54 }],
+}
+
+const bit2day=(bi)=>{
+  return dn[bi]
+}
+const addays =(arr)=>{
+  let newarr = arr.map((a)=>{
+    return {...a, days: 'dog'}
+  })
+}  
+const bitwise =(num)=>{
+  return (num>>>0).toString(2)  
+}
+const processNewSched =(dowb, newrec)=>{
+  let ndow = []
+  dowb.map((d)=>{
+    let ret =compareByDays(d,newrec)
+    if(ret){
+      ndow.push(ret)
+    }
+  })
+  ndow.push(newrec)
+  ndow.sort((a,b)=>{
+    console.log(a.days+'<->'+ b.days,a.days - b.days)
+    return dn2.indexOf(a.days[0]) - dn2.indexOf(b.days[0])
+  })
+  return ndow
+}
+
+const b2 = (bs)=>{
+  return parseInt(bs,2)
+}
+
+const pad =(n)=>{
+  return Array(9-n.length).join('0').concat(n)
+}
+const knot =(st)=>{
+  let ns = st.map((s)=>!s)
+  return ns
+}
+
+const compareByDays = (existing, newrec)=>{
+  let xarr = existing.days.split(' ')
+  let narr = newrec.days.split(' ')
+  let xt=[]
+  xarr.map((x,i)=>{ ['M']
+    if(!narr.includes(x)){
+      xt.push(x)
+    }
+  })
+  // console.log('xt: ',xt)
+  if(xt.length>0) {
+    if(xt.length!=xarr.length){
+      // console.log('not equal length')
+      let ndays = xt.join(" ")
+      existing.days=ndays 
+    }
+    return existing
+  }
+}
+
+
+  it('tries dog',(done)=>{
+    let res = processNewSched(dowb, newrec)
+    console.log(res)
+    expect('dog').to.equal('dog');
+    done()
+  })
+
+
 })
+
