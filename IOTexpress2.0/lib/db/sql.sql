@@ -927,4 +927,70 @@ ALTER TABLE `scheds`
 ALTER TABLE `scheds`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1019;
 
-SELECT * FROM `scheds` ORDER BY devid, senrel, dow  
+SELECT * FROM `scheds` ORDER BY devid, senrel, dow 
+
+DROP TABLE IF EXISTS `heirlooms`;
+CREATE TABLE `heirlooms` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL,
+  `color` varchar(20) NOT NULL,
+  `amt` int(2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `name` (`name`),
+  KEY `color` (`color`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1  ;
+
+INSERT INTO `heirlooms` (name, color, amt) VALUES
+("Black Prince", "black",6),
+("Brandywine", "red",6),
+("Yellow Brandywine ", "yellow",6),
+("Cherokee Purple","purple",6),
+("Cherokee Green","green",6),
+("Rose","blue",6),
+("Great White","white",6),
+("Moskvich","brown",6),
+("Valencia","orange",6),
+("Striped German", "pink",6),
+("Subartic Plenty","grey",6)
+
+
+DROP TABLE IF EXISTS `hepeop`;
+CREATE TABLE `hepeop` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `selected` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1  ;
+
+
+UPDATE heirlooms Set amt=4
+
+
+Select name, color from heirlooms Where id in [2,4]
+
+INSERT INTO hepeop
+SET `name` = 'mckenna.tim@gmail.com',
+    `selected` = '[0,0,0,1,1,0,0,0,0,1,0]'
+ON DUPLICATE KEY
+UPDATE 
+    `name` = 'mckenna.tim@gmail.com',
+    `selected` = '[1,1,0,1,1,0,0,0,0,1,0]'
+
+INSERT INTO scheds
+SET 
+`devid` = 'CYURD001',
+`senrel` = 1,
+`dow` = 4,
+`sched` = '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]'
+ON DUPLICATE KEY
+UPDATE 
+`devid` = 'CYURD001',
+`senrel` = 1,
+`dow` = 4,
+`sched` = '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]'    
+
+SELECT devid
+FROM devs
+WHERE devid LIKE 'CYURD%'
+ORDER BY devid DESC LIMIT 1

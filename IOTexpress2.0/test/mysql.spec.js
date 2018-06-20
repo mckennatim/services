@@ -194,4 +194,19 @@ describe('admin:', function(done) {
 				done()
 			})
 	})
+	it('posts a devices', function(done){
+		var url=cfg.url.local+":"+cfg.port.express+"/api/admin/b/savedev"
+		console.log(url)
+		pdata.devpwd='froggy'
+		console.log(pdata)
+		superagent.post(url)
+			.set('Authorization', 'Bearer ' + token)
+			.send(pdata)
+			.end(function(e, res) {
+				console.log(!!e ? e.status: 'no error')
+				console.log(res.body)
+				expect(true).to.equal(true)
+				done()
+			})
+	})	
 })

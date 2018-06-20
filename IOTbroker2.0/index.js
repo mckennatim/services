@@ -11,8 +11,8 @@ var get = require('./utility').get
 var mongoose = require('mongoose');
 mongoose.connect(cfg.db.url);
 
-const cassandra = require('cassandra-driver');
-const cassClient = new cassandra.Client({ contactPoints: ['sitebuilt.net'], keyspace: 'geniot' });
+// const cassandra = require('cassandra-driver');
+// const cassClient = new cassandra.Client({ contactPoints: ['sitebuilt.net'], keyspace: 'geniot' });
 
 var authenticate = function(client, username, password, callback) {
   console.log(client.id)
@@ -193,33 +193,36 @@ var mq = {
         })
         break  
       case this.job=="srstate":
-        var pl = JSON.parse(payload.toString())
-        if (pl.new){
-          var devid=this.devid
-          var key=devid+":"+pl.id
-          Reco.count({id:key}, function(err,count){
-            if (count>0){
-              var q1,vals,oldrelay
-              var d = new Date()
-              var iso=d.toISOString()
-              var day = iso.split('T')[0]
-              var mo =day.substring(0,7)
-              var ts = iso.replace('T',' ').split('.')[0]
-              if (pl.darr.length==4){
-                q1="INSERT INTO tstat_by_day(devid,senrel,date,event_time,temp,relay,hilimit,lolimit) VALUES (?,?,?,?,?,?,?,?);"
-                vals=[devid, pl.id,day,ts,pl.darr[0],pl.darr[1],pl.darr[2],pl.darr[3]]
-              }else{
-                q1="INSERT INTO timr_by_month(devid,senrel,month,event_time,relay) VALUES (?,?,?,?,?);"
-                vals=[devid, pl.id,mo,ts,pl.darr[0]]
-              }
-              cassClient.execute(q1, vals, { prepare: true }, function(err){
-                if(err!=null){
-                  console.log(err)
-                }
-              })
-            }
-          })
-        }
+        // var pl = JSON.parse(payload.toString())
+        // if (pl.new){
+        //   var devid=this.devid
+        //   var key=devid+":"+pl.id
+        //   Reco.count({id:key}, function(err,count){
+        //     if (count>0){ 
+        //     //if device:srid is stored in mongo.demiot.reco then save to cassandra
+        //       var q1,vals,oldrelay
+        //       var d = new Date()
+        //       var iso=d.toISOString()
+        //       var day = iso.split('T')[0]
+        //       var mo =day.substring(0,7)
+        //       var ts = iso.replace('T',' ').split('.')[0]
+        //       if (pl.darr.length==4){
+        //         q1="INSERT INTO tstat_by_day(devid,senrel,date,event_time,temp,relay,hilimit,lolimit) VALUES (?,?,?,?,?,?,?,?);"
+        //         vals=[devid, pl.id,day,ts,pl.darr[0],pl.darr[1],pl.darr[2],pl.darr[3]]
+        //       }else{
+        //         q1="INSERT INTO timr_by_month(devid,senrel,month,event_time,relay) VALUES (?,?,?,?,?);"
+        //         vals=[devid, pl.id,mo,ts,pl.darr[0]]
+        //       }
+        //       cassClient.execute(q1, vals, { prepare: true }, function(err){
+        //         if(err!=null){
+        //           console.log(err)
+        //         }else{
+        //           cons.log('saved to Cassandra')
+        //         }
+        //       })
+        //     }
+        //   })
+        // }
         break
       case this.job=="dog":
         break

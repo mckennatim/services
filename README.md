@@ -1,6 +1,7 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 38-express2.0d-admin
 ### 37-express2.0c-index-post-scheds
 post a whole week of scheds
 ### 36-broker2.0e-setTimeAndSched
@@ -176,8 +177,8 @@ https://blog.serverdensity.com/checking-if-a-document-exists-mongodb-slow-findon
 mongodb
 * mosca for internal use
 * social-auth soauth for users and apps
-* IOTbroker for checking if srstates should be saved (quick read of {id:"CYURD001:0"}
-* IOTexpress `dedata/index.js` `/dedata/rec` for posting {id:"CYURD001:0"} as to be recorded or delete/remove it 
+* IOTbroker for checking if srstates should be saved (quick read of mong.demiot.recos {id:"CYURD001:0"}
+* IOTexpress `dedata/index.js` `/dedata/rec` for posting mongo.demiot.recos {id:"CYURD001:0"} as to be recorded or delete/remove it 
 cassandra
 * IOTbroker in index.js:mq.processIncoming/srtate to either `tstat_by_day` or `timr_by_month`
 mysql

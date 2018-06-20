@@ -75,7 +75,7 @@ var bearerTokenApp = function(req,res, next){
 	}
 	cons.log(tokdata)
 	var retu = 'duch'
-	var q= conn.query('SELECT userid, devid FROM user_app_loc WHERE userid= ? AND appid=?', [tokdata.email,tokdata.appId], function (error, results, fields) {
+	var q= conn.query('SELECT userid, devid, role FROM user_app_loc WHERE userid= ? AND appid=?', [tokdata.email,tokdata.appId], function (error, results, fields) {
 		cons.log(q.sql)
 		if (error){
 			cons.log(error.message)
@@ -89,8 +89,12 @@ var bearerTokenApp = function(req,res, next){
 			next()
 			return
 		}
-		cons.log(results)
+		cons.log(results[0].devid)
 		req.userTok = {auth: true, message: 'user has apps', emailId: tokdata.email, appId: tokdata.appId}
+		if(tokdata.appId=='builder'){
+			req.userTok.baseDevId=results[0].devid
+			req.userTok.bizId=results[0].role
+		}
 		next()
 		return
 	})
