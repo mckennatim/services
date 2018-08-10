@@ -81,9 +81,9 @@ CREATE TABLE `app_loc` (
   KEY `appid` (`appid`),
   UNIQUE KEY `main` (`appid`, `locid`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=400 ;
+
 INSERT INTO app_loc (appid, locid, devs, zones)
   VALUES (
-
     'hvac',
     '12ParleyVale',
     '{"CYURD003": [{"sr":0,"label":"kid"}, {"sr":1,"label":"lr"}], "CYURD006": [{"sr":0,"label":"music"}, {"sr":1,"label":"peri"}]}',

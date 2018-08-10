@@ -206,8 +206,8 @@ module.exports = function(passport) {
       cons.log(req.hostname)
       cons.log(req.protocol)
       cons.log(req.headers.origin)
-      //var baseURL = req.protocol+"://"+req.headers.host+cfg.base
-      var baseURL = req.headers.origin+cfg.base
+      var baseURL = req.protocol+"s://"+req.headers.host+cfg.base
+      //var baseURL = req.headers.origin+cfg.base
       cons.log(baseURL)
       mf.processUser(req.body, baseURL, function(err,status){
         cons.log(status)

@@ -1,6 +1,25 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 39-reroox
+made it work with the reroox api. There was a problem in routes:211 with the url for the email link not working.
+
+          var baseURL = req.protocol+"s://"+req.headers.host+cfg.base
+          //var baseURL = req.headers.origin+cfg.base
+
+
+
+server for restoring roots
+
+reroox/sql
+
+what happens in authentication?
+
+1. social auth gets a api url in the params after you press the register button
+2. once you prove you are who you are soical auth queries the apps api to see if you are listed among the valid users of that app.
+
+mysqldump -uroot -pthepass --opt reroo > reroo.sql
+
 ### 38-express2.0d-admin
 ### 37-express2.0c-index-post-scheds
 post a whole week of scheds
