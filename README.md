@@ -1,13 +1,18 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 40-reroox
+todo /jobs/post/wk probably usiing delete and insert
+minor updates of coid, 
 ### 39-reroox
 made it work with the reroox api. There was a problem in routes:211 with the url for the email link not working.
 
           var baseURL = req.protocol+"s://"+req.headers.host+cfg.base
           //var baseURL = req.headers.origin+cfg.base
 
+social auth verifies your identity then checks with the app's api to see if you are allowed to play. The route `app.use('/api/reg', regtokau);` now looks in the reroo.whoapp for api/reg/auth for a match and sets the `auth` field for emailid+appid. 
 
+In this case it is the `jobs` appid. Not taken into account is the `coid`. that you woud need to deal with to generalize this for other companies.
 
 server for restoring roots
 
