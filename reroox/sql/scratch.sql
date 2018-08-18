@@ -202,7 +202,11 @@ ALTER TABLE `whoapp` ADD `auth` tinyint(4), ADD KEY (`auth`);
 UPDATE reroo.whoapp SET coid='reroo';
 
 SELECT * FROM reroo.whoapp;
-SELECT * FROM reroo.jobcatact ORDER BY idx,category;
+SELECT * FROM reroo.jobcatact ORDER BY week,idx,category ASC;
 SELECT * FROM reroo.week;
 
 SELECT * FROM reroo.whoapp WHERE emailid='noah@sitebuilt.net' AND appid='jobs';
+
+use reroo;
+INSERT INTO jobcatact (`job`, `category`, active, week, idx, coid) VALUES ('Marketting', 'dog', 0, 18, 1, 'reroo'), ('Nursery', NULL, 1, 18, 2, 'reroo'), ('Truck and tools', NULL, 0, 18, 3, 'reroo')
+

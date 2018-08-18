@@ -1,6 +1,16 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 41-revoox-coid
+#### On a vexing problem of generaliztion
+Currently emailid and appid is the level of identification offered by soauth and the associated api. What if you wanted to have multiple companies using these apps? You could just encode the company in env.json and that will have to do for now. The problem rears itself when you have an emailid and appid used by more than one company. 
+
+<s>Possibly `bearerTokenApp` has access to params and can then return a single record for emailid, appid, coid </s>
+
+SOLUTION: encode extra data in the appid part if the registration string. Get if from cfg and concatenate it like `reroo-jobs`. In soauth the data gets encrypted in the apikey And then on auth it is compared to whats in `whoapp`.
+
+If all that works out it comes back to the spa app as an token which from then on gets sent out as a bearers token inside every page req. That `bearerTokenApp` slips some data (coid,appid,email) back to the route in req.tokData which can then inform those queries in terms of who and for what comppany.
+
 ### 40-reroox
 todo /jobs/post/wk probably usiing delete and insert
 minor updates of coid, 

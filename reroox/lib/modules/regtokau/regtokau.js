@@ -20,7 +20,10 @@ module.exports = function() {
 		cons.log(req.body)
 		const payload = jwt.decode(req.body.token, secret)
 		cons.log(payload)
-			var query1= conn.query('SELECT * FROM whoapp  WHERE emailid = ? AND appid = ?', [payload.email, payload.appId], function (error, results, fields) {
+		const ja = payload.appId.split('-')
+		const appid = ja[1]
+		const coid = ja[0]
+			var query1= conn.query('SELECT * FROM whoapp  WHERE emailid = ? AND appid = ? AND coid= ?', [payload.email, appid, coid], function (error, results, fields) {
 				cons.log(query1.sql)
 				if(results.length==0){
 					var mes = {auth:false, message: 'You are not authorized for this app for this company'}
@@ -29,7 +32,7 @@ module.exports = function() {
 				}else{
 					//ok we will auth you for this app for whatever devices
 					var ins4 = {userid: payload.email, appid: payload.appId}
-					var query = conn.query("UPDATE whoapp SET auth= true WHERE emailid = ? AND appid = ?", [payload.email, payload.appId] , function (error, results, fields){
+					var query = conn.query("UPDATE whoapp SET auth= true WHERE emailid = ? AND appid = ? AND coid = ?", [payload.email, appid, coid] , function (error, results, fields){
 						cons.log(query.sql)
 						cons.log(error)
 						if(error){
