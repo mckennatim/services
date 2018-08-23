@@ -46,7 +46,6 @@ var bearerTokenApp = function(req,res, next){
 			return
 		}
 		req.userTok = {auth: true, message: 'user has apps', emailId: tokdata.email, appId: appid, coId:coid}
-		cons.log(req.userTok)
 		next()
 		return
 	})

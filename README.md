@@ -1,7 +1,9 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
-### 41-revoox-coid
+### 42-revoox.4-jobs-crud
+crud for app AddJobs and SortJobs
+### 41-revoox.3-coid
 #### On a vexing problem of generaliztion
 Currently emailid and appid is the level of identification offered by soauth and the associated api. What if you wanted to have multiple companies using these apps? You could just encode the company in env.json and that will have to do for now. The problem rears itself when you have an emailid and appid used by more than one company. 
 

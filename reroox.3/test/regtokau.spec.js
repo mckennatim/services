@@ -12,7 +12,7 @@ var httpLoc = cfg.url.local +':'+ cfg.port.express + '/api/'
 //expires in an hour
 var payload = {
 	appId: "reroo-jobs",
-	email: "noah@sitebuilt.net",
+	email: "tim@sitebuilt.net",
 	exp: Math.floor(Date.now() / 1000) + (60 * 60) 
 };
 var token = jwt.encode(payload, secret);
@@ -479,61 +479,8 @@ describe('jobs:', function(){
 			})
 	})
 	it("DELETES then POST's jobs for week", function(done){
-    const wk = 14
-    const jobs = aj.jobs
-    .filter((j)=>j.active==1)
-    .map((j)=>{return {job: j.job, category: j.category, active: j.active*1, idx: j.idx, week:wk}})
-    console.log(jobs);
-    var url = httpLoc + 'jobs/post/'+wk
-		superagent.post(url)
-			.set('Authorization', 'Bearer ' + token)
-			.send({jobs: jobs})
-			.end(function(e, res) {
-				console.log(!!e ? e.status: 'no error')
-				//console.log(res.body)
-				expect(true).to.equal(true)
-				done()
-			})    
-  })
-  it("Puts a revised job record", function(done){
-    let jobs = [{
-      job: '12parleyvale',
-      category: 'utlities',
-      active: 0,
-      week: 0,
-      idx: 5,
-      coid: 'reroo' },
-    { 
-      job: '12parleyvale',
-      category: 'stonework',
-      active: 0,
-      week: 0,
-      idx: 5,
-      coid: 'reroo' }]
-    var url = httpLoc + 'jobs/update'
-		superagent.put(url)
-			.set('Authorization', 'Bearer ' + token)
-			.send({jobs: jobs})
-			.end(function(e, res) {
-				console.log(!!e ? e.status: 'no error')
-				console.log(res.body)
-				expect(true).to.equal(true)
-				done()
-			})      
-  })
-  it('deletes a job', function(done){
-    job ='12parleyvale'
-    var url = httpLoc + 'jobs/del'
-		superagent.delete(url)
-			.set('Authorization', 'Bearer ' + token)
-			.send({job: job})
-			.end(function(e, res) {
-				console.log(!!e ? e.status: 'no error')
-				console.log(res.body)
-				expect(true).to.equal(true)
-				done()
-			})  
-  })
+		done()
+	})
 })
 
 
