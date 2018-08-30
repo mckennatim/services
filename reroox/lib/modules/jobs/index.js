@@ -42,12 +42,12 @@ module.exports = function() {
 		}else{	
 			var mess={message: 'nothing happenning yet-'}
 			cons.log (req.body)
-			const job = req.body.jobs[0].job
+			const idx= req.body.jobs[0].idx
 			const keys = Object.keys(req.body.jobs[0]).join()
 			const vals = [req.body.jobs.map((j)=>Object.values(j))]		
 			console.log(keys);
 			console.log(vals);
-			var query1 = conn.query('DELETE FROM jobcatact WHERE job=? AND coid=? AND week=0', [job, req.userTok.coId], function(error,results,fields){
+			var query1 = conn.query('DELETE FROM jobcatact WHERE idx=? AND coid=? AND week=0', [job, req.userTok.coId], function(error,results,fields){
 				cons.log(query1.sql)
 				cons.log(error)
 				cons.log(results)

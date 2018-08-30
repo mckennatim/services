@@ -5,24 +5,12 @@ var env = require('../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 var app = require('./cors');
 var regtokau = require('./modules/regtokau/regtokau')();
-// var schedrts = require('./modules/schedule/schedrts')();
-// var mqtt = require('./modules/mqtt/mqttroutes')();
-// var dedata = require('./modules/dedata')();
 var jobs = require('./modules/jobs')();
-// var tom = require('./modules/tom')();
+var tcard = require('./modules/tcard')();
 
-// var mongoose = require('mongoose');
-// mongoose.connect(cfg.db.url);
-// console.log(cfg.db.url)
-
-
-// app.use('/api/sched', schedrts);
 app.use('/api/reg', regtokau);
-// app.use('/api/mqtt', mqtt);
-// app.use('/api/dedata', dedata);
 app.use('/api/jobs', jobs);
-// app.use('/api/tom', tom);
-
+app.use('/api/tcard', tcard);
 
 app.get('/api', function (req,res){
   res.send("<h4>in reroox server /api</h4>")

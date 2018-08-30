@@ -210,3 +210,76 @@ SELECT * FROM reroo.whoapp WHERE emailid='noah@sitebuilt.net' AND appid='jobs';
 use reroo;
 INSERT INTO jobcatact (`job`, `category`, active, week, idx, coid) VALUES ('Marketting', 'dog', 0, 18, 1, 'reroo'), ('Nursery', NULL, 1, 18, 2, 'reroo'), ('Truck and tools', NULL, 0, 18, 3, 'reroo')
 
+use reroo;
+DROP TABLE IF EXISTS `tcardjc`;
+CREATE TABLE `tcardjc` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `wdprt` varchar(12) DEFAULT NULL,
+  `emailid` varchar(60) DEFAULT NULL,
+  `job` varchar(60) DEFAULT NULL,
+  `cat` varchar(12) DEFAULT NULL,
+  `hrs` decimal(4,2) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY (`wdprt`),
+  KEY (`emailid`),
+  KEY (`job`),
+  KEY (`cat`),
+  KEY `jobcat` (`job`,`cat`)  USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+use reroo;
+INSERT INTO `tcardjc` (`wdprt`,`emailid`, `job`, `cat`, `hrs`) VALUES
+('2018-W35-1', 'tim@sitebuilt.net', 'HYCC', 'constr', 8.25),
+('2018-W35-2', 'tim@sitebuilt.net', 'HYCC', '', 3.50),
+('2018-W35-2', 'tim@sitebuilt.net', 'Eastie Farm', '', 5.00),
+('2018-W35-4', 'tim@sitebuilt.net', 'Marketting', '', 4.25),
+('2018-W35-4', 'tim@sitebuilt.net', 'HYCC', 'constr', 3),
+('2018-W35-5', 'tim@sitebuilt.net', 'Eastie Farm', 'constr', 2),
+('2018-W35-5', 'tim@sitebuilt.net', 'Marketting', 'constr', 3),
+('2018-W35-5', 'tim@sitebuilt.net', 'HYCC', 'constr', 4.5)
+
+use reroo;
+DROP TABLE IF EXISTS `tcardpu`;
+CREATE TABLE `tcardpu` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `wdprt` varchar(12) DEFAULT NULL,
+  `emailid` varchar(60) DEFAULT NULL,
+  `inout` varchar(60) DEFAULT NULL,
+  `hrs` decimal(4,2) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY (`wdprt`),
+  KEY (`emailid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+use reroo;
+INSERT INTO `tcardpu`  (`wdprt`, `emailid`, `inout`, `hrs`) VALUES
+('2018-W35-1', 'tim@sitebuilt.net', '["7:30", "15:45"]', 8.25),
+("2018-W35-2", "tim@sitebuilt.net", '["7:15", "15:45"]', 8.5),
+("2018-W35-4", "tim@sitebuilt.net", '["8:30", "15:45"]', 7.25),
+("2018-W35-5", "tim@sitebuilt.net", '["7:30", "15:45", "15:45", "17:00"]', 9.5)
+
+use reroo;
+select * from tcardpu where wdprt like('2018-W35%')
+select * from tcardjc where wdprt like('2018-W35%')
+
+use reroo;
+ALTER TABLE `tcardpu` ADD `coid` varchar(20), ADD KEY (`coid`);
+ALTER TABLE `tcardjc` ADD `coid` varchar(20), ADD KEY (`coid`);
+UPDATE tcardpu SET coid='reroo';
+UPDATE tcardjc SET coid='reroo';
+
+use reroo;
+ALTER TABLE `tcardpu` ADD UNIQUE KEY `wec` (`wdprt`, `emailid`, `coid`);
+
+use reroo;
+ALTER TABLE `tcardjc` ADD UNIQUE KEY `wejcc` (`wdprt`, `emailid`, `job`, `cat`, `coid`);
+
+USE reroo;
+INSERT INTO tcardpu
+SET `name` = 'mckenna.tim@gmail.com',
+    `selected` = '[0,0,0,1,1,0,0,0,0,1,0]'
+ON DUPLICATE KEY
+UPDATE 
+    `name` = 'mckenna.tim@gmail.com',
+    `selected` = '[1,1,0,1,1,0,0,0,0,1,0]'

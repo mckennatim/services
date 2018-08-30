@@ -17,6 +17,13 @@ var payload = {
 };
 var token = jwt.encode(payload, secret);
 
+var payload2 = {
+	appId: "reroo-jobs",
+	email: "tim@sitebuilt.net",
+	exp: Math.floor(Date.now() / 1000) + (60 * 60) 
+};
+var token2 = jwt.encode(payload2, secret);
+
 describe('regtokau:', function() {
 	var agent = superagent.agent();
 	var name = 'tim7';
@@ -535,5 +542,33 @@ describe('jobs:', function(){
 			})  
   })
 })
+describe('tcard:', function(){
+	it('GETs tcard data from api/tcard/week/:wk when passed token', function(done) {
+		var url = httpLoc + 'tcard/week/35'
+		superagent
+			.get(url)
+			.set('Authorization', 'Bearer ' + token2)
+			.end(function(e, res) {
+				console.log(res.body)
+				expect(res.body).to.be.an('object');
+				done()
+			})
+  })
+  it('PUTs days record back in db if not exists', function(done){
+    const nd = JSON.parse('{"wdprt":"2018-W35-5","hrs":9.5,"inout":["7:30","15:15","15:45","17:00","16:12"],"jcost":[{"job":"Eastie Farm","cat":"constr","hrs":2},{"job":"Marketting","cat":"constr","hrs":3},{"job":"HYCC","cat":"constr","hrs":4.5}]}')
+    console.log(nd)
+    var url = httpLoc + 'tcard/update'
+		superagent.put(url)
+			.set('Authorization', 'Bearer ' + token2)
+			.send({tday: nd})
+			.end(function(e, res) {
+				console.log(!!e ? e.status: 'no error')
+				console.log(res.body)
+				expect(true).to.equal(true)
+				done()
+			}) 
+  }) 
+})
+
 
 
