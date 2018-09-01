@@ -59,7 +59,7 @@ module.exports = function() {
 			})
 		}
 	})
-	router.get('/week/:wk', bearerTokenApp, function(req, res) {
+	router.get('/bweek/:wk', bearerTokenApp, function(req, res) {
 		if(!req.userTok.auth){
 			var mess={message: 'in get /jobs/update (not authorized)-'+req.userTok.message}
 			cons.log(mess)
@@ -82,5 +82,76 @@ module.exports = function() {
 			})
 		}
 	});
+	router.get('/week/:wk', bearerTokenApp, function(req, res) {
+		if(!req.userTok.auth){
+			var mess={message: 'in get /jobs/update (not authorized)-'+req.userTok.message}
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{	
+			const wk = req.params.wk
+			const yr= moment().format('YYYY')
+			const wdprt = `${yr}-W${wk.toString().padStart(2,'0')}%`
+			cons.log(wdprt)
+			var query = conn.query('SELECT `wdprt`, `inout`, `hrs` FROM tcardpu WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)',[req.userTok.emailId, req.userTok.coId, wdprt], function(error,punch,fields){
+				cons.log(query.sql)
+				cons.log(error)
+				var query2 = conn.query('SELECT `wdprt`, `job`, `cat`, `hrs` FROM tcardjc WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)',[req.userTok.emailId, req.userTok.coId, wdprt], function(error2,jcost,fields2){
+					cons.log(query2.sql)
+					cons.log(error2)
+					cons.log(jcost)
+					cons.log(punch)
+					const wkarr = combinePuJc(punch,jcost)
+					res.jsonp({wk:wk, wkarr:wkarr})		
+				})
+			})
+		}
+	});
+	router.delete('/del', bearerTokenApp, function(req,res){
+		if(!req.userTok.auth){
+			var mess={message: 'in get /tcard/delete (not authorized)-'+req.userTok.message}
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{
+			var mess={message: 'nothing happenning yet-'}
+			const week = req.params.wk*1
+			cons.log (req.body)
+			const wdprt = req.body.wdprt
+			var query1 = conn.query('DELETE FROM tcardpu WHERE wdprt=? AND emailid=? AND coid=?', [wdprt, req.userTok.emailId, req.userTok.coId], function(error,results,fields){
+				cons.log(query1.sql)
+				cons.log(error)
+				cons.log(results)
+				res.jsonp(mess)
+			})
+		}	
+	})	
 	return router
+}
+
+const combinePuJc=(punch,jcost)=>{
+	if(punch.lenght==0){
+		return[]
+	}else{
+		let narr= punch.map((p)=>{
+			nob={wdprt:p.wdprt, hrs:p.hrs, inout:p.inout}
+			let jchrs = 0
+			if(jcost.length==0){
+				nob.jcost=[]
+				nob.jchrs=0
+				return nob
+			}else{
+				let jcarr = jcost
+				.filter((j)=>j.wdprt==p.wdprt)
+				.map((jd)=>{
+					jchrs+=jd.hrs
+					return {job:jd.job, cat:jd.cat, hrs:jd.hrs}
+				})
+			nob.jcost=jcarr	
+			nob.jchrs=jchrs
+			return nob
+			}
+		})
+		cons.log('narr: ', narr)
+		return narr
+	}
+
 }

@@ -1,6 +1,57 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 43-reroox-tcard
+This is now what comes from the database, The server combines the results of tcardpu and tcardjsc into records for each day of the week that there is tcardpu data. If there is no tcardpu data but there is tcardjc data then it will leave that data on the server and return [].
+
+
+
+    parr:  
+    { wkarr:
+      [ { wdprt: '2018-W34-5',
+          hrs: 0,
+          inout: [],
+          jcost: [],
+          jchrs: 0,
+          idx: 0 },
+        { wdprt: '2018-W35-1',
+          hrs: 8.25,
+          inout: '["7:30", "15:45"]',
+          jcost: [Array],
+          jchrs: 8.25,
+          idx: 1 },
+        { wdprt: '2018-W35-2',
+          hrs: 8.5,
+          inout: '["7:15", "15:45"]',
+          jcost: [Array],
+          jchrs: 8.5,
+          idx: 2 },
+        { wdprt: '2018-W35-3',
+          hrs: 0,
+          inout: [],
+          jcost: [],
+          jchrs: 0,
+          idx: 3 },
+        { wdprt: '2018-W35-4',
+          hrs: 7.25,
+          inout: '["8:30", "15:45"]',
+          jcost: [Array],
+          jchrs: 7.25,
+          idx: 4 },
+        { wdprt: '2018-W34-6',
+          hrs: 0,
+          inout: [],
+          jcost: [],
+          jchrs: 0,
+          idx: 5 },
+        { wdprt: '2018-W34-7',
+          hrs: 0,
+          inout: [],
+          jcost: [],
+          jchrs: 0,
+          idx: 6 } ],
+      hrs: [ 8.25, 8.5, 7.25, 9.5 ],
+      jchrs: [ 8.25, 8.5, 7.25, 9.5 ] }
 ### 42-revoox.4-jobs-crud
 crud for app AddJobs and SortJobs
 ### 41-revoox.3-coid
