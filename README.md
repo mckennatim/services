@@ -1,7 +1,10 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
-### 43-reroox-tcard
+### 43-reroox.5-tcard
+
+Ok so now get (a week), put (a day), and delete(a day) all work
+
 This is now what comes from the database, The server combines the results of tcardpu and tcardjsc into records for each day of the week that there is tcardpu data. If there is no tcardpu data but there is tcardjc data then it will leave that data on the server and return [].
 
 
