@@ -59,6 +59,24 @@ module.exports = function() {
 			})
 		}
 	})
+	router.put('/updwprt',bearerTokenApp,  function(req, res) {
+		if(!req.userTok.auth){
+			var mess={message: 'in get /tcard/updwdprt (not authorized)-'+req.userTok.message}
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{
+			const pdata = req.body.wkstat
+			pdata.emailid = req.userTok.emailId
+			pdata.coid = req.userTok.coId
+			
+			var query = conn.query('INSERT INTO tcardwk SET ? ON DUPLICATE KEY UPDATE ?', [pdata,pdata], function(error,results,fields){
+				cons.log(query.sql)
+				cons.log(error)
+				cons.log(results)				
+				res.jsonp(pdata)
+			})
+		}
+	})
 	router.get('/bweek/:wk', bearerTokenApp, function(req, res) {
 		if(!req.userTok.auth){
 			var mess={message: 'in get /jobs/update (not authorized)-'+req.userTok.message}
@@ -82,6 +100,23 @@ module.exports = function() {
 			})
 		}
 	});
+	router.get('/wstat/:wk', bearerTokenApp, function(req, res) {
+		if(!req.userTok.auth){
+			var mess={message: 'in get /tcard/wstat/:wk (not authorized)-'+req.userTok.message}
+			cons.log(mess)
+			res.jsonp(mess)
+		}else{	
+			const wk = req.params.wk
+			const yr= moment().format('YYYY')
+			const wprt = `${yr}-W${wk.toString().padStart(2,'0')}`
+			var query = conn.query('SELECT `wprt`, `status`, `hrs` FROM tcardwk WHERE emailid = ? AND coid = ? AND wprt =?',[req.userTok.emailId, req.userTok.coId, wdprt], function(error,wstat,fields){
+				cons.log(query.sql)
+				cons.log(error)
+				res.jsonp(wstat)
+			})
+
+		}
+	})
 	router.get('/week/:wk', bearerTokenApp, function(req, res) {
 		if(!req.userTok.auth){
 			var mess={message: 'in get /jobs/update (not authorized)-'+req.userTok.message}
@@ -90,18 +125,29 @@ module.exports = function() {
 		}else{	
 			const wk = req.params.wk
 			const yr= moment().format('YYYY')
-			const wdprt = `${yr}-W${wk.toString().padStart(2,'0')}%`
-			cons.log(wdprt)
-			var query = conn.query('SELECT `wdprt`, `inout`, `hrs` FROM tcardpu WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)',[req.userTok.emailId, req.userTok.coId, wdprt], function(error,punch,fields){
-				cons.log(query.sql)
+			const wprt = `${yr}-W${wk.toString().padStart(2,'0')}`
+			const wdprt =`${wprt}%`
+			var query0 = conn.query('SELECT `wprt`, `status`, `hrs` FROM tcardwk WHERE emailid = ? AND coid = ? AND wprt =?',[req.userTok.emailId, req.userTok.coId, wprt], function(error,wstat,fields){
+				cons.log(query0.sql)
 				cons.log(error)
-				var query2 = conn.query('SELECT `wdprt`, `job`, `cat`, `hrs` FROM tcardjc WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)',[req.userTok.emailId, req.userTok.coId, wdprt], function(error2,jcost,fields2){
-					cons.log(query2.sql)
-					cons.log(error2)
-					cons.log(jcost)
-					cons.log(punch)
-					const wkarr = combinePuJc(punch,jcost)
-					res.jsonp({wk:wk, wkarr:wkarr})		
+				cons.log(wstat)
+				const wdprt = `${wprt}%`
+				cons.log(wdprt)
+				var query = conn.query('SELECT `wdprt`, `inout`, `hrs` FROM tcardpu WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)',[req.userTok.emailId, req.userTok.coId, wdprt], function(error,punch,fields){
+					cons.log(query.sql)
+					cons.log(error)
+					var query2 = conn.query('SELECT `wdprt`, `job`, `cat`, `hrs` FROM tcardjc WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)',[req.userTok.emailId, req.userTok.coId, wdprt], function(error2,jcost,fields2){
+						cons.log(query2.sql)
+						cons.log(error2)
+						cons.log(jcost)
+						cons.log(punch)
+						var q =conn.query('SELECT `job`, `category` FROM jobcatact WHERE week=? AND coid=? ORDER BY idx, category', [req.params.wk*1, req.userTok.coId ], function(error, jobs, fields){
+							cons.log(q.sql)
+							cons.log(jobs)
+							const wkarr = combinePuJc(punch,jcost,wk)
+							res.jsonp({wk:wk, wkarr:wkarr, jobs:jobs, wstat:wstat[0]})
+						})
+					})
 				})
 			})
 		}
@@ -126,32 +172,58 @@ module.exports = function() {
 	})	
 	return router
 }
+const createBlWk =(wk)=>{
+  let blwk=[]
+  const wdprt = `${moment().format('YYYY')}-W${wk.toString().padStart(2,"0")}-`
+  for (let i=1;i<=7;i++){
+    let obj = {wdprt:wdprt+i, hrs:0, inout:[], jcost:[], jchrs:0}
+    blwk.push(obj)
+  }
+  return blwk
+}
 
-const combinePuJc=(punch,jcost)=>{
-	if(punch.lenght==0){
-		return[]
-	}else{
-		let narr= punch.map((p)=>{
-			nob={wdprt:p.wdprt, hrs:p.hrs, inout:JSON.parse(p.inout)}
-			let jchrs = 0
-			if(jcost.length==0){
-				nob.jcost=[]
-				nob.jchrs=0
-				return nob
-			}else{
-				let jcarr = jcost
-				.filter((j)=>j.wdprt==p.wdprt)
-				.map((jd)=>{
-					jchrs+=jd.hrs
-					return {job:jd.job, cat:jd.cat, hrs:jd.hrs}
-				})
-			nob.jcost=jcarr	
-			nob.jchrs=jchrs
-			return nob
-			}
-		})
-		cons.log('narr: ', narr)
-		return narr
-	}
+const combinePuJc=(punch,jcost,wk)=>{
+	const blwk = createBlWk(wk)
+	const filledwk  = blwk.map((d)=>{
+		punch
+			.filter((pu)=>pu.wdprt==d.wdprt)
+			.map((puf)=>{
+				const pufioarr =  JSON.parse(puf.inout)
+				d.hrs = resumHrs(pufioarr)
+				d.inout = pufioarr
+			})
+		let jchrs=0
+		let jcarr =[]	
+		jcost	
+			.filter((jc)=>jc.wdprt==d.wdprt)
+			.map((jcf)=>{
+				jchrs += jcf.hrs
+				jcarr.push({job: jcf.job, cat:jcf.cat, hrs:jcf.hrs})
+			})
+		d.jcost = jcarr
+		d.jchrs = jchrs			
+		return d
+	})
+	return filledwk
+}
 
+const resumHrs = (inout)=>{
+  let pin, pout, phrs, thrs=0
+  inout.map((io,i)=>{
+    if(i % 2 == 1){
+      pout = io
+      phrs = io2hrs(pin,pout)
+      thrs += phrs*1
+    }
+    if(i % 2 == 0){
+      pin = io
+    }
+  }) 
+  return thrs  
+}
+
+const io2hrs = (pin, pout)=>{
+  const ti = moment.duration(moment(pout, "HH:mm").diff(moment(pin, "HH:mm")));
+  const hrs = (ti._data.hours + ti._data.minutes/60).toFixed(2);  
+  return hrs
 }
