@@ -1,7 +1,11 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
-### 43-reroox.5-tcard
+### 45-reroox.6-tcard-maybedone
+TODO except for status
+### 44-reroox.5-tcard-addpadwk
+combinPuJc now creates a blank week padded with a weeks punch and jcost. inout hours are summed.
+### 43-reroox.5a-tcard
 
 Ok so now get (a week), put (a day), and delete(a day) all work
 

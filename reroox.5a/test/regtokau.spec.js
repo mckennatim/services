@@ -557,17 +557,13 @@ createBlWk =(wk)=>{
 const padWkData = (wk, wkarr)=>{
   const blwk = createBlWk(wk)
   const paddedwk= blwk.map((d)=>{
-    const fwk = wkarr.filter((wd)=>{
-      //console.log('JSON.stringify(wd,null,2): ', JSON.stringify(wd,null,2))
-      return wd.wdprt==d.wdprt
-    })
+    const fwk = wkarr.filter((wd)=>wd.wdprt==d.wdprt)
     if(fwk.length>0){
       const idx = d.didx
       d=fwk[0]
     }
     return d
   })
-  //console.log('JSON.stringify(paddedwk,null,2): ', JSON.stringify(paddedwk,null,2))
   return paddedwk
 }
 
@@ -591,10 +587,13 @@ const sumThing=(arr, fld)=>{
 }
 
 const processDb4app =(res)=>{
-  const wkarr = wkendLast(adjWk4app(cfg.firstday, res.wkarr))
+  const wkarr = wkendLast(adjWk4app(cfg.firstday, padWkData(res.wk, res.wkarr)))
   const hrs= sumThing(res.wkarr, 'hrs')
   const jchrs= sumThing(res.wkarr, 'jchrs')
-  return {wkarr, hrs, jchrs, wstat:res.wstat}
+  console.log('wkarr: ', wkarr)
+  console.log('hrs: ', hrs)
+  console.log('jchrs: ', jchrs)
+  return {wkarr, hrs, jchrs}
 }
 
 cfg.firstday=5
@@ -618,8 +617,43 @@ const adjDay4db = (firstday, rec)=>{
   }
   return d
 }
-
 describe('tcard:', function(){
+
+
+  it('GETs tcard data from api/tcard/week/:wk when passed token', function(done) {
+		var url = httpLoc + 'tcard/week/35'
+		superagent
+			.get(url)
+			.set('Authorization', 'Bearer ' + token2)
+			.end(function(e, res) {
+        console.log(res.body)
+        const appwkarr = adjWk4app(cfg.firstday, res.body.wkarr )
+        console.log('appwkarr: ', appwkarr)
+        console.log('paddedwk: ', padWkData(res.body.wk, res.body.wkarr)) 
+        const parr= processDb4app(res.body)
+        console.log('parr: ', parr)
+        // console.log('sumThing(res.wkarr, "hrs"): ', sumThing(parr, 'hrs'))
+        // console.log('sumThing(res.wkarr, "jchrs"): ', sumThing(parr, 'jchrs'))
+        
+        expect(res.body).to.be.an('object');
+				done()
+			})
+  })
+  it('PUTs days record back in db if not exists', function(done){
+    const nd = JSON.parse('{"wdprt":"2018-W35-5","hrs":9.5,"inout":["7:30","15:15","15:45","17:00","16:12"],"jcost":[{"job":"Eastie Farm","cat":"constr","hrs":2},{"job":"Marketting","cat":"constr","hrs":3},{"job":"HYCC","cat":"constr","hrs":4.5}],"jchrs":9.5}')
+    const nad = adjDay4db(cfg.firstday, nd)
+    var url = httpLoc + 'tcard/update'
+		superagent.put(url)
+			.set('Authorization', 'Bearer ' + token2)
+			.send({tday: nad})
+			.end(function(e, res) {
+				console.log(!!e ? e.status: 'no error')
+        console.log(res.body)
+
+				expect(true).to.equal(true)
+				done()
+			}) 
+  }) 
   it('DELETESs days record ', function(done){
     const nd = '2018-W35-5'
     var url = httpLoc + 'tcard/del'
@@ -633,107 +667,8 @@ describe('tcard:', function(){
 				expect(true).to.equal(true)
 				done()
 			}) 
-  }) 
-
-  it('GETs tcard data from api/tcard/week/:wk when passed token', function(done) {
-		var url = httpLoc + 'tcard/wstat/35'
-		superagent
-			.get(url)
-			.set('Authorization', 'Bearer ' + token2)
-			.end(function(e, res) {
-        console.log(res.body)
-        expect(res.body).to.be.an('object');
-				done()
-			})
-  })
-  it('PUTs tcardwk record back in db if not exists', function(done){
-    const nd = JSON.parse('{"wprt":"2018-W35", "hrs":25,"status":"submitted"}')
-    var url = httpLoc + 'tcard/updstat'
-		superagent.put(url)
-			.set('Authorization', 'Bearer ' + token2)
-			.send({wkstat: nd})
-			.end(function(e, res) {
-				console.log(!!e ? e.status: 'no error')
-        console.log('processed byserver ',res.body)
-        console.log('processed by fetches: ')
-				expect(true).to.equal(true)
-				done()
-			}) 
-  })
-  it('GETs tcard data from api/tcard/week/:wk when passed token', function(done) {
-		var url = httpLoc + 'tcard/week/35'
-		superagent
-			.get(url)
-			.set('Authorization', 'Bearer ' + token2)
-			.end(function(e, res) {
-        console.log('JSON.stringify(res.body, null, 2)', JSON.stringify(res.body, null, 2))
-        const parr= processDb4app(res.body)
-        console.log('parr: ', JSON.stringify(parr, null, 2))
-        expect(res.body).to.be.an('object');
-				done()
-			})
-  }) 
-
-  it('PUTs tcardjc record back in db /tcard/updjc if not exists', function(done){
-    const nd = JSON.parse('{"wdprt":"2018-W35-5", "jcost":[{"job":"Eastie Farm","cat":"constr","hrs":2},{"job":"Marketting","cat":"constr","hrs":3},{"job":"HYCC","cat":"constr","hrs":4.5}],"jchrs":9.5}')
-    const nad = adjDay4db(cfg.firstday, nd)
-    console.log('nad: ', nad)
-    var url = httpLoc + 'tcard/updjc'
-		superagent.put(url)
-			.set('Authorization', 'Bearer ' + token2)
-			.send({tday: nad})
-			.end(function(e, res) {
-				console.log(!!e ? e.status: 'no error')
-        console.log(res.body)
-				expect(true).to.equal(true)
-				done()
-			}) 
-  }) 
-  it('PUTs tcardjc record back in db /tcard/updjc if not exists', function(done){
-    const nd = JSON.parse('{"wdprt":"2018-W35-5", "jcost":[]}')
-    const nad = adjDay4db(cfg.firstday, nd)
-    console.log('nad: ', nad)
-    var url = httpLoc + 'tcard/updjc'
-		superagent.put(url)
-			.set('Authorization', 'Bearer ' + token2)
-			.send({tday: nad})
-			.end(function(e, res) {
-				console.log(!!e ? e.status: 'no error')
-        console.log(res.body)
-				expect(true).to.equal(true)
-				done()
-			}) 
-  })  
-  it('PUTs days record back in db if not exists', function(done){
-    const nd = JSON.parse('{"wdprt":"2018-W35-5","hrs":9.5,"inout":["7:30","15:15","15:45","17:00","16:12"],"jcost":[{"job":"Eastie Farm","cat":"constr","hrs":2},{"job":"Marketting","cat":"constr","hrs":3},{"job":"HYCC","cat":"constr","hrs":4.5}],"jchrs":9.5}')
-    const nad = adjDay4db(cfg.firstday, nd)
-    var url = httpLoc + 'tcard/update'
-		superagent.put(url)
-			.set('Authorization', 'Bearer ' + token2)
-			.send({tday: nad})
-			.end(function(e, res) {
-				console.log(!!e ? e.status: 'no error')
-        console.log(res.body)
-				expect(true).to.equal(true)
-				done()
-			}) 
-  })
-  it('PUTs days record back in db if not exists', function(done){
-    const nd = JSON.parse('{"wdprt":"2018-W35-5","hrs":0,"inout":[],"jcost":[],"jchrs":0}')
-    const nad = adjDay4db(cfg.firstday, nd)
-    var url = httpLoc + 'tcard/update'
-		superagent.put(url)
-			.set('Authorization', 'Bearer ' + token2)
-			.send({tday: nad})
-			.end(function(e, res) {
-				console.log(!!e ? e.status: 'no error')
-        console.log(res.body)
-				expect(true).to.equal(true)
-				done()
-			}) 
-  }) 
+  })   
 })
-
 
 
 

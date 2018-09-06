@@ -283,20 +283,3 @@ ON DUPLICATE KEY
 UPDATE 
     `name` = 'mckenna.tim@gmail.com',
     `selected` = '[1,1,0,1,1,0,0,0,0,1,0]'
-
-
-use reroo;
-DROP TABLE IF EXISTS `tcardwk`;
-CREATE TABLE `tcardwk` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `wprt` varchar(12) DEFAULT NULL,
-  `emailid` varchar(60) DEFAULT NULL,
-  `status` varchar(20) DEFAULT NULL,
-  `hrs` decimal(4,2) NOT NULL DEFAULT '0',
-  `coid` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `wec` (`wprt`, `emailid`, `coid`),
-  KEY (`wprt`),
-  KEY (`emailid`),
-  KEY (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;    
