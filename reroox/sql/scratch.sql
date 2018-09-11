@@ -197,6 +197,10 @@ select * from reroo.workers
 use reroo;
 ALTER TABLE `whoapp` ADD `coid` varchar(20), ADD KEY (`coid`);
 use reroo;
+ALTER TABLE `whoapp` ADD `active` tinyint(4), ADD KEY (`active`);
+use reroo;
+UPDATE `reroo`.`whoapp` SET `active`=1;
+
 ALTER TABLE `whoapp` ADD `auth` tinyint(4), ADD KEY (`auth`);
 
 UPDATE reroo.whoapp SET coid='reroo';
@@ -315,3 +319,45 @@ ON DUPLICATE KEY UPDATE `wdprt` = '2018-W36-5', `emailid` = 'tim@sitebuilt.net',
 
 use reroo;
 INSERT INTO tcardpu SET `wdprt` = '2018-W36-5', `emailid` = 'tim@sitebuilt.net', `inout` = '[\"7:30\",\"15:15\",\"15:45\",\"17:00\",\"16:12\"]', `hrs` = 9.5, `coid` = 'reroo' ON DUPLICATE KEY UPDATE `wdprt` = '2018-W36-5', `emailid` = 'tim@sitebuilt.net', `inout` = '[\"7:30\",\"15:15\",\"15:45\",\"17:00\",\"16:12\"]', `hrs` = 9.5, `coid` = 'reroo'
+
+use reroo;
+INSERT INTO `whoapp` (`emailid`, `appid`, `permisos`, `coid`, `auth`) VALUES
+('noah@sitebuilt.net', 'tcard', 'payroll', 'reroo', NULL),
+('oliviaallegramay@gmail.com', 'tcard', 'user', 'reroo', NULL),
+('oliviaallegramay@gmail.com', 'payroll', 'user', 'reroo', NULL),
+('oliviaallegramay@gmail.com', 'jobs', 'user', 'reroo', NULL),
+( 'noah.mckenna@gmail.com', 'payroll', 'admin', 'reroo', 1),
+( 'perimckenna@gmail.com', 'payroll', 'admin', 'reroo', 1),
+( 'perimckenna@yahoo.com', 'payroll', 'admin', 'reroo', 1),
+( 'mckenna.tim@gmail.com', 'payroll', 'admin', 'reroo', 1);
+
+use reroo;
+select emailid, active from whoapp WHERE coid='reroo' AND appid = 'tcard'use reroo;
+select emailid, active from whoapp WHERE coid='reroo' AND appid = 'tcard'
+
+use reroo;
+SELECT emailid, hrs, `status` FROM tcardwk WHERE status='submitted';
+
+use reroo;
+DROP TABLE IF EXISTS `settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `firstday` int(2),
+  `ot` text,
+  `effective` date,
+  `coid` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY (`effective`),
+  KEY (`coid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+INSERT INTO `settings` (`firstday`, `ot`, `effective`, `coid`)
+VALUES 
+(1, '{"over40": 1.0, "sa": 1.0, "su": 1.0}', '2017-01-01', 'reroo'),
+(1, '{"over40": 1.5, "sa": 1.0, "su": 1.0}', '2018-01-01', 'reroo'),
+(5, '{"over40": 1.5, "sa": 1.0, "su": 1.0}', '2018-11-01', 'reroo'),
+(1, '{"over40": 1.5, "sa": 1.0, "su": 1.5}', '2018-06-01', 'reroo');
+SELECT * FROM `settings` WHERE `effective`< CURDATE() AND `coid`= 'reroo' ORDER BY `effective` DESC LIMIT 1;
+
+SELECT * FROM `settings` WHERE `effective`< CURDATE() ORDER BY `effective` DESC LIMIT 1;
