@@ -279,6 +279,9 @@ ALTER TABLE `tcardpu` ADD UNIQUE KEY `wec` (`wdprt`, `emailid`, `coid`);
 use reroo;
 ALTER TABLE `tcardjc` ADD UNIQUE KEY `wejcc` (`wdprt`, `emailid`, `job`, `cat`, `coid`);
 
+use reroo;
+ALTER TABLE `jobcatact` ADD UNIQUE KEY `jic` (`job`, `idx`, `coid`);
+
 USE reroo;
 INSERT INTO tcardpu
 SET `name` = 'mckenna.tim@gmail.com',
@@ -361,3 +364,69 @@ VALUES
 SELECT * FROM `settings` WHERE `effective`< CURDATE() AND `coid`= 'reroo' ORDER BY `effective` DESC LIMIT 1;
 
 SELECT * FROM `settings` WHERE `effective`< CURDATE() ORDER BY `effective` DESC LIMIT 1;
+
+use reroo;
+INSERT INTO jobs0 SELECT * FROM jobcatact WHERE week=0;
+
+use reroo;
+CREATE TABLE jobs0 SELECT * FROM jobcatact WHERE week = 0;
+
+INSERT INTO `jobcatact` (`id`, `job`, `category`, `active`, `week`, `idx`, `coid`) VALUES
+(2262, 'Ken Wing - Rockview', '', 1, 0, 0, 'reroo'),
+(2263, 'Ken Wing - Rockview', 'stonework', 0, 0, 0, 'reroo'),
+(2264, 'Egelston Library', NULL, 1, 0, 1, 'reroo'),
+(2265, 'Nursery', '', 0, 0, 2, 'reroo'),
+(2266, '2054 Dot Ave', '', 1, 0, 3, 'reroo'),
+(2267, 'HYCC', '', 0, 0, 4, 'reroo'),
+(2268, 'HYCC', 'constr', 1, 0, 4, 'reroo'),
+(2269, 'HYCC', 'maintain', 1, 0, 4, 'reroo'),
+(2272, 'Eastie Farm', '', 1, 0, 6, 'reroo'),
+(2273, '105 Green St', NULL, 0, 0, 7, 'reroo'),
+(2274, 'Marketting', NULL, 1, 0, 8, 'reroo'),
+(2275, '19 cornelius way', NULL, 0, 0, 9, 'reroo'),
+(2276, '20 Alveston', NULL, 1, 0, 10, 'reroo'),
+(2277, '16 roanoke', NULL, 0, 0, 11, 'reroo'),
+(2278, 'Roz Walter - 20 Dell', NULL, 0, 0, 12, 'reroo'),
+(2279, 'Boston Microgreens', NULL, 0, 0, 13, 'reroo'),
+(2280, 'Gibran and Samantha', NULL, 0, 0, 14, 'reroo'),
+(2281, '195 chestnut', NULL, 0, 0, 15, 'reroo'),
+(2282, '40 chestnut ave - alex marburger', NULL, 0, 0, 16, 'reroo'),
+(2283, '38 Jamaica', NULL, 0, 0, 17, 'reroo'),
+(2284, '18 Holbrook - Everett and Molly', NULL, 0, 0, 18, 'reroo'),
+(2285, 'Karen and Duncan - 254 Hawthorne', NULL, 0, 0, 19, 'reroo'),
+(2286, 'Terese Hammerle - ', NULL, 0, 0, 20, 'reroo'),
+(2287, 'Arbour Hospital', NULL, 0, 0, 21, 'reroo'),
+(2288, 'Diana McClure ', NULL, 0, 0, 22, 'reroo'),
+(2289, 'Cam Kerry - 21 Adelaide', NULL, 0, 0, 23, 'reroo'),
+(2290, 'Nancy Lipamn - Kitteridge Court', NULL, 0, 0, 24, 'reroo'),
+(2291, '68 Cypress', NULL, 0, 0, 25, 'reroo'),
+(2292, 'Rick Hammond - Liszt St Rosi', NULL, 0, 0, 26, 'reroo'),
+(2293, 'Jeanette - Clayborne garden green roof', NULL, 0, 0, 27, 'reroo'),
+(2294, '76 South St, Lucy Orloski', NULL, 0, 0, 28, 'reroo'),
+(2295, '349 VFW Parkway - Bunny Hickey', NULL, 0, 0, 29, 'reroo'),
+(2296, '68 Rockview - terri martell', NULL, 0, 0, 30, 'reroo'),
+(2297, 'Jennileen Joseph 218 Neponset Ave', NULL, 0, 0, 31, 'reroo'),
+(2298, 'Nathan Lord - 158 Hampshire', NULL, 0, 0, 32, 'reroo'),
+(2299, 'South Boston Library - Kathleen Mar', NULL, 0, 0, 33, 'reroo'),
+(2300, 'Jodie Wahldesbuhl - 22 Thayer st brookline', NULL, 0, 0, 34, 'reroo'),
+(2301, 'Michael Bellefeille - 40 Gartland', NULL, 0, 0, 35, 'reroo'),
+(2302, 'Daphnah and Jay - 1435 Centre', NULL, 0, 0, 36, 'reroo'),
+(2303, '241-5 Chestnut Ave', NULL, 0, 0, 37, 'reroo'),
+(2304, '241-5 Chestnut Ave', NULL, 0, 0, 37, 'reroo'),
+(2305, '17 Park Lane', NULL, 0, 0, 38, 'reroo'),
+(2306, 'JPNDC brewery', NULL, 0, 0, 39, 'reroo'),
+(2307, 'John Stainton - 37 Pondview', NULL, 0, 0, 40, 'reroo'),
+(2308, '37 ogden', NULL, 0, 0, 41, 'reroo'),
+(2309, '14 chestnut', NULL, 0, 0, 42, 'reroo'),
+(2310, 'Dae Kim - 16 Zamora', NULL, 0, 0, 43, 'reroo'),
+(2311, '63-65 Chestnut', '', 0, 0, 44, 'reroo'),
+(2312, '233 Chestnut - Greg Gulickssen', NULL, 0, 0, 45, 'reroo'),
+(2313, '126 Thornton - Lucy Lomas', NULL, 0, 0, 46, 'reroo'),
+(2314, 'Dee and Maya - Rockview', NULL, 0, 0, 47, 'reroo'),
+(2315, 'Michael Hecht - 9 Park Lane', NULL, 1, 0, 48, 'reroo'),
+(2316, 'Chestnut Rockview Backwoods', NULL, 0, 0, 49, 'reroo'),
+(2317, '11 danforth', NULL, 1, 0, 50, 'reroo'),
+(2318, 'connolly library', NULL, 0, 0, 51, 'reroo'),
+(2319, 'Marushka Glissen - Lamartine?', NULL, 0, 0, 52, 'reroo'),
+(2320, 'Donna Woonteiler - 8 Chetnut Place', NULL, 0, 0, 53, 'reroo'),
+(2321, 'J&M Brown', NULL, 0, 0, 54, 'reroo');
