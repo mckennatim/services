@@ -430,3 +430,6 @@ INSERT INTO `jobcatact` (`id`, `job`, `category`, `active`, `week`, `idx`, `coid
 (2319, 'Marushka Glissen - Lamartine?', NULL, 0, 0, 52, 'reroo'),
 (2320, 'Donna Woonteiler - 8 Chetnut Place', NULL, 0, 0, 53, 'reroo'),
 (2321, 'J&M Brown', NULL, 0, 0, 54, 'reroo');
+
+USE reroo;
+SELECT * FROM `tcardpu` WHERE emailid='noah.mckenna@gmail.com' AND wdprt LIKE('2018-W37-%) ORDER BY coid, emailid, wdprt;
