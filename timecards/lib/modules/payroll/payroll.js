@@ -3,20 +3,20 @@ var router = express.Router();
 var cons = require('tracer').console();
 var conn = require('../../db/mysqldb')
 var combinePuJc = require('../../utilities').combinePuJc
-var bearerTokenApp = require('../regtokau/strategy').bearerTokenApp
+var bearerTokenCoid = require('../regtokau/strategy').bearerTokenCoid
 
 
 module.exports = function() {
     router.get('/', function(req, res) {
         res.jsonp({ message: "in root of payroll module" })
     });
-    router.get('/settings', bearerTokenApp, function(req, res) {
+    router.get('/settings', bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
             var mess = { message: 'in get /payroll/settings (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
-            var query = conn.query('SELECT * FROM `settings` WHERE `effective`< CURDATE() AND `coid` = ? ORDER BY `effective` DESC LIMIT 1', req.userTok.coId, function(error, settings) {
+            var query = conn.query('SELECT * FROM `settings` WHERE `effective`< CURDATE() AND `coid` = ? ORDER BY `effective` DESC LIMIT 1', req.userTok.coid, function(error, settings) {
                 cons.log(query.sql)
                 cons.log(error)
                 res.jsonp(settings)
@@ -24,13 +24,13 @@ module.exports = function() {
 
         }
     })
-    router.get('/submitted', bearerTokenApp, function(req, res) {
+    router.get('/submitted', bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
             var mess = { message: 'in get /payroll/submitted (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
-            var query = conn.query('SELECT wprt, emailid, hrs, `status` FROM tcardwk WHERE status="submitted" AND coid=? ORDER BY wprt,emailid', req.userTok.coId, function(error, wstat) {
+            var query = conn.query('SELECT wprt, emailid, hrs, `status` FROM tcardwk WHERE status="submitted" AND coid=? ORDER BY wprt,emailid', req.userTok.coid, function(error, wstat) {
                 cons.log(query.sql)
                 cons.log(error)
                 res.jsonp(wstat)
@@ -38,7 +38,7 @@ module.exports = function() {
 
         }
     })
-    router.get('/tcard/:wprt/:emailid', bearerTokenApp, function(req, res) {
+    router.get('/tcard/:wprt/:emailid', bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
             var mess = { message: 'in get /payroll/tcard (not authorized)-' + req.userTok.message }
             cons.log(mess)
@@ -50,20 +50,20 @@ module.exports = function() {
             cons.log('wk: ', wk)
             const emailid =req.params.emailid
             const wdprt = `${wprt}%`
-            var query0 = conn.query('SELECT `wprt`, `emailid`, `status`, `hrs` FROM tcardwk WHERE emailid = ? AND coid = ? AND wprt =?', [emailid, req.userTok.coId, wprt], function(error0, wstat) {
+            var query0 = conn.query('SELECT `wprt`, `emailid`, `status`, `hrs` FROM tcardwk WHERE emailid = ? AND coid = ? AND wprt =?', [emailid, req.userTok.coid, wprt], function(error0, wstat) {
                 cons.log(query0.sql)
                 cons.log(error0)
                 cons.log(wstat)
                 cons.log(wdprt)
-                var query = conn.query('SELECT `wdprt`, `inout`, `hrs` FROM tcardpu WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coId, wdprt], function(error1, punch) {
+                var query = conn.query('SELECT `wdprt`, `inout`, `hrs` FROM tcardpu WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coid, wdprt], function(error1, punch) {
                     cons.log(query.sql)
                     cons.log(error1)
-                    var query2 = conn.query('SELECT `wdprt`, `job`, `cat`, `hrs` FROM tcardjc WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coId, wdprt], function(error2, jcost) {
+                    var query2 = conn.query('SELECT `wdprt`, `job`, `cat`, `hrs` FROM tcardjc WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coid, wdprt], function(error2, jcost) {
                         cons.log(query2.sql)
                         cons.log(error2)
                         cons.log(jcost)
                         cons.log(punch)
-                        var q = conn.query('SELECT `job`, `category` FROM jobcatact WHERE week=? AND coid=? ORDER BY idx, category', [wk, req.userTok.coId], function(error3, jobs) {
+                        var q = conn.query('SELECT `job`, `category` FROM jobcatact WHERE week=? AND coid=? ORDER BY idx, category', [wk, req.userTok.coid], function(error3, jobs) {
                             cons.log(q.sql)
                             cons.log(jobs)
                             cons.log(error3)
