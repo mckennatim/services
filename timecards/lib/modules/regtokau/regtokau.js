@@ -21,7 +21,7 @@ module.exports = function() {
     const payload = jwt.decode(req.body.token, secret)
     const emailid = payload.email
     const appid = payload.appId
-    const query1 = conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil FROM rolewho w LEFT JOIN co c ON c.coid= w.coid  WHERE w.emailid = ? AND c.goodtil > CURDATE()', [emailid,appid], function(error, results) {
+    const query1 = conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ?', [emailid, appid], function(error, results) {
       cons.log('query1.sql: ', query1.sql)
       if (error) {
         res.jsonp({ auth: false, message: 'Sorry, database error ' + error.code + ' occured.' });
@@ -42,13 +42,10 @@ module.exports = function() {
       res.jsonp(mess)
     } else {
       cons.log(req.userTok);
-      var q = conn.query('SELECT c.coid FROM rolewho w LEFT JOIN co c ON c.coid= w.coid  WHERE w.emailid = ? AND c.goodtil > CURDATE() ', req.userTok.emailid, function(error, results) {
-        cons.log(q.sql)
-        var arrres = results.map((res) => res.coid)
-        res.jsonp({ coid: arrres, binfo: req.userTok })
-      })
+      res.jsonp({ coid: req.userTok.cos, binfo: req.userTok })
     }
   })
+  
   router.get('/ctoken/:coid', bearerTokenApp, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /reg/ctoken/:coid (not authorized)-' + req.userTok.message }
@@ -60,7 +57,7 @@ module.exports = function() {
         coid: req.params.coid,
         appid: req.userTok.appid,
         emailid: req.userTok.emailid,
-        exp: Math.floor(Date.now() / 1000) + (60 * 60) 
+        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 60) //sec*min*days
       };
       var token = jwt.encode(payload, secret);
       res.jsonp({ token: token, binfo: req.userTok, coid:req.params.coid })

@@ -994,3 +994,5 @@ SELECT devid
 FROM devs
 WHERE devid LIKE 'CYURD%'
 ORDER BY devid DESC LIMIT 1
+
+ALTER TABLE `roleapp` CHANGE `appid` `task` VARCHAR(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;

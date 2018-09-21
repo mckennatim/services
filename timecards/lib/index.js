@@ -4,8 +4,8 @@ var env = require('../env.json')
 var cfg = env[process.env.NODE_ENV || 'development']
 var app = require('./cors');
 var regtokau = require('./modules/regtokau/regtokau')();
-var jobs = require('./modules/jobs')();
-var tcard = require('./modules/tcard')();
+var jobs = require('./modules/jobs/jobs')();
+var tcard = require('./modules/tcard/tcard')();
 var payroll = require('./modules/payroll/payroll')();
 
 // dog = 'fred'

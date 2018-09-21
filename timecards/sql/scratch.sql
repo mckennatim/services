@@ -563,16 +563,50 @@ AND c.coid = 'reroo'
 
 /*
 for regtoka.auth (you only know the appid and the emailid)
+
+all the records in roewho and only those in 
 */
 USE timecards;
-SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid
+SELECT w.emailid, w.role, c.coid, c.goodtil, a.task
 FROM rolewho w
+RIGHT JOIN `roleapp` a ON a.`role`= w.`role`
 LEFT JOIN co c ON c.coid= w.coid
-LEFT JOIN `roleapp` a ON a.`role`= w.`role`
-WHERE w.emailid = 'mckenna.tim@gmail.com'
+WHERE w.emailid = 'tim@sitebuilt.net'
 AND c.goodtil > CURDATE()
-AND a.appid = 'tcard'
+AND a.task = 'jobs'
+AND c.coid = 'sbs'
 
-SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN co c ON c.coid= w.coid LEFT JOIN `roleapp` a ON a.`role`= w.`role` WHERE w.emailid = 'mckenna.tim@gmail.com' AND c.goodtil > CURDATE() AND a.appid = 'tcard' 
 
-SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN co c ON c.coid= w.coid LEFT JOIN `roleapp` a ON a.`role`= w.`role` WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? 
+
+USE timecards;
+SELECT w.emailid, w.role, c.coid, c.goodtil, a.task
+FROM rolewho w
+RIGHT JOIN co c ON c.coid= w.coid
+LEFT JOIN `roleapp` a ON a.`role`= w.`role`
+WHERE w.emailid = 'tim@sitebuilt.net'
+AND c.goodtil > CURDATE()
+AND a.task = 'jobs'
+
+SELECT w.emailid, w.role, c.coid, c.goodtil, a.task FROM rolewho w LEFT JOIN co c ON c.coid= w.coid LEFT JOIN `roleapp` a ON a.`role`= w.`role` WHERE w.emailid = 'mckenna.tim@gmail.com' AND c.goodtil > CURDATE() AND a.task = 'tcard' 
+
+SELECT w.emailid, w.role, c.coid, c.goodtil, a.task FROM rolewho w LEFT JOIN co c ON c.coid= w.coid LEFT JOIN `roleapp` a ON a.`role`= w.`role` WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.task = ? 
+
+use timecards;
+select * from jobcatact;
+
+ALTER TABLE `timecards`.`jobcatact` DROP INDEX `jobcatwk`, ADD UNIQUE `jobcatwkco` (`job`, `category`, `week`, `coid`) USING BTREE;
+
+
+ALTER TABLE `timecards`.`roleapp` CHANGE `appid` `task` VARCHAR(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+use timecards;
+SELECT w.emailid, w.role, a.task FROM rolewho w 
+RIGHT JOIN `roleapp` a ON a.`role`= w.`role` 
+WHERE w.emailid = 'mckenna.tim@gmail.com' 
+AND a.task = 'tcard';
+
+select * from `timecards`.`roleapp`;
+
+select * from `timecards`.`rolewho`;
+
+UPDATE `timecards`.`roleapp` SET `task`='tcard' WHERE role='worker';
