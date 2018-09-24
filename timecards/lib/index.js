@@ -7,6 +7,7 @@ var regtokau = require('./modules/regtokau/regtokau')();
 var jobs = require('./modules/jobs/jobs')();
 var tcard = require('./modules/tcard/tcard')();
 var payroll = require('./modules/payroll/payroll')();
+var persons = require('./modules/persons/persons')();
 
 // dog = 'fred'
 
@@ -14,6 +15,7 @@ app.use('/api/reg', regtokau);
 app.use('/api/jobs', jobs);
 app.use('/api/tcard', tcard);
 app.use('/api/payroll', payroll);
+app.use('/api/persons', persons);
 
 app.get('/api', function(req, res) {
     res.send("<h4>in timecards server /api</h4>")

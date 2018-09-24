@@ -630,3 +630,203 @@ select * from `timecards`.`roleapp`;
 select * from `timecards`.`rolewho`;
 
 UPDATE `timecards`.`roleapp` SET `task`='tcard' WHERE role='worker';
+
+use timecards;
+DROP TABLE IF EXISTS `persons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `persons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `emailid` varchar(60) DEFAULT NULL,
+  `firstmid` varchar(60) DEFAULT NULL,
+  `lastname` varchar(40) DEFAULT NULL,
+  `street` varchar(100) DEFAULT NULL,
+  `city`  varchar(50) DEFAULT NULL,
+  `st`  varchar(2) DEFAULT NULL,
+  `zip`  varchar(10) DEFAULT NULL,
+  `ssn`  varchar(11) DEFAULT NULL,
+  `w4allow`  int(2) DEFAULT NULL,
+  `stallow`  int(2) DEFAULT NULL,
+  `rate` decimal(5,2),
+  `active` int(1) DEFAULT NULL,
+  `coid` varchar(20) DEFAULT NULL,
+  `effective` date,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ece` (`emailid`, `coid`, `effective`),
+  KEY (`firstmid`),
+  KEY (`lastname`),
+  KEY (`emailid`),
+  KEY (`city`),
+  KEY (`st`),
+  KEY (`active`),
+  KEY (`coid`),
+  KEY (`rate`),
+  KEY (`effective`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+USE timecards;
+INSERT INTO persons (`emailid`, `firstmid`, `lastname`, `street`, `city`, `state`, `zip`, `ssn`, `rate`, `w4allow`, `stallow`, `active`, `effective`, `coid`) 
+VALUES 
+('mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 37.25, 1, 1, 1, '2018-11-23', 'sbs');
+
+USE timecards;
+INSERT INTO persons
+SET 
+  emailid = 'mckenna.tim@gmail.com', 
+  firstmid = 'Timothy S.', 
+  lastname = 'McKenna', 
+  street = '12 Parley Vale', 
+  city = 'Jamaica Plain', 
+  st = 'MA', 
+  zip = '02130', 
+  ssn = '121-44-0295', 
+  rate = 37.25, 
+  w4allow = 1, 
+  stallow = 1, 
+  active = 1, 
+  effective = '2018-11-23', 
+  coid = 'sbs'
+ON DUPLICATE KEY
+UPDATE 
+  emailid = 'mckenna.tim@gmail.com', 
+  firstmid = 'Timothy S.', 
+  lastname = 'McKenna', 
+  street = '12 Parley Vale', 
+  city = 'Jamaica Plain', 
+  st = 'MA', 
+  zip = '02130', 
+  ssn = '121-44-0295', 
+  rate = 37.25, 
+  w4allow = 1, 
+  stallow = 1, 
+  active = 1, 
+  effective = '2018-11-23', 
+  coid = 'sbs';
+
+USE timecards;
+INSERT INTO persons
+SET 
+  emailid = 'mckenna.tim@gmail.com', 
+  firstmid = 'Timothy S.', 
+  lastname = 'McKenna', 
+  street = '12 Parley Vale', 
+  city = 'Jamaica Plain', 
+  st = 'MA', 
+  zip = '02130', 
+  ssn = '121-44-0295', 
+  rate = 38.25, 
+  w4allow = 3, 
+  stallow = 2, 
+  active = 1, 
+  effective = '2018-11-23', 
+  coid = 'sbs'
+ON DUPLICATE KEY
+UPDATE 
+  emailid = 'mckenna.tim@gmail.com', 
+  firstmid = 'Timothy S.', 
+  lastname = 'McKenna', 
+  street = '12 Parley Vale', 
+  city = 'Jamaica Plain', 
+  st = 'MA', 
+  zip = '02130', 
+  ssn = '121-44-0295', 
+  rate = 38.25, 
+  w4allow = 3, 
+  stallow = 2, 
+  active = 1, 
+  effective = '2018-11-23', 
+  coid = 'sbs';
+
+  USE timecards;
+INSERT INTO persons
+SET 
+  emailid = 'mckenna.tim@gmail.com', 
+  firstmid = 'Timothy S.', 
+  lastname = 'McKenna', 
+  street = '12 Parley Vale', 
+  city = 'Jamaica Plain', 
+  st = 'MA', 
+  zip = '02130', 
+  ssn = '121-44-0295', 
+  rate = 47.25, 
+  w4allow = 1, 
+  stallow = 1, 
+  active = 1, 
+  effective = '2018-09-22', 
+  coid = 'sbs'
+ON DUPLICATE KEY
+UPDATE 
+  emailid = 'mckenna.tim@gmail.com', 
+  firstmid = 'Timothy S.', 
+  lastname = 'McKenna', 
+  street = '12 Parley Vale', 
+  city = 'Jamaica Plain', 
+  st = 'MA', 
+  zip = '02130', 
+  ssn = '121-44-0295', 
+  rate = 47.25, 
+  w4allow = 1, 
+  stallow = 1, 
+  active = 1, 
+  effective = '2018-09-22', 
+  coid = 'sbs';
+
+USE timecards;
+INSERT INTO persons
+SET 
+  emailid = 'mckenna.tim@gmail.com', 
+  firstmid = 'Timothy S.', 
+  lastname = 'McKenna', 
+  street = '12 Parley Vale', 
+  city = 'Jamaica Plain', 
+  st = 'MA', 
+  zip = '02130', 
+  ssn = '121-44-0295', 
+  rate = 35.25, 
+  w4allow = 1, 
+  stallow = 1, 
+  active = 1, 
+  effective = '2018-06-22', 
+  coid = 'sbs'
+ON DUPLICATE KEY
+UPDATE 
+  emailid = 'mckenna.tim@gmail.com', 
+  firstmid = 'Timothy S.', 
+  lastname = 'McKenna', 
+  street = '12 Parley Vale', 
+  city = 'Jamaica Plain', 
+  st = 'MA', 
+  zip = '02130', 
+  ssn = '121-44-0295', 
+  rate = 35.25, 
+  w4allow = 1, 
+  stallow = 1, 
+  active = 1, 
+  effective = '2018-06-22', 
+  coid = 'sbs';
+
+select * from `timecards`.`persons` ;
+
+SELECT * 
+FROM `timecards`.`persons` 
+WHERE effective <= CURDATE()
+ORDER BY effective DESC;
+
+SELECT * 
+FROM `timecards`.`persons` 
+WHERE effective <= CURDATE()
+ORDER BY effective DESC
+LIMIT 1;
+
+USE timecards;
+SELECT r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, p.`active`, p.`effective`, p.`coid` 
+FROM rolewho r 
+LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid 
+WHERE r.coid='sbs'
+AND p.effective <= CURDATE()
+ORDER BY p.effective DESC
+LIMIT 1;
+
+SELECT r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, p.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid='sbs' AND p.effective <= CURDATE() ORDER BY p.effective DESC LIMIT 1 
+
+SELECT r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, p.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ? AND p.effective <= CURDATE() ORDER BY p.effective DESC LIMIT 1 
