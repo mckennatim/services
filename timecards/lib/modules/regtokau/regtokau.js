@@ -46,21 +46,23 @@ module.exports = function() {
     }
   })
   
-  router.get('/ctoken/:coid', bearerTokenApp, function(req, res) {
+  router.get('/ctoken/:coid/:role', bearerTokenApp, function(req, res) {
     if (!req.userTok.auth) {
-      var mess = { message: 'in get /reg/ctoken/:coid (not authorized)-' + req.userTok.message }
+      var mess = { message: 'in get /reg/ctoken/:coid/:role (not authorized)-' + req.userTok.message }
       cons.log(mess)
       res.jsonp(mess)
     } else {
+      //res.jsonp({ message: 'in get /reg/ctoken/:coid/:role ' })
       cons.log(req.userTok);
       var payload = {
         coid: req.params.coid,
+        role: req.params.role,
         appid: req.userTok.appid,
         emailid: req.userTok.emailid,
         exp: Math.floor(Date.now() / 1000) + (60 * 60 * 60) //sec*min*days
       };
       var token = jwt.encode(payload, secret);
-      res.jsonp({ token: token, binfo: req.userTok, coid:req.params.coid })
+      res.jsonp({ token: token, binfo: req.userTok, coid:req.params.coid,role: req.params.role})
     }
   })
   return router;

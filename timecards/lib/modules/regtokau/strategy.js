@@ -31,7 +31,9 @@ var bearerTokenApp = function(req, res, next) {
       next()
       return
     }
-    const cos = results.map((res)=>res.coid)
+    const cos = results.map((res)=>{
+      return{coid:res.coid, role:res.role}
+    })
     req.userTok = { auth: true, message: 'user has apps', emailid: tokdata.email, appid:tokdata.appId, cos:cos}
     next()
     return
@@ -65,7 +67,7 @@ var bearerTokenCoid = function(req, res, next) {
       return
     }
     cons.log('results: ', results)
-    req.userTok = { auth: true, message: 'user has apps for coid', emailid: tokdata.emailid, appid:tokdata.appid, coid:tokdata.coid}
+    req.userTok = { auth: true, message: 'user has apps for coid', emailid: tokdata.emailid, appid:tokdata.appid, coid:tokdata.coid, role:tokdata.role, goodtil:results[0].goodtil}
     next()
     return
   })
