@@ -16,20 +16,14 @@ module.exports = function() {
       res.jsonp(mess)
     } else {
       mess = { message: 'nothing happenning yet-' }
-      const job = req.body.persons[0].job
-      const keys = Object.keys(req.body.persons[0]).join()+',coid'
-      const vals = [req.body.persons.map((j) => {
-        let anarr = Object.values(j)
-        anarr.push(req.userTok.coid)
-        return anarr
-      })]
-      cons.log('keys: ', keys)
-      cons.log('vals: ', vals)
-      const upddel = conn.query('DELETE FROM jobcatact WHERE job=? AND coid=? AND week=0', [job, req.userTok.coid], function(err0) {
-        cons.log('upddel.sql: ', upddel.sql)
+      const p = req.body.person
+      const roho ={emailid:p.emailid, role:p.role, coid:req.userTok.coid, active:p.active}
+      const per ={emailid:p.emailid, coid:req.userTok.coid, firstmid:p.firstmid, lastname:p.lastname, street:p.street, city:p.city, st:p.st, zip:p.zip,rate:p.rate, ssn:p.ssn, w4allow:p.w4allow, stallow:p.stallow, effective:p.effective }
+      const iroho = conn.query('INSERT INTO rolewho SET ? ON DUPLICATE KEY UPDATE ?', [roho,roho], function(err0) {
+        cons.log('iroho.sql: ', iroho.sql)
         cons.log('err0: ', err0)
-        const updins = conn.query('INSERT INTO jobcatact (' + keys + ') VALUES ? ', vals, function(err) {
-          cons.log('updins.sql: ', updins.sql)
+        const iper = conn.query('INSERT INTO persons SET ? ON DUPLICATE KEY UPDATE ?', [per,per], function(err) {
+          cons.log('iper.sql: ', iper.sql)
           cons.log('err: ', err)
           res.jsonp(mess)
         })
@@ -56,15 +50,30 @@ module.exports = function() {
   })
   router.get('/list/', bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
-      var mess = { message: 'in get /persons/list/:wk (not authorized)-' + req.userTok.message }
+      var mess = { message: 'in get /persons/list/ (not authorized)-' + req.userTok.message }
       cons.log(mess)
       res.jsonp(mess)
     } else {
       cons.log(req.userTok);
-      var q = conn.query('SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY p.effective DESC',  req.userTok.coid, function(error, results) {
+      var q = conn.query('SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',  req.userTok.coid, function(error, results) {
         cons.log(q.sql)
         cons.log(error)
         var arrres = results.map((res) => res)
+        res.jsonp({ persons: arrres, binfo: req.userTok })
+      })
+    }
+  })
+  router.get('/current/', bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /persons/current (not authorized)-' + req.userTok.message }
+      cons.log(mess)
+      res.jsonp(mess)
+    } else {
+      cons.log(req.userTok);
+      var q = conn.query('DROP TABLE IF EXISTS `timecards`.`cureff`; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid =? GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective`; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT * FROM `timecards`.`cureffective`;',  req.userTok.coid, function(error, results) {
+        cons.log(q.sql)
+        cons.log(error)
+        var arrres = results.slice(-1)[0]
         res.jsonp({ persons: arrres, binfo: req.userTok })
       })
     }
@@ -118,8 +127,7 @@ module.exports = function() {
     } else {
       mess = { message: 'nothing happenning yet-' }
       cons.log(req.body)
-      const job = req.body.job
-      var query1 = conn.query('DELETE FROM jobcatact WHERE job=? AND coid=? AND week=0', [job, req.userTok.coid], function(error, results) {
+      var query1 = conn.query('DELETE FROM persons WHERE emailid=? AND coid=? AND effective=?', [req.body.person.emailid, req.userTok.coid, req.body.person.effective], function(error, results) {
         cons.log(query1.sql)
         cons.log(error)
         cons.log(results)

@@ -26,14 +26,14 @@ var payload2 = {
 var token2 = jwt.encode(payload2, secret);
 
 var payload3 = {
-	appId: "timecards",
+	appId: "persons",
 	email: "mckenna.tim@gmail.com",
 	exp: Math.floor(Date.now() / 1000) + (60 * 60) 
 };
 var token3 = jwt.encode(payload3, secret);
 var payload4 = {
   coid:'reroo',
-	appId: "timecards",
+	appId: "persons",
 	email: "mckenna.tim@gmail.com",
 	exp: Math.floor(Date.now() / 1000) + (60 * 60) 
 };

@@ -830,3 +830,197 @@ SELECT r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`
 SELECT r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, p.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY p.effective 
 
 ALTER TABLE `rolewho` ADD `active` INT(1) NOT NULL DEFAULT '1' AFTER `coid`, ADD INDEX `active` (`active`);
+
+ALTER TABLE `timecards`.`rolewho` ADD UNIQUE `rec` (`role`, `emailid`, `coid`);
+
+ALTER TABLE `timecards`.`rolewho` DROP INDEX `rec`, ADD UNIQUE `rec` (`emailid`, `coid`) USING BTREE;
+
+/*
+(SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, r.`active`, p.`effective`, p.`coid` 
+FROM rolewho r 
+LEFT JOIN persons p 
+ON p.emailid = r.emailid 
+AND p.coid =r.coid 
+WHERE r.coid= 'sbs' 
+AND CURDATE()<p.effective
+ORDER BY r.emailid,p.effective DESC
+LIMIT 1)
+*/
+
+SELECT t.wprt, t.emailid, t.status, t.hrs, t.coid 
+FROM `timecards`.`tcardwk` t
+WHERE t.coid='reroo'
+AND t.status='approved';
+
+CREATE TABLE temp
+SELECT t.wprt, t.emailid, t.status, t.hrs, t.coid 
+FROM `timecards`.`tcardwk` t
+WHERE `coid`='reroo'
+AND `status`='approved';
+
+INSERT INTO `temp` (`wprt`, `emailid`, `status`, `hrs`, `coid`) VALUES
+('2018-W35', 'tim@sitebuilt.net', 'approved', '33.88', 'reroo'),
+('2018-W38', 'tim@sitebuilt.net', 'approved', '33.00', 'reroo'),
+('2018-W38', 'mckenna.tim@gmail.com', 'approved', '23.42', 'reroo'),
+('2018-W39', 'mckenna.tim@gmail.com', 'approved', '22.83', 'reroo');
+
+SELECT t.wprt, t.emailid, t.status, t.hrs, t.coid, p.firstmid, p.effective
+FROM `timecards`.`tcardwk` t
+LEFT JOIN `timecards`.`persons` p 
+ON t.emailid=p.emailid
+WHERE CURDATE()<p.effective
+AND t.coid='reroo'
+AND t.status='approved';
+
+SELECT t.wprt, t.emailid, t.status, t.hrs, t.coid, p.firstmid, p.effective
+FROM `timecards`.`tcardwk` t
+JOIN `timecards`.`persons` p 
+ON t.emailid=p.emailid AND t.coid=p.coid
+AND t.coid='reroo'
+AND t.status='approved'
+
+SELECT t.wprt, t.emailid, t.status, t.hrs, p.rate, t.coid, p.firstmid, p.effective
+FROM `timecards`.`tcardwk` t
+JOIN `timecards`.`persons` p 
+ON t.emailid=p.emailid AND t.coid=p.coid
+AND t.coid='reroo'
+AND t.status='approved'
+ORDER BY t.emailid, t.wprt, p.effective DESC
+
+SELECT t.wprt, t.emailid, t.status, t.hrs, p.rate, t.coid, p.firstmid, p.effective
+FROM `timecards`.`tcardwk` t
+JOIN `timecards`.`persons` p 
+ON t.emailid=p.emailid AND t.coid=p.coid
+WHERE t.coid='reroo'
+AND t.status='approved'
+ORDER BY t.emailid, t.wprt, p.effective DESC
+
+SELECT t.wprt, t.emailid, t.status, t.hrs, p.rate, t.coid, p.firstmid, p.effective
+FROM `timecards`.`tcardwk` t
+JOIN `timecards`.`persons` p 
+ON t.emailid=p.emailid AND t.coid=p.coid
+WHERE t.coid='reroo'
+AND CURDATE() > p.effective 
+AND t.status='approved'
+ORDER BY t.emailid, t.wprt, p.effective DESC
+
+SELECT p.emailid, p.rate, p.coid, p.firstmid, p.lastname, p.effective
+FROM `timecards`.`persons` p
+WHERE coid='reroo'
+AND emailid ='mckenna.tim@gmail.com'
+AND CURDATE() > effective 
+ORDER BY effective DESC
+LIMIT 1
+
+SELECT t.*, d.*
+FROM `timecards`.`tcardwk` t
+JOIN  (SELECT p.emailid, p.rate, p.coid, p.firstmid, p.lastname, p.effective
+    FROM `timecards`.`persons` p
+    WHERE p.coid='reroo'
+    AND CURDATE() > effective 
+    ORDER BY effective DESC
+    LIMIT 1) d
+ON t.emailid = d.emailid
+AND t.coid=d.coid 
+AND t.status='approved'
+
+
+SELECT * from 
+FROM `timecards`.`persons`
+GROUP BY 'emailid'
+  
+
+SELECT emailid,coid,MAX(CURDATE()>effective)
+FROM `timecards`.`persons`
+GROUP BY coid,emailid HAVING coid='reroo'
+
+SELECT t.wprt, t.emailid, t.status, t.hrs, t.coid, p.firstmid, p.effective
+FROM `timecards`.`tcardwk` t
+LEFT JOIN `timecards`.`persons` p 
+ON t.emailid=p.emailid
+WHERE CURDATE()<p.effective
+AND t.coid='reroo'
+AND t.status='approved' GROUP BY MAX(effective)
+
+SELECT * 
+FROM `timecards`.`persons`
+WHERE effective < CURDATE()
+AND coid ='reroo'
+ORDER BY wprt,emailid,effective desc
+
+DROP TABLE `timecards`.`cureff`;
+CREATE TABLE `timecards`.`cureff`
+SELECT p.emailid , MAX(p.effective) AS curedate
+FROM `timecards`.`persons` p
+WHERE effective < CURDATE()
+AND p.coid ='reroo'
+GROUP BY p.emailid;
+
+
+/*big sucess: finds the curdate and rate from persons file*/
+SELECT c.*, p.*
+FROM `timecards`.`cureff` c
+JOIN  `timecards`.`persons` p
+ON c.emailid=p.emailid 
+AND c.curedate=p.effective
+
+SELECT p.*
+FROM `timecards`.`cureff` c
+JOIN  `timecards`.`persons` p
+ON c.emailid=p.emailid 
+AND c.curedate=p.effective
+
+/**query to get current persons and rates***/
+DROP TABLE IF EXISTS `timecards`.`cureff` ;
+
+CREATE TABLE `timecards`.`cureff`
+SELECT p.emailid , MAX(p.effective) AS curedate
+FROM `timecards`.`persons` p
+WHERE effective < CURDATE()
+AND p.coid ='reroo'
+GROUP BY p.emailid;
+
+DROP TABLE IF EXISTS `timecards`.`cureffective` ;
+
+CREATE TABLE `timecards`.`cureffective`
+SELECT p.*
+FROM `timecards`.`cureff` c
+JOIN  `timecards`.`persons` p
+ON c.emailid=p.emailid 
+AND c.curedate=p.effective;
+
+SELECT * FROM `timecards`.`cureffective`;
+
+
+/**query to get current persons and rates for approved tcardwks***/
+DROP TABLE IF EXISTS `timecards`.`cureff` ;
+
+CREATE TABLE `timecards`.`cureff`
+SELECT p.emailid , MAX(p.effective) AS curedate
+FROM `timecards`.`persons` p
+WHERE effective < CURDATE()
+AND p.coid ='reroo'
+GROUP BY p.emailid;
+
+DROP TABLE IF EXISTS `timecards`.`cureffective` ;
+
+CREATE TABLE `timecards`.`cureffective`
+SELECT p.*
+FROM `timecards`.`cureff` c
+JOIN  `timecards`.`persons` p
+ON c.emailid=p.emailid 
+AND c.curedate=p.effective;
+
+SELECT t.*, c.*
+FROM `timecards`.`tcardwk` t
+JOIN `timecards`.`cureffective` c
+ON  c.emailid = t.emailid
+WHERE t.status='approved'
+AND t.coid= 'reroo';
+
+DROP TABLE IF EXISTS `timecards`.`cureff`; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid =? GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective`; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT * FROM `timecards`.`cureffective`;
+
+USE timecards;
+SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = 'mckenna.tim@gmail.com' AND c.goodtil > CURDATE() AND a.appid = 'persons'
+
+DROP TABLE IF EXISTS `timecards`.`cureff`; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid ='reroo' GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective`; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT * FROM `timecards`.`cureffective`;

@@ -1,1 +1,1 @@
-mysql -uroot --database=timecards < /mnt/d/fs/www/services/timecards/sql/timecards.sql
+mysql -uroot --database=timecards < /mnt/d/downloads/timecards.sql

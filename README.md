@@ -1,6 +1,37 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 51-timecards-persons-scratch
+added multiline queries to env. persons has /current that will probably never be used but scratch has a multiline that is almost enough info to write checks with
+
+        /**query to get current persons and rates for approved tcardwks***/
+        DROP TABLE IF EXISTS `timecards`.`cureff` ;
+
+        CREATE TABLE `timecards`.`cureff`
+        SELECT p.emailid , MAX(p.effective) AS curedate
+        FROM `timecards`.`persons` p
+        WHERE effective < CURDATE()
+        AND p.coid ='reroo'
+        GROUP BY p.emailid;
+
+        DROP TABLE IF EXISTS `timecards`.`cureffective` ;
+
+        CREATE TABLE `timecards`.`cureffective`
+        SELECT p.*
+        FROM `timecards`.`cureff` c
+        JOIN  `timecards`.`persons` p
+        ON c.emailid=p.emailid 
+        AND c.curedate=p.effective;
+
+        SELECT t.*, c.*
+        FROM `timecards`.`tcardwk` t
+        JOIN `timecards`.`cureffective` c
+        ON  c.emailid = t.emailid
+        WHERE t.status='approved'
+        AND t.coid= 'reroo';
+
+approved tcardwks with current rate records from persons        
+
 ### 50-timecards-tcard-updated
 ### 49-timecards-coid-in-tokData
 ### 48-timecards-regtokau-strategy
