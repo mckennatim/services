@@ -1024,3 +1024,526 @@ USE timecards;
 SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = 'mckenna.tim@gmail.com' AND c.goodtil > CURDATE() AND a.appid = 'persons'
 
 DROP TABLE IF EXISTS `timecards`.`cureff`; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid ='reroo' GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective`; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT * FROM `timecards`.`cureffective`;
+
+use timecards;
+DROP TABLE IF EXISTS `fedwh`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fedwh` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `year` varchar(4) DEFAULT NULL,
+  `period` varchar(10),
+  `singmar` varchar(20) DEFAULT NULL,
+  `over` int(4) ,
+  `notover` int(4),
+  `perc` decimal(2,2),
+  `less` decimal (6,2),
+  PRIMARY KEY (`id`),
+  KEY (`year`),
+  KEY (`singmar`),
+  KEY (`period`),
+  KEY (`over`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO fedwh (`year`, `singmar`, `period`, `over`, `notover`, `perc`, `less`)  
+VALUES 
+('2018', 'single', 'weekly', 0, 71, 0, 0),
+('2018', 'single', 'weekly', 71, 254, .10, 7.10),
+('2018', 'single', 'weekly', 245, 815, .12, 12.18),
+('2018', 'single', 'weekly', 815, 1658, .22, 93.68),
+('2018', 'single', 'weekly', 1658, 3100, .24, 126.84),
+('2018', 'single', 'weekly', 3100, 3917, .32, 374.84),
+('2018', 'single', 'weekly', 3917, 9687, .35, 492.35),
+('2018', 'married', 'weekly', 0, 222, 0, 0),
+('2018', 'married', 'weekly', 222, 588, .10, 22.20),
+('2018', 'married', 'weekly', 588, 1711, .12, 33.96),
+('2018', 'married', 'weekly', 1711, 3395, .22, 205.06),
+('2018', 'married', 'weekly', 3395, 6280, .24, 272.96),
+('2018', 'married', 'weekly', 6280, 7914, .32, 775.36),
+('2018', 'married', 'weekly', 7914, 11761, .35, 1012.78);
+
+select * from fedwh;
+
+use timecards;
+DROP TABLE IF EXISTS `fedr`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fedr` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `year` varchar(4) DEFAULT NULL,
+  `allow` decimal(5,2),
+  `ssw` decimal(4,4),
+  `sse` decimal(4,4),
+  `ssbase` decimal(6,0),
+  `mediw` decimal(4,4),
+  `medie` decimal(4,4),
+  `mediadd` decimal(4,4),
+  `mediexcess` decimal(6,0),
+  `futa` decimal(4.4),
+  `futa4first` decimal(5,0),
+  PRIMARY KEY (`id`),
+  KEY (`year`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO fedr (`year`, `allow`, `ssw`, `sse`, `ssbase`, `mediw`, `medie`, `mediadd`, `mediexcess`, `futa`, `futa4first`)  
+VALUES 
+('2018', 79.80, .062, .062, 128400, .0145, .0145, .009, 200000, .006, 7000);
+
+select * from fedr;
+
+use timecards;
+DROP TABLE IF EXISTS `state`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `state` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `state` varchar(2),
+  `year` varchar(4) DEFAULT NULL,
+  `allow` decimal(5,2) ,
+  `rate` decimal(4,4),
+  `nowhbelow` decimal(3,0),
+  `ficasub` decimal(4,0),
+  `hohded` decimal(3,0),
+  `blided` decimal(3,0),
+  PRIMARY KEY (`id`),
+  KEY (`year`),
+  KEY (`state`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO state (`state`, `year`, `allow`, `rate`, `nowhbelow`, `ficasub`, `hohded`, `blided`)  
+VALUES 
+('MA', '2018', 85, .051, 154, 2000, 46, 42);
+
+select * from state;
+
+use timecards;
+DROP TABLE IF EXISTS `payrec`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payrec` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `state` varchar(2),
+  `year` varchar(4) DEFAULT NULL,
+  `allow` decimal(5,2) ,
+  `rate` decimal(4,4),
+  `nowhbelow` decimal(3,0),
+  `ficasub` decimal(4,0),
+  `hohded` decimal(3,0),
+  `blided` decimal(3,0),
+  PRIMARY KEY (`id`),
+  KEY (`year`),
+  KEY (`state`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO payrec (`state`, `year`, `allow`, `rate`, `nowhbelow`, `ficasub`, `hohded`, `blided`)  
+VALUES 
+('MA', '2018', 85, .051, 154, 2000, 46, 42);
+
+select * from payrec;
+
+USE timecards;
+DROP TABLE IF EXISTS `persons`;
+CREATE TABLE `persons` (
+  `id` int(11) NOT NULL,
+  `emailid` varchar(60) DEFAULT '',
+  `firstmid` varchar(60) DEFAULT '',
+  `lastname` varchar(40) DEFAULT '',
+  `street` varchar(100) DEFAULT '',
+  `city` varchar(50) DEFAULT '',
+  `st` varchar(2) DEFAULT '',
+  `zip` varchar(10) DEFAULT '',
+  `ssn` varchar(11) DEFAULT '',
+  `w4allow` int(2) DEFAULT 3,
+  `stallow` int(2) DEFAULT 1,
+  `addwhfed` decimal(4,0) DEFAULT 0,
+  `addwhst` decimal(4,0) DEFAULT 0,
+  `hoh` int(1) DEFAULT 0,
+  `blind` int(1) DEFAULT 0,
+  `rate` decimal(5,2) DEFAULT 15,
+  `coid` varchar(20) DEFAULT '',
+  `effective` date DEFAULT '2018-09-26'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `persons`
+--
+
+INSERT INTO `persons` (`id`, `emailid`, `firstmid`, `lastname`, `street`, `city`, `st`, `zip`, `ssn`, `w4allow`, `stallow`, `rate`, `coid`, `effective`) VALUES
+(1, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 3, 2, '38.25', 'sbs', '2018-11-23'),
+(3, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 1, 1, '47.25', 'sbs', '2018-09-22'),
+(4, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 1, 1, '35.25', 'sbs', '2018-06-22'),
+(6, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121440295', 0, 0, '27.45', 'reroo', '2018-11-30'),
+(7, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', NULL, NULL, NULL, '33.23', 'sbs', '2019-06-02'),
+(13, 'noah@sitebuilt.net', 'Noah', 'McKenna', 'ChestnutSquare', 'Jamaic Plain', 'MA', '02130', NULL, 1, 1, '21.50', 'sbs', '2018-09-25'),
+(14, 'perimckenna@gmail.com', 'Peri Levin', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '050461312', 0, 0, '22.22', 'sbs', '2018-09-25'),
+(15, 'tim2@sitebuilt.net', 'Tim2', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', NULL, 0, 0, '19.54', 'sbs', '2018-09-25'),
+(20, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', NULL, NULL, NULL, '33.23', 'sbs', '2018-06-02'),
+(21, 'jade@sitebuilt.net', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', NULL),
+(22, 'karen@sitebuilt.net', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', NULL),
+(23, 'modesto@sitebuilt.net', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', NULL),
+(24, 'noah@sitebuilt.net', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', NULL),
+(25, 'oliviaallegramay@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', NULL),
+(26, 'pampi@sitebuilt.net', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', NULL),
+(27, 'perimckenna@yahoo.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', NULL),
+(28, 'perimckenna@yahoo.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', NULL),
+(29, 'perimckenna@yahoo.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '19.99', 'reroo', '2018-09-26'),
+(30, 'rubie@sitebuilt.net', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', '2018-09-26'),
+(31, 'samuel@sitebuilt.net', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', '2018-09-26'),
+(32, 'tim2@sitebuilt.net', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'reroo', '2018-09-26'),
+(34, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 3, 2, '32.21', 'reroo', '2017-08-23'),
+(36, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121440295', 0, 0, '26.35', 'reroo', '2018-09-25'),
+(37, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121440295', 0, 0, '25.55', 'reroo', '2017-09-13'),
+(43, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 3, 2, '34.25', 'reroo', '2018-05-09'),
+(44, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 3, 2, '34.25', 'reroo', '2018-09-30');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `persons`
+--
+ALTER TABLE `persons`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ece` (`emailid`,`coid`,`effective`),
+  ADD KEY `firstmid` (`firstmid`),
+  ADD KEY `lastname` (`lastname`),
+  ADD KEY `emailid` (`emailid`),
+  ADD KEY `city` (`city`),
+  ADD KEY `st` (`st`),
+  ADD KEY `coid` (`coid`),
+  ADD KEY `rate` (`rate`),
+  ADD KEY `effective` (`effective`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `persons`
+--
+ALTER TABLE `persons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+
+SELECT * FROM `timecards`.`persons`;  
+
+UPDATE `timecards`.`persons` SET  w4allow =IFNULL(w4allow,0);
+UPDATE `timecards`.`persons` SET  stallow =IFNULL(stallow,0);
+UPDATE `timecards`.`persons` SET  firstmid =IFNULL(firstmid,'');
+UPDATE `timecards`.`persons` SET  lastname =IFNULL(lastname,'');
+UPDATE `timecards`.`persons` SET  city =IFNULL(city,'');
+UPDATE `timecards`.`persons` SET  street =IFNULL(street,'');
+UPDATE `timecards`.`persons` SET  zip =IFNULL(zip,'');
+UPDATE `timecards`.`persons` SET  st =IFNULL(st,'');
+UPDATE `timecards`.`persons` SET  ssn =IFNULL(ssn,'');
+UPDATE `timecards`.`persons` SET  rate =IFNULL(rate,15);
+UPDATE `timecards`.`persons` SET  effective =IFNULL(effective,'2015-01-01');
+SELECT * FROM `timecards`.`persons`; 
+
+USE timecards;
+DROP TABLE IF EXISTS `persons`;
+CREATE TABLE `persons` (
+  `id` int(11) NOT NULL,
+  `emailid` varchar(60) DEFAULT '',
+  `firstmid` varchar(60) DEFAULT '',
+  `lastname` varchar(40) DEFAULT '',
+  `street` varchar(100) DEFAULT '',
+  `city` varchar(50) DEFAULT '',
+  `st` varchar(2) DEFAULT '',
+  `zip` varchar(10) DEFAULT '',
+  `ssn` varchar(11) DEFAULT '',
+  `w4allow` int(2) DEFAULT '3',
+  `w4add` int(3) DEFAULT '0',
+  `stallow` int(2) DEFAULT '1',
+  `stadd` int(3) DEFAULT '0',
+  `sthoh` int(1) DEFAULT 0,
+  `stblind` int(1) DEFAULT 0,
+  `rate` decimal(5,2) DEFAULT '15.00',
+  `coid` varchar(20) DEFAULT '',
+  `effective` date DEFAULT '2017-12-31'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `persons`
+--
+
+INSERT INTO `persons` (`id`, `emailid`, `firstmid`, `lastname`, `street`, `city`, `st`, `zip`, `ssn`, `w4allow`, `stallow`, `rate`, `coid`, `effective`) VALUES
+(1, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 3, 2, '38.25', 'sbs', '2018-11-23'),
+(3, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 1, 1, '47.25', 'sbs', '2018-09-22'),
+(4, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 1, 1, '35.25', 'sbs', '2018-06-22'),
+(6, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121440295', 0, 0, '27.45', 'reroo', '2018-11-30'),
+(7, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '', 0, 0, '33.23', 'sbs', '2019-06-02'),
+(13, 'noah@sitebuilt.net', 'Noah', 'McKenna', 'ChestnutSquare', 'Jamaic Plain', 'MA', '02130', '', 1, 1, '21.50', 'sbs', '2018-09-25'),
+(14, 'perimckenna@gmail.com', 'Peri Levin', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '050461312', 0, 0, '22.22', 'sbs', '2018-09-25'),
+(15, 'tim2@sitebuilt.net', 'Tim2', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '', 0, 0, '19.54', 'sbs', '2018-09-25'),
+(20, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '', 0, 0, '33.23', 'sbs', '2018-06-02'),
+(21, 'jade@sitebuilt.net', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2015-01-01'),
+(22, 'karen@sitebuilt.net', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2015-01-01'),
+(23, 'modesto@sitebuilt.net', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2015-01-01'),
+(24, 'noah@sitebuilt.net', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2015-01-01'),
+(25, 'oliviaallegramay@gmail.com', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2015-01-01'),
+(26, 'pampi@sitebuilt.net', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2015-01-01'),
+(28, 'perimckenna@yahoo.com', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2015-01-01'),
+(29, 'perimckenna@yahoo.com', '', '', '', '', '', '', '', 0, 0, '19.99', 'reroo', '2018-09-26'),
+(30, 'rubie@sitebuilt.net', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2018-09-26'),
+(31, 'samuel@sitebuilt.net', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2018-09-26'),
+(32, 'tim2@sitebuilt.net', '', '', '', '', '', '', '', 0, 0, '15.00', 'reroo', '2018-09-26'),
+(34, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 3, 2, '32.21', 'reroo', '2017-08-23'),
+(36, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121440295', 0, 0, '26.35', 'reroo', '2018-09-25'),
+(37, 'tim@sitebuilt.net', 'Tim', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121440295', 0, 0, '25.55', 'reroo', '2017-09-13'),
+(43, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 3, 2, '34.25', 'reroo', '2018-05-09'),
+(44, 'mckenna.tim@gmail.com', 'Timothy S.', 'McKenna', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130', '121-44-0295', 3, 2, '34.25', 'reroo', '2018-09-30');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `persons`
+--
+ALTER TABLE `persons`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ece` (`emailid`,`coid`,`effective`),
+  ADD KEY `firstmid` (`firstmid`),
+  ADD KEY `lastname` (`lastname`),
+  ADD KEY `emailid` (`emailid`),
+  ADD KEY `city` (`city`),
+  ADD KEY `st` (`st`),
+  ADD KEY `coid` (`coid`),
+  ADD KEY `rate` (`rate`),
+  ADD KEY `effective` (`effective`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `persons`
+--
+ALTER TABLE `persons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+
+SELECT * from `timecards`.`persons`;  
+
+
+use timecards;
+DROP TABLE IF EXISTS `corates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `corates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `year` varchar(4) DEFAULT '2018',
+  `coid` varchar(20) DEFAULT '',
+  `wcrate` decimal(4,4) DEFAULT '.062',
+  `stuirate` decimal(4,4) DEFAULT '.052',
+  `effective` date DEFAULT '2018-01-01',
+  PRIMARY KEY (`id`),
+  KEY (`year`),
+  KEY (`coid`),
+  KEY (`effective`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `timecards`.`corates` (`year`, `coid`, wcrate, stuirate, effective) VALUES 
+('2018', 'reroo', .062, .051, '2018-09-01'),
+('2018', 'sbs', .042, .041, '2018-08-21');
+
+SELECT * FROM  `timecards`.`corates` ;
+
+USE timecards;
+DROP TABLE IF EXISTS `co`;
+CREATE TABLE `co` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `goodtil` date DEFAULT '2018-01-01',
+  `coid` varchar(20) DEFAULT '',
+  `name` varchar(40) DEFAULT '',
+  `street` varchar(100) DEFAULT '',
+  `city`  varchar(50) DEFAULT '',
+  `st`  varchar(2) DEFAULT '',
+  `zip`  varchar(10) DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `co`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `name` (`name`),
+  ADD KEY `city` (`city`),
+  ADD KEY `st` (`st`),
+  ADD KEY `coid` (`coid`),
+  ADD KEY `zip` (`zip`),
+  ADD KEY `goodtil` (`goodtil`);
+
+INSERT INTO `co` (`id`, `goodtil`, `coid`, `name`, `street`, `city`,`st`,`zip`) VALUES
+(1, '2018-11-12', 'reroo', 'Restoring Roots Cooperative', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130'),
+(3, '2018-11-12', 'sbs', 'Site-Built Systems', '12 Parley Vale', 'Jamaica Plain', 'MA', '02130');
+
+SELECT * FROM  `timecards`.`co` ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `co`
+
+ALTER TABLE `co`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `coid` (`coid`),
+  ADD KEY `goodtil` (`goodtil`);
+
+
+
+use timecards;
+DROP TABLE IF EXISTS `strates`;
+CREATE TABLE `strates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `st` varchar(2) DEFAULT '',
+  `year` varchar(4) DEFAULT '',
+  `allow` decimal(5,2) DEFAULT '0.05',
+  `rate` decimal(4,4) DEFAULT '0.0',
+  `nowhbelow` decimal(3,0) DEFAULT '0.0',
+  `ficasub` decimal(4,0) DEFAULT '0.0',
+  `hohded` decimal(3,0) DEFAULT '0.0',
+  `blided` decimal(3,0) DEFAULT '0.0',
+  PRIMARY KEY (`id`),
+   KEY `year` (`year`),
+   KEY `st` (`st`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+INSERT INTO `strates` (`st`, `year`, `allow`, `rate`, `nowhbelow`, `ficasub`, `hohded`, `blided`) VALUES
+('MA', '2018', '85.00', '0.0510', '154', '2000', '46', '42');
+
+
+SELECT * FROM  `timecards`.`strates` ;
+
+use timecards;
+ INSERT INTO persons SET `emailid` = 'mckenna.tim@gmail.com', `coid` = 'reroo', `firstmid` = 'Timothy S.', `lastname` = 'McKenna', `street` = '12 Parley Vale', `city` = 'Jamaica Plain', `st` = 'MA', `zip` = '02130', `rate` = 34.25, `ssn` = '121-44-0295', `w4allow` = 3, `stallow` = 2, `effective` = '2018-09-30' ON DUPLICATE KEY UPDATE `emailid` = 'mckenna.tim@gmail.com', `coid` = 'reroo', `firstmid` = 'Timothy S.', `lastname` = 'McKenna', `street` = '12 Parley Vale', `city` = 'Jamaica Plain', `st` = 'MA', `zip` = '02130', `rate` = 34.25, `ssn` = '121-44-0295', `w4allow` = 3, `stallow` = 2, `effective` = '2018-09-30'
+
+DROP TABLE IF EXISTS `timecards`.`cureff` ;
+CREATE TABLE `timecards`.`cureff`
+SELECT p.emailid , MAX(p.effective) AS curedate
+FROM `timecards`.`persons` p
+WHERE effective < CURDATE()
+AND p.coid ='reroo'
+GROUP BY p.emailid;
+DROP TABLE IF EXISTS `timecards`.`cureffective` ;
+CREATE TABLE `timecards`.`cureffective`
+SELECT p.*
+FROM `timecards`.`cureff` c
+JOIN  `timecards`.`persons` p
+ON c.emailid=p.emailid 
+AND c.curedate=p.effective;
+SELECT t.*, c.*
+FROM `timecards`.`tcardwk` t
+JOIN `timecards`.`cureffective` c
+ON  c.emailid = t.emailid
+WHERE t.status='approved'
+AND t.coid= 'reroo';
+
+
+DROP TABLE IF EXISTS `timecards`.`cureff` ; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid ='reroo' GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective` ; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT t.*, c.* FROM `timecards`.`tcardwk` t JOIN `timecards`.`cureffective` c ON c.emailid = t.emailid WHERE t.status='approved' AND t.coid= 'reroo';
+
+DROP TABLE IF EXISTS `timecards`.`cureff` ; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid =? GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective` ; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT t.*, c.* FROM `timecards`.`tcardwk` t JOIN `timecards`.`cureffective` c ON c.emailid = t.emailid WHERE t.status='approved' AND t.coid= ?;
+
+use timecards;
+DROP TABLE IF EXISTS `cosr`;
+CREATE TABLE `cosr` (
+  `id` int(11) NOT NULL,
+  `year` varchar(4) DEFAULT '2018',
+  `coid` varchar(20) DEFAULT '',
+  `wcrate` decimal(4,4) DEFAULT '0.0620',
+  `stuirate` decimal(4,4) DEFAULT '0.0520',
+  `firstday` int(2) DEFAULT '1',
+  `ot` varchar(120) DEFAULT '{}',
+  `effective` date DEFAULT '2018-01-01'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `cosr`
+--
+
+INSERT INTO `cosr` (`id`, `year`, `coid`, `wcrate`, `stuirate`, `effective`,firstday, ot) VALUES
+(1, '2018', 'reroo', '0.0620', '0.0510', '2018-09-01',1 , '{"over40": 1.5, "sa": 1.0, "su": 1.0}'),
+(2, '2018', 'sbs', '0.0420', '0.0410', '2018-08-21',5 , '{"over40": 1.5, "sa": 1.5, "su": 1.0}'),
+(3, '2019', 'reroo', '0.0620', '0.0510', '2019-09-11',1 , '{"over40": 1.5, "sa": 1.0, "su": 1.0}'),
+(4, '2019', 'sbs', '0.0420', '0.0410', '2019-05-15',5 , '{"over40": 1.5, "sa": 1.5, "su": 1.0}'),
+(5, '2017', 'reroo', '0.0620', '0.0510', '2017-04-30',1 , '{"over40": 1.5, "sa": 1.0, "su": 1.0}'),
+(6, '2017', 'sbs', '0.0420', '0.0410', '2017-05-21',5 , '{"over40": 1.5, "sa": 1.5, "su": 1.0}');
+
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `cosr`
+--
+ALTER TABLE `cosr`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `year` (`year`),
+  ADD KEY `coid` (`coid`),
+  ADD KEY `effective` (`effective`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `cosr`
+--
+ALTER TABLE `cosr`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+
+use timecards;
+ALTER TABLE `tcardwk` ADD `hrsarr` VARCHAR(120) NULL DEFAULT '\'[]\'' AFTER `coid`;  
+
+SELECT p.ot , MAX(p.effective) AS curedate
+FROM `timecards`.`cosr` p
+WHERE effective < CURDATE()
+AND p.coid ='reroo'
+GROUP BY p.ot;
+
+SELECT * FROM `timecards`.`cosr`
+WHERE effective < CURDATE()
+AND coid ='reroo'
+ORDER BY effective DESC
+LIMIT 1;
+
+SELECT * FROM `timecards`.`co` WHERE coid='sbs';
+
+SELECT * FROM `timecards`.`cosr`
+WHERE effective < CURDATE()
+AND coid ='reroo'
+ORDER BY effective DESC
+LIMIT 1;
+
+SELECT * FROM `timecards`.`fedr`
+WHERE year = YEAR(CURDATE());
+
+SELECT * FROM `timecards`.`fedwh`
+WHERE year = YEAR(CURDATE());
+
+SELECT * FROM `timecards`.`strates`
+WHERE year = YEAR(CURDATE())
+AND st= 'MA';
+
+SELECT * FROM `timecards`.`cosr`
+WHERE effective < CURDATE()
+AND coid =?
+ORDER BY effective DESC
+LIMIT 1;
+SELECT * FROM `timecards`.`fedr`
+WHERE year = YEAR(CURDATE());
+SELECT * FROM `timecards`.`fedwh`
+WHERE year = YEAR(CURDATE());
+SELECT * FROM `timecards`.`strates`
+WHERE year = YEAR(CURDATE())
+AND st= ?;
+
+SELECT * FROM `timecards`.`cosr` WHERE effective < CURDATE() AND coid =? ORDER BY effective DESC LIMIT 1; SELECT * FROM `timecards`.`fedr` WHERE year = YEAR(CURDATE()); SELECT * FROM `timecards`.`fedwh` WHERE year = YEAR(CURDATE()); SELECT * FROM `timecards`.`strates` WHERE year = YEAR(CURDATE()) AND st= ?; 
+
+use timecards;
+ALTER TABLE `persons` ADD `marital` VARCHAR(20) NOT NULL DEFAULT 'marASsingl' AFTER `ssn`;
+ALTER TABLE `persons` ADD `w4exempt` TINYINT NOT NULL DEFAULT '0' AFTER `w4add`;
+
+ALTER TABLE `persons` ADD `student` TINYINT NOT NULL DEFAULT '0' AFTER `stadd`;

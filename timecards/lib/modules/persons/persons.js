@@ -18,7 +18,7 @@ module.exports = function() {
       mess = { message: 'nothing happenning yet-' }
       const p = req.body.person
       const roho ={emailid:p.emailid, role:p.role, coid:req.userTok.coid, active:p.active}
-      const per ={emailid:p.emailid, coid:req.userTok.coid, firstmid:p.firstmid, lastname:p.lastname, street:p.street, city:p.city, st:p.st, zip:p.zip,rate:p.rate, ssn:p.ssn, w4allow:p.w4allow, stallow:p.stallow, effective:p.effective }
+      const per ={emailid:p.emailid, coid:req.userTok.coid, firstmid:p.firstmid, lastname:p.lastname, street:p.street, city:p.city, st:p.st, zip:p.zip,rate:p.rate, ssn:p.ssn, w4allow:p.w4allow, w4add:p.w4add, stallow:p.stallow, stadd:p.stadd, sthoh: p.sthoh, stblind:p.stblind, effective:p.effective, marital:p.marital, w4exempt:p.w4exempt, student: p.student }
       const iroho = conn.query('INSERT INTO rolewho SET ? ON DUPLICATE KEY UPDATE ?', [roho,roho], function(err0) {
         cons.log('iroho.sql: ', iroho.sql)
         cons.log('err0: ', err0)
@@ -55,7 +55,7 @@ module.exports = function() {
       res.jsonp(mess)
     } else {
       cons.log(req.userTok);
-      var q = conn.query('SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',  req.userTok.coid, function(error, results) {
+      var q = conn.query('SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.marital, p.rate, p.w4add, p.stadd, p.sthoh, p.stblind, p.w4exempt, p.`w4allow`, p.student, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',  req.userTok.coid, function(error, results) {
         cons.log(q.sql)
         cons.log(error)
         var arrres = results.map((res) => res)
@@ -70,7 +70,7 @@ module.exports = function() {
       res.jsonp(mess)
     } else {
       cons.log(req.userTok);
-      var q = conn.query('DROP TABLE IF EXISTS `timecards`.`cureff`; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid =? GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective`; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT * FROM `timecards`.`cureffective`;',  req.userTok.coid, function(error, results) {
+      var q = conn.query('DROP TABLE IF EXISTS `timecards`.`cureff`; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid =? AND p.active=1 GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective`; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT * FROM `timecards`.`cureffective`;',  req.userTok.coid, function(error, results) {
         cons.log(q.sql)
         cons.log(error)
         var arrres = results.slice(-1)[0]
