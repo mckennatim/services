@@ -1,15 +1,56 @@
 var express = require('express');
+var moment = require('moment');
+var jwt = require('jwt-simple');
 var router = express.Router();
 var cons = require('tracer').console();
 var conn = require('../../db/mysqldb')
 var combinePuJc = require('../../utilities').combinePuJc
 var bearerTokenCoid = require('../regtokau/strategy').bearerTokenCoid
+var bearerTokenApp = require('../regtokau/strategy').bearerTokenApp
+var env = require('../../../env.json')
+var cfg = env[process.env.NODE_ENV || 'development']
+var secret = cfg.secret
 
 
 module.exports = function() {
     router.get('/', function(req, res) {
         res.jsonp({ message: "in root of payroll module" })
     });
+    router.post('/ckcoid', bearerTokenApp, function(req,res){
+        if (!req.userTok.auth) {
+          var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }
+          res.jsonp(mess)
+        } else {
+          cons.log('req.userTok: ', req.userTok)
+          cons.log('req.body: ', req.body) 
+          var query = conn.query('SELECT coid FROM `timecards`.`co` WHERE coid=?', req.body.co.coid, function(error, copman) {
+              cons.log(query.sql)
+              cons.log(error)
+              if(copman.length>0){
+                res.jsonp({message: 'coid already exists, try another' })
+              }else{
+                const goodtil = moment().add(30, 'days').format('YYYY-MM-DD')
+                const effective = moment().format('YYYY-MM-DD')
+                var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective) VALUES(?,?,?); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.body.co.emailid, req.body.co.coid, req.body.co.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
+                  cons.log(query2.sql)
+                  cons.log(error2)
+                  cons.log(result)
+                  const exp = Math.floor(Date.now()) + addDays(40)
+                  cons.log('exp: ', exp)
+                  var payload = {
+                    coid: req.body.co.coid,
+                    role: 'partner',
+                    appid: 'signup',
+                    emailid: req.body.co.emailid,
+                    exp: exp
+                  };
+                  var token = jwt.encode(payload, secret);
+                  res.jsonp({message: 'ok setting you up', goodtil:goodtil,result:result, token:token, emailid:req.body.co.emailid})
+                })
+              }
+          })  
+        }
+      })
     router.get('/settings', bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
             var mess = { message: 'in get /payroll/settings (not authorized)-' + req.userTok.message }
@@ -110,4 +151,8 @@ module.exports = function() {
         }
     });
     return router;
+}
+
+function addDays (x){
+  return x*(24*60*60*1000)
 }

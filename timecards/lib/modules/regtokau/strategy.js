@@ -13,6 +13,7 @@ var bearerTokenApp = function(req, res, next) {
   var toka = req.headers.authorization.split(' ')
   try {
     var tokdata = jwt.decode(toka[1], cfg.secret)
+    cons.log('tokdata: ', tokdata)
   } catch (e) {
     req.userTok = { auth: false, message: e.message, emailId: "" }
     next()
@@ -30,6 +31,17 @@ var bearerTokenApp = function(req, res, next) {
       req.userTok = { auth: false, message: 'no user ' }
       next()
       return
+    }
+    if (results.length==0){
+      if(tokdata.appId=='signup'){
+        req.userTok = { auth: true, message: 'user in signup', emailid: tokdata.email, appid:tokdata.appId}
+        next()
+        return      
+      }else{
+        req.userTok = { auth: false, message: 'zero length coids ' }
+        next()
+        return      
+      }
     }
     const cos = results.map((res)=>{
       return{coid:res.coid, role:res.role}
