@@ -52,6 +52,7 @@ var bearerTokenApp = function(req, res, next) {
   })
 }
 var bearerTokenCoid = function(req, res, next) {
+  console.log('req.appid: ', req.appid)
   if (!get('req.headers.authorization', req)) {
     req.userTok = { auth: false, message: "no authorization header", emailId: "" }
     next()
@@ -65,7 +66,41 @@ var bearerTokenCoid = function(req, res, next) {
     next()
     return
   }
-  const qco =conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND c.coid = ?', [tokdata.emailid, tokdata.appid, tokdata.coid], function(error, results){
+  cons.log('tokdata in BearerTokenCoid: ', tokdata)
+  const qco =conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND c.coid = ?', [tokdata.emailid, req.appid, tokdata.coid], function(error, results){
+    cons.log('qco results: ', results)
+    cons.log('qco.sql: ', qco.sql)
+    if (error) {
+      req.userTok = { auth: false, message: error.message }
+      next()
+      return
+    }
+    if (!results || results.length==0) {
+      req.userTok = { auth: false, message: 'user not authorized for this app co. not active' }
+      next()
+      return
+    }
+    cons.log('results: ', results)
+    req.userTok = { auth: true, message: 'user has apps for coid', emailid: tokdata.emailid, appid:tokdata.appid, coid:tokdata.coid, role:tokdata.role, goodtil:results[0].goodtil}
+    next()
+    return
+  })
+}
+var bearerTokenCoidApps = function(req, res, next) {
+  if (!get('req.headers.authorization', req)) {
+    req.userTok = { auth: false, message: "no authorization header", emailId: "" }
+    next()
+    return
+  }
+  var toka = req.headers.authorization.split(' ')
+  try {
+    var tokdata = jwt.decode(toka[1], cfg.secret)
+  } catch (e) {
+    req.userTok = { auth: false, message: e.message, emailId: "" }
+    next()
+    return
+  }
+  const qco =conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND c.coid = ?', [tokdata.emailid, tokdata.coid], function(error, results){
     cons.log('qco results: ', results)
     cons.log('qco.sql: ', qco.sql)
     if (error) {
@@ -79,9 +114,10 @@ var bearerTokenCoid = function(req, res, next) {
       return
     }
     cons.log('results: ', results)
-    req.userTok = { auth: true, message: 'user has apps for coid', emailid: tokdata.emailid, appid:tokdata.appid, coid:tokdata.coid, role:tokdata.role, goodtil:results[0].goodtil}
+    const ares = results.map((r)=>r)
+    req.userTok = { auth: true, message: 'user has apps for coid', results: ares}
     next()
     return
-  })
+  })  
 }
-module.exports = { bearerTokenApp, bearerTokenCoid }
+module.exports = { bearerTokenApp, bearerTokenCoid, bearerTokenCoidApps }

@@ -1547,3 +1547,5 @@ ALTER TABLE `persons` ADD `marital` VARCHAR(20) NOT NULL DEFAULT 'marASsingl' AF
 ALTER TABLE `persons` ADD `w4exempt` TINYINT NOT NULL DEFAULT '0' AFTER `w4add`;
 
 ALTER TABLE `persons` ADD `student` TINYINT NOT NULL DEFAULT '0' AFTER `stadd`;
+
+ALTER TABLE `co` CHANGE `goodtil` `goodtil` DATE NULL DEFAULT 'CURDATE() + 30 days';

@@ -6,6 +6,7 @@ var app = require('./cors');
 var regtokau = require('./modules/regtokau/regtokau')();
 var jobs = require('./modules/jobs/jobs')();
 var tcard = require('./modules/tcard/tcard')();
+var OKtcard = require('./modules/OKtcard/OKtcard')();
 var payroll = require('./modules/payroll/payroll')();
 var persons = require('./modules/persons/persons')();
 
@@ -14,6 +15,7 @@ var persons = require('./modules/persons/persons')();
 app.use('/api/reg', regtokau);
 app.use('/api/jobs', jobs);
 app.use('/api/tcard', tcard);
+app.use('/api/OKtcard', OKtcard);
 app.use('/api/payroll', payroll);
 app.use('/api/persons', persons);
 

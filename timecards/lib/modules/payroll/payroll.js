@@ -1,57 +1,60 @@
 var express = require('express');
-var moment = require('moment');
-var jwt = require('jwt-simple');
 var router = express.Router();
 var cons = require('tracer').console();
 var conn = require('../../db/mysqldb')
-var combinePuJc = require('../../utilities').combinePuJc
+// var combinePuJc = require('../../utilities').combinePuJc
 var bearerTokenCoid = require('../regtokau/strategy').bearerTokenCoid
-var bearerTokenApp = require('../regtokau/strategy').bearerTokenApp
-var env = require('../../../env.json')
-var cfg = env[process.env.NODE_ENV || 'development']
-var secret = cfg.secret
+//var bearerTokenApp = require('../regtokau/strategy').bearerTokenApp
+// var env = require('../../../env.json')
+//var cfg = env[process.env.NODE_ENV || 'development']
+//var secret = cfg.secret
 
 
 module.exports = function() {
     router.get('/', function(req, res) {
         res.jsonp({ message: "in root of payroll module" })
     });
-    router.post('/ckcoid', bearerTokenApp, function(req,res){
-        if (!req.userTok.auth) {
-          var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }
-          res.jsonp(mess)
-        } else {
-          cons.log('req.userTok: ', req.userTok)
-          cons.log('req.body: ', req.body) 
-          var query = conn.query('SELECT coid FROM `timecards`.`co` WHERE coid=?', req.body.co.coid, function(error, copman) {
-              cons.log(query.sql)
-              cons.log(error)
-              if(copman.length>0){
-                res.jsonp({message: 'coid already exists, try another' })
-              }else{
-                const goodtil = moment().add(30, 'days').format('YYYY-MM-DD')
-                const effective = moment().format('YYYY-MM-DD')
-                var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective) VALUES(?,?,?); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.body.co.emailid, req.body.co.coid, req.body.co.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
-                  cons.log(query2.sql)
-                  cons.log(error2)
-                  cons.log(result)
-                  const exp = Math.floor(Date.now()) + addDays(40)
-                  cons.log('exp: ', exp)
-                  var payload = {
-                    coid: req.body.co.coid,
-                    role: 'partner',
-                    appid: 'signup',
-                    emailid: req.body.co.emailid,
-                    exp: exp
-                  };
-                  var token = jwt.encode(payload, secret);
-                  res.jsonp({message: 'ok setting you up', goodtil:goodtil,result:result, token:token, emailid:req.body.co.emailid})
-                })
-              }
-          })  
-        }
-      })
-    router.get('/settings', bearerTokenCoid, function(req, res) {
+    // router.post('/ckcoid', bearerTokenApp, function(req,res){
+    //     if (!req.userTok.auth) {
+    //       var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }
+    //       res.jsonp(mess)
+    //     } else {
+    //       cons.log('req.userTok: ', req.userTok)
+    //       cons.log('req.body: ', req.body) 
+    //       var query = conn.query('SELECT coid FROM `timecards`.`co` WHERE coid=?', req.body.co.coid, function(error, copman) {
+    //           cons.log(query.sql)
+    //           cons.log(error)
+    //           if(copman.length>0){
+    //             res.jsonp({message: 'coid already exists, try another' })
+    //           }else{
+    //             const goodtil = moment().add(30, 'days').format('YYYY-MM-DD')
+    //             const effective = moment().format('YYYY-MM-DD')
+    //             var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective) VALUES(?,?,?); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.body.co.emailid, req.body.co.coid, req.body.co.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
+    //               cons.log(query2.sql)
+    //               cons.log(error2)
+    //               cons.log(result)
+    //               const exp = Math.floor(Date.now()) + addDays(40)
+    //               cons.log('exp: ', exp)
+    //               var payload = {
+    //                 coid: req.body.co.coid,
+    //                 role: 'partner',
+    //                 appid: 'signup',
+    //                 emailid: req.body.co.emailid,
+    //                 exp: exp
+    //               };
+    //               var token = jwt.encode(payload, secret);
+    //               res.jsonp({message: 'ok setting you up', goodtil:goodtil,result:result, token:token, emailid:req.body.co.emailid})
+    //             })
+    //           }
+    //       })  
+    //     }
+    //   })
+    function addAppId(req,res,next){
+      req.appid = 'pay'
+      next()
+    }
+
+    router.get('/settings', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
             var mess = { message: 'in get /payroll/settings (not authorized)-' + req.userTok.message }
             cons.log(mess)
@@ -65,7 +68,7 @@ module.exports = function() {
 
         }
     })
-    router.get('/rates', bearerTokenCoid, function(req, res) {
+    router.get('/rates', addAppId,  bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
             var mess = { message: 'in get /payroll/rates (not authorized)-' + req.userTok.message }
             cons.log(mess)
@@ -83,21 +86,21 @@ module.exports = function() {
             })
         }
     })
-    router.get('/submitted', bearerTokenCoid, function(req, res) {
-        if (!req.userTok.auth) {
-            var mess = { message: 'in get /payroll/submitted (not authorized)-' + req.userTok.message }
-            cons.log(mess)
-            res.jsonp(mess)
-        } else {
-            var query = conn.query('SELECT wprt, emailid, hrs, `status` FROM tcardwk WHERE status="submitted" AND coid=? ORDER BY wprt,emailid', req.userTok.coid, function(error, wstat) {
-                cons.log(query.sql)
-                cons.log(error)
-                res.jsonp(wstat)
-            })
+    // router.get('/submitted', bearerTokenCoid, function(req, res) {
+    //     if (!req.userTok.auth) {
+    //         var mess = { message: 'in get /payroll/submitted (not authorized)-' + req.userTok.message }
+    //         cons.log(mess)
+    //         res.jsonp(mess)
+    //     } else {
+    //         var query = conn.query('SELECT wprt, emailid, hrs, `status` FROM tcardwk WHERE status="submitted" AND coid=? ORDER BY wprt,emailid', req.userTok.coid, function(error, wstat) {
+    //             cons.log(query.sql)
+    //             cons.log(error)
+    //             res.jsonp(wstat)
+    //         })
 
-        }
-    })
-    router.get('/approved', bearerTokenCoid, function(req, res) {
+    //     }
+    // })
+    router.get('/approved', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
             var mess = { message: 'in get /payroll/approved (not authorized)-' + req.userTok.message }
             cons.log(mess)
@@ -113,46 +116,46 @@ module.exports = function() {
 
         }
     })
-    router.get('/tcard/:wprt/:emailid', bearerTokenCoid, function(req, res) {
-        if (!req.userTok.auth) {
-            var mess = { message: 'in get /payroll/tcard (not authorized)-' + req.userTok.message }
-            cons.log(mess)
-            res.jsonp(mess)
-        } else {
-            cons.log('req.params: ', req.params)
-            const wprt = req.params.wprt
-            const wk = wprt.slice(-2)*1
-            cons.log('wk: ', wk)
-            const emailid =req.params.emailid
-            const wdprt = `${wprt}%`
-            var query0 = conn.query('SELECT `wprt`, `emailid`, `status`, `hrs` FROM tcardwk WHERE emailid = ? AND coid = ? AND wprt =?', [emailid, req.userTok.coid, wprt], function(error0, wstat) {
-                cons.log(query0.sql)
-                cons.log(error0)
-                cons.log(wstat)
-                cons.log(wdprt)
-                var query = conn.query('SELECT `wdprt`, `inout`, `hrs` FROM tcardpu WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coid, wdprt], function(error1, punch) {
-                    cons.log(query.sql)
-                    cons.log(error1)
-                    var query2 = conn.query('SELECT `wdprt`, `job`, `cat`, `hrs` FROM tcardjc WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coid, wdprt], function(error2, jcost) {
-                        cons.log(query2.sql)
-                        cons.log(error2)
-                        cons.log(jcost)
-                        cons.log(punch)
-                        var q = conn.query('SELECT `job`, `category` FROM jobcatact WHERE week=? AND coid=? ORDER BY idx, category', [wk, req.userTok.coid], function(error3, jobs) {
-                            cons.log(q.sql)
-                            cons.log(jobs)
-                            cons.log(error3)
-                            const wkarr = combinePuJc(punch, jcost, wk, emailid)
-                            res.jsonp({ wk: wk, wkarr: wkarr, jobs: jobs, wstat: wstat[0] })
-                        })
-                    })
-                })
-            })
-        }
-    });
+    // router.get('/tcard/:wprt/:emailid', bearerTokenCoid, function(req, res) {
+    //     if (!req.userTok.auth) {
+    //         var mess = { message: 'in get /payroll/tcard (not authorized)-' + req.userTok.message }
+    //         cons.log(mess)
+    //         res.jsonp(mess)
+    //     } else {
+    //         cons.log('req.params: ', req.params)
+    //         const wprt = req.params.wprt
+    //         const wk = wprt.slice(-2)*1
+    //         cons.log('wk: ', wk)
+    //         const emailid =req.params.emailid
+    //         const wdprt = `${wprt}%`
+    //         var query0 = conn.query('SELECT `wprt`, `emailid`, `status`, `hrs` FROM tcardwk WHERE emailid = ? AND coid = ? AND wprt =?', [emailid, req.userTok.coid, wprt], function(error0, wstat) {
+    //             cons.log(query0.sql)
+    //             cons.log(error0)
+    //             cons.log(wstat)
+    //             cons.log(wdprt)
+    //             var query = conn.query('SELECT `wdprt`, `inout`, `hrs` FROM tcardpu WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coid, wdprt], function(error1, punch) {
+    //                 cons.log(query.sql)
+    //                 cons.log(error1)
+    //                 var query2 = conn.query('SELECT `wdprt`, `job`, `cat`, `hrs` FROM tcardjc WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coid, wdprt], function(error2, jcost) {
+    //                     cons.log(query2.sql)
+    //                     cons.log(error2)
+    //                     cons.log(jcost)
+    //                     cons.log(punch)
+    //                     var q = conn.query('SELECT `job`, `category` FROM jobcatact WHERE week=? AND coid=? ORDER BY idx, category', [wk, req.userTok.coid], function(error3, jobs) {
+    //                         cons.log(q.sql)
+    //                         cons.log(jobs)
+    //                         cons.log(error3)
+    //                         const wkarr = combinePuJc(punch, jcost, wk, emailid)
+    //                         res.jsonp({ wk: wk, wkarr: wkarr, jobs: jobs, wstat: wstat[0] })
+    //                     })
+    //                 })
+    //             })
+    //         })
+    //     }
+    // });
     return router;
 }
 
-function addDays (x){
-  return x*(24*60*60*1000)
-}
+// function addDays (x){
+//   return x*(24*60*60*1000)
+// }

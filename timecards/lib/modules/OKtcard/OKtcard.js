@@ -8,7 +8,7 @@ var bearerTokenCoid = require('../regtokau/strategy').bearerTokenCoid
 var router = express.Router();
 
 function addAppId(req,res,next){
-    req.appid = 'tcard'
+    req.appid = 'OKtcard'
     next()
   }
 
@@ -18,7 +18,7 @@ module.exports = function() {
     });
     router.get('/settings', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
-            var mess = { message: 'in get /tcard/settings (not authorized)-' + req.userTok.message }
+            var mess = { message: 'in get /OKtcard/settings (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
@@ -30,27 +30,60 @@ module.exports = function() {
 
         }
     })    
-    router.get('/test/:wk', function(req, res) {
-        const emailid = "tim@sitebuilt.net"
-        const wk = req.params.wk
-        const yr = moment().format('YYYY')
-        const wdprt = `${yr}-W${wk.toString().padStart(2,'0')}%`
-        cons.log(wdprt)
-        var query = conn.query('SELECT * FROM tcardpu WHERE emailid = ? AND wdprt LIKE(?)', [emailid, wdprt], function(error, punch) {
-            cons.log(query.sql)
-            cons.log(error)
-            var query2 = conn.query('SELECT * FROM tcardjc WHERE emailid = ? AND wdprt LIKE(?)', [emailid, wdprt], function(error2, jcost) {
-                cons.log(query2.sql)
-                cons.log(error2)
-                cons.log(jcost)
-                cons.log(punch)
-                res.jsonp({ punch: punch, jcost: jcost })
+    router.get('/submitted', addAppId, bearerTokenCoid, function(req, res) {
+        if (!req.userTok.auth) {
+            var mess = { message: 'in get /OKtcard/submitted (not authorized)-' + req.userTok.message }
+            cons.log(mess)
+            res.jsonp(mess)
+        } else {
+            var query = conn.query('SELECT wprt, emailid, hrs, `status` FROM tcardwk WHERE status="submitted" AND coid=? ORDER BY wprt,emailid', req.userTok.coid, function(error, wstat) {
+                cons.log(query.sql)
+                cons.log(error)
+                res.jsonp(wstat)
             })
-        })
-    });
+
+        }
+    }) 
+    router.get('/tcard/:wprt/:emailid', addAppId, bearerTokenCoid, function(req, res) {
+        if (!req.userTok.auth) {
+            var mess = { message: 'in get /payroll/tcard (not authorized)-' + req.userTok.message }
+            cons.log(mess)
+            res.jsonp(mess)
+        } else {
+            cons.log('req.params: ', req.params)
+            const wprt = req.params.wprt
+            const wk = wprt.slice(-2)*1
+            cons.log('wk: ', wk)
+            const emailid =req.params.emailid
+            const wdprt = `${wprt}%`
+            var query0 = conn.query('SELECT `wprt`, `emailid`, `status`, `hrs` FROM tcardwk WHERE emailid = ? AND coid = ? AND wprt =?', [emailid, req.userTok.coid, wprt], function(error0, wstat) {
+                cons.log(query0.sql)
+                cons.log(error0)
+                cons.log(wstat)
+                cons.log(wdprt)
+                var query = conn.query('SELECT `wdprt`, `inout`, `hrs` FROM tcardpu WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coid, wdprt], function(error1, punch) {
+                    cons.log(query.sql)
+                    cons.log(error1)
+                    var query2 = conn.query('SELECT `wdprt`, `job`, `cat`, `hrs` FROM tcardjc WHERE emailid = ? AND coid = ? AND wdprt LIKE(?)', [emailid, req.userTok.coid, wdprt], function(error2, jcost) {
+                        cons.log(query2.sql)
+                        cons.log(error2)
+                        cons.log(jcost)
+                        cons.log(punch)
+                        var q = conn.query('SELECT `job`, `category` FROM jobcatact WHERE week=? AND coid=? ORDER BY idx, category', [wk, req.userTok.coid], function(error3, jobs) {
+                            cons.log(q.sql)
+                            cons.log(jobs)
+                            cons.log(error3)
+                            const wkarr = combinePuJc(punch, jcost, wk, emailid)
+                            res.jsonp({ wk: wk, wkarr: wkarr, jobs: jobs, wstat: wstat[0] })
+                        })
+                    })
+                })
+            })
+        }
+    });  
     router.put('/update', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
-            var mess = { message: 'in get /tcard/update (not authorized)-' + req.userTok.message }
+            var mess = { message: 'in get /OKtcard/update (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
@@ -82,7 +115,7 @@ module.exports = function() {
     })
     router.put('/updjc', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
-            var mess = { message: 'in get /tcard/updjc (not authorized)-' + req.userTok.message }
+            var mess = { message: 'in get /OKtcard/updjc (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
@@ -112,7 +145,7 @@ module.exports = function() {
     })
     router.put('/updpu', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
-            var mess = { message: 'in get /tcard/updpu (not authorized)-' + req.userTok.message }
+            var mess = { message: 'in get /OKtcard/updpu (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
@@ -133,7 +166,7 @@ module.exports = function() {
     })
     router.put('/updstat', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
-            var mess = { message: 'in get /tcard/updstat (not authorized)-' + req.userTok.message }
+            var mess = { message: 'in get /OKtcard/updstat (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
@@ -155,7 +188,7 @@ module.exports = function() {
     })
     router.get('/wstat/:wk', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
-            var mess = { message: 'in get /tcard/wstat/:wk (not authorized)-' + req.userTok.message }
+            var mess = { message: 'in get /OKtcard/wstat/:wk (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
@@ -172,7 +205,7 @@ module.exports = function() {
     })
     router.get('/week/:wk', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
-            var mess = { message: 'in get /tcard/week/:wk (not authorized)-' + req.userTok.message }
+            var mess = { message: 'in get /OKtcard/week/:wk (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
@@ -207,7 +240,7 @@ module.exports = function() {
     });
     router.delete('/del', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
-            var mess = { message: 'in get /tcard/delete (not authorized)-' + req.userTok.message }
+            var mess = { message: 'in get /OKtcard/delete (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
