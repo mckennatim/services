@@ -5,12 +5,29 @@ var conn = require('../../db/mysqldb')
 var bearerTokenCoid = require('../regtokau/strategy').bearerTokenCoid
 
 var router = express.Router();
-
+function addAppId(req,res,next){
+  req.appid = 'persons'
+  next()
+}
 module.exports = function() {
   router.get('/', function(req, res) {
     res.jsonp({ message: "in root of persons module" })
   });
-  router.put('/update', bearerTokenCoid, function(req, res) {
+  router.get('/settings', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+        var mess = { message: 'in get /OKtcard/settings (not authorized)-' + req.userTok.message }
+        cons.log(mess)
+        res.jsonp(mess)
+    } else {
+        var query = conn.query('SELECT * FROM `timecards`.`cosr` WHERE effective < CURDATE() AND coid =? ORDER BY effective DESC LIMIT 1 ', req.userTok.coid, function(error, settings) {
+            cons.log(query.sql)
+            cons.log(error)
+            res.jsonp(settings)
+        })
+
+    }
+}) 
+  router.put('/update', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /persons/update (not authorized)-' + req.userTok.message }
       res.jsonp(mess)
@@ -30,7 +47,7 @@ module.exports = function() {
       })
     }
   });
-  router.put('/ck', bearerTokenCoid, function(req,res){
+  router.put('/ck', addAppId, bearerTokenCoid, function(req,res){
     if (!req.userTok.auth) {
       var mess = { message: 'in get /persons/update (not authorized)-' + req.userTok.message }
       res.jsonp(mess)
@@ -48,7 +65,7 @@ module.exports = function() {
       }
     }
   })
-  router.get('/list/', bearerTokenCoid, function(req, res) {
+  router.get('/list/', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /persons/list/ (not authorized)-' + req.userTok.message }
       cons.log(mess)
@@ -63,7 +80,7 @@ module.exports = function() {
       })
     }
   })
-  router.get('/current/', bearerTokenCoid, function(req, res) {
+  router.get('/current/', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /persons/current (not authorized)-' + req.userTok.message }
       cons.log(mess)
@@ -78,7 +95,7 @@ module.exports = function() {
       })
     }
   })
-  router.get('/tokdata/', bearerTokenCoid, function(req, res) {
+  router.get('/tokdata/', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /persons/list/:wk (not authorized)-' + req.userTok.message }
       cons.log(mess)
@@ -88,7 +105,7 @@ module.exports = function() {
       res.jsonp({ binfo: req.userTok })
     }
   }) 
-  router.post('/post/:wk', bearerTokenCoid, function(req, res) {
+  router.post('/post/:wk', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /persons/list (not authorized)-' + req.userTok.message }
       cons.log(mess)
@@ -119,7 +136,7 @@ module.exports = function() {
       })
     }
   })
-  router.delete('/del', bearerTokenCoid, function(req, res) {
+  router.delete('/del', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /persons/list (not authorized)-' + req.userTok.message }
       cons.log(mess)
