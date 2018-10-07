@@ -35,7 +35,11 @@ module.exports = function() {
       mess = { message: 'nothing happenning yet-' }
       const p = req.body.person
       const roho ={emailid:p.emailid, role:p.role, coid:req.userTok.coid, active:p.active}
-      const per ={emailid:p.emailid, coid:req.userTok.coid, firstmid:p.firstmid, lastname:p.lastname, street:p.street, city:p.city, st:p.st, zip:p.zip,rate:p.rate, ssn:p.ssn, w4allow:p.w4allow, w4add:p.w4add, stallow:p.stallow, stadd:p.stadd, sthoh: p.sthoh, stblind:p.stblind, effective:p.effective, marital:p.marital, w4exempt:p.w4exempt, student: p.student }
+      // const per ={emailid:p.emailid, coid:req.userTok.coid, firstmid:p.firstmid, lastname:p.lastname, street:p.street, city:p.city, st:p.st, zip:p.zip,rate:p.rate, ssn:p.ssn, w4allow:p.w4allow, w4add:p.w4add, stallow:p.stallow, stadd:p.stadd, sthoh: p.sthoh, stblind:p.stblind, effective:p.effective, marital:p.marital, w4exempt:p.w4exempt, student: p.student }
+      const per = {...p, coid:req.userTok.coid}
+      delete per.role
+      delete per.active
+      delete per.id
       const iroho = conn.query('INSERT INTO rolewho SET ? ON DUPLICATE KEY UPDATE ?', [roho,roho], function(err0) {
         cons.log('iroho.sql: ', iroho.sql)
         cons.log('err0: ', err0)
@@ -72,7 +76,8 @@ module.exports = function() {
       res.jsonp(mess)
     } else {
       cons.log(req.userTok);
-      var q = conn.query('SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.marital, p.rate, p.w4add, p.stadd, p.sthoh, p.stblind, p.w4exempt, p.`w4allow`, p.student, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',  req.userTok.coid, function(error, results) {
+      // var q = conn.query('SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.marital, p.rate, p.w4add, p.stadd, p.sthoh, p.stblind, p.w4exempt, p.`w4allow`, p.student, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',        
+      var q = conn.query('SELECT p.*, r.id, r.role, r.`active` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',  req.userTok.coid, function(error, results) {
         cons.log(q.sql)
         cons.log(error)
         var arrres = results.map((res) => res)
