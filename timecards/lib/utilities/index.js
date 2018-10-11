@@ -23,10 +23,10 @@ const combinePuJc = (punch, jcost, wk, emailid) => {
             .filter((jc) => jc.wdprt == d.wdprt)
             .map((jcf) => {
                 jchrs += jcf.hrs
-                jcarr.push({ job: jcf.job, cat: jcf.cat, hrs: jcf.hrs })
+                jcarr.push({ job: jcf.job, cat: jcf.cat, hrs: jcf.hrs})
             })
         d.jcost = jcarr
-        d.jchrs = jchrs
+        d.jchrs = drnd(jchrs)
         return d
     })
     return filledwk

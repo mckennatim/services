@@ -8,12 +8,25 @@ var bearerTokenCoid = require('../regtokau/strategy').bearerTokenCoid
 // var env = require('../../../env.json')
 //var cfg = env[process.env.NODE_ENV || 'development']
 //var secret = cfg.secret
-
+function addAppId(req,res,next){
+  req.appid = 'pay'
+  next()
+}
 
 module.exports = function() {
     router.get('/', function(req, res) {
         res.jsonp({ message: "in root of payroll module" })
     });
+    router.post('/jc', addAppId, bearerTokenCoid, function(req,res){
+      if (!req.userTok.auth) {
+        var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }
+        res.jsonp(mess)
+      } else {
+        cons.log('req.userTok: ', req.userTok)
+        cons.log('req.body: ', req.body)
+        res.jsonp(req.body)
+      } 
+    })
     // router.post('/ckcoid', bearerTokenApp, function(req,res){
     //     if (!req.userTok.auth) {
     //       var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }

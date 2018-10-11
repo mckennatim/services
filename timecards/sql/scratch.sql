@@ -1549,3 +1549,7 @@ ALTER TABLE `persons` ADD `w4exempt` TINYINT NOT NULL DEFAULT '0' AFTER `w4add`;
 ALTER TABLE `persons` ADD `student` TINYINT NOT NULL DEFAULT '0' AFTER `stadd`;
 
 ALTER TABLE `co` CHANGE `goodtil` `goodtil` DATE NULL DEFAULT 'CURDATE() + 30 days';
+
+SELECT * FROM tcardjc WHERE emailid = 'mckenna.tim@gmail.com' AND coid ='sbs' AND wdprt LIKE('2018-W40%')
+
+SELECT * FROM tcardwk WHERE emailid = 'mckenna.tim@gmail.com' AND coid ='sbs' AND wprt = '2018-W40'
