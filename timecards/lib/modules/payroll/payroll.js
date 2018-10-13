@@ -31,15 +31,49 @@ module.exports = function() {
           const wdprt = j.wprt+'-'+(i+1)
           console.log('wdprt: ', wdprt)
           console.log('hrcost: ', hrcost)
-          const updjc =conn.query('UPDATE tcardjc SET hrcost=? WHERE emailid= ? AND wdprt = ?',[hrcost, j.emailid, wdprt], function(error, results){
-            cons.log(updjc.sql)
-            cons.log(error)
-            cons.log('results: ', results)
+          const seljc = conn.query('SELECT * FROM tcardjc WHERE emailid= ? AND wdprt = ? AND coid = ? ; UPDATE tcardwk SET status=? WHERE coid=? AND wprt=? AND emailid=?',[j.emailid, wdprt, req.userTok.coid, 'paid', req.userTok.coid, j.wprt, j.emailid], function(error1, sesults){
+            cons.log(seljc.sql)
+            cons.log(error1)
+            cons.log('results: ', sesults[0])
+            sesults[0].map((s)=>{
+              const cst = hrcost*s.hrs
+              const updjc =conn.query("INSERT INTO gl (coid, account, wdprt, job,cat,someid,somenum,debit) VALUES (?, ?, ?, ?, ?, ?, ?, ?);  UPDATE tcardjc SET hrcost=?, cost=? WHERE id = ?",[s.coid, 'a5010-COGS'  , s.wdprt, s.job, s.cat, s.emailid, s.hrs, cst, hrcost, cst, s.id], function(error, results){
+                cons.log(updjc.sql)
+                cons.log(error)
+                cons.log('results: ', results)
+              })
+            })
           })
         })
       })
       res.jsonp({binfo: req.userTok })  
     } 
+  })
+
+  router.post('/gl', addAppId, bearerTokenCoid, function(req,res){
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }
+      res.jsonp(mess)
+    } else {
+      cons.log('req.userTok: ', req.userTok)
+      const {journal} = req.body
+      cons.log(journal)
+      const keys = Object.keys(req.body.journal[0]).join()+',coid'
+      const vals = [req.body.journal.map((j) => {
+        let anarr = Object.values(j)
+        anarr.push(req.userTok.coid)
+        return anarr
+      })]
+      console.log(keys);
+      console.log(vals);
+      var query = conn.query('INSERT INTO gl (' + keys + ') VALUES ? ', vals, function(error, results) {
+          cons.log(query.sql)
+          cons.log(error)
+          cons.log(results)
+          cons.log(mess)
+          res.jsonp(mess)
+      })
+    }
   })
   // router.post('/ckcoid', bearerTokenApp, function(req,res){
   //     if (!req.userTok.auth) {
@@ -56,7 +90,7 @@ module.exports = function() {
   //           }else{
   //             const goodtil = moment().add(30, 'days').format('YYYY-MM-DD')
   //             const effective = moment().format('YYYY-MM-DD')
-  //             var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective) VALUES(?,?,?); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.body.co.emailid, req.body.co.coid, req.body.co.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
+  //             var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`journal` (emailid, coid, effective) VALUES(?,?,?); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.body.co.emailid, req.body.co.coid, req.body.co.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
   //               cons.log(query2.sql)
   //               cons.log(error2)
   //               cons.log(result)

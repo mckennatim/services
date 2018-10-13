@@ -1553,3 +1553,62 @@ ALTER TABLE `co` CHANGE `goodtil` `goodtil` DATE NULL DEFAULT 'CURDATE() + 30 da
 SELECT * FROM tcardjc WHERE emailid = 'mckenna.tim@gmail.com' AND coid ='sbs' AND wdprt LIKE('2018-W40%')
 
 SELECT * FROM tcardwk WHERE emailid = 'mckenna.tim@gmail.com' AND coid ='sbs' AND wprt = '2018-W40'
+
+use timecards;
+DROP TABLE IF EXISTS `glaccounts`;
+CREATE TABLE `glaccounts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account` varchar(20),
+  `description` varchar(100),
+  PRIMARY KEY (`id`),
+  KEY (`account`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO glaccounts (`account`, `description`)
+VALUES 
+('a1010-cash', 'CASH Operating Account'),
+('a1210-AR', 'Accounts Receivable'),
+('a2010-SS', 'Accrued Social Security'),
+('a2020-medi', 'Accrued Medicare'),
+('a2030-meda', 'Additional Medicare'),
+('a2040-fedWh', 'Federal Income Tax Witheld'),
+('a2050-fedWh', 'Federal Income Tax Witheld'),
+('a2060-stWh', 'State Income Tax Witheld'),
+('a2070-locWh', 'Local Income Tax Witheld'),
+('a2080-FUTA', 'Federal Unemployment Tax'),
+('a2090-SUTA', 'State Unemployment Tax'),
+('a2100-WC', 'Accrued Workmens Comp'),
+('a2100-401K', 'Accrued 401K'),
+('a2120-health', 'Accrued Health Insurance'),
+('a2130-holiday', 'Accrued Holiday Benefit'),
+('a2140-vacation', 'Accrued Vacation Benefit'),
+('a2150-personal', 'Accrued Personal Benefit'),
+('a2200-grossAP', 'Gross Pay Payable'),
+('a4010-revenue', 'Job Revenue'),
+('a5010-COGS', 'Cost of Goods Sold debit'),
+('a6010-gross', 'Gross Payroll Expense'),
+('a6020-burden', 'Payroll Burden Expense');
+
+use timecards;
+DROP TABLE IF EXISTS `gl`;
+CREATE TABLE `gl` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `coid` varchar(20) DEFAULT '',
+  `account` varchar(20) DEFAULT '',
+  `wdprt` varchar(12) DEFAULT '',
+  `job` varchar(60) DEFAULT '',
+  `cat` varchar(40) DEFAULT '',
+  `date` date,
+  `someid` varchar(60) DEFAULT '',
+  `somenum` decimal(6,2) DEFAULT 0,
+  `debit` decimal(9,2) DEFAULT 0,
+  `credit` decimal(9,2) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY (`account`),
+  KEY (`coid`),
+  KEY (`wdprt`),
+  KEY (`date`),
+  KEY (`job`),
+  KEY (`cat`),
+  KEY (`someid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
