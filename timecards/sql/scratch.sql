@@ -1612,3 +1612,38 @@ CREATE TABLE `gl` (
   KEY (`cat`),
   KEY (`someid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `cosr` ADD `otrate` DECIMAL(3,2) NOT NULL DEFAULT '1.5' AFTER `firstday`, ADD `sarate` DECIMAL(3,2) NOT NULL DEFAULT '1' AFTER `otrate`, ADD `surate` DECIMAL(3,2) NOT NULL DEFAULT '1' AFTER `sarate`;
+
+DELETE FROM co WHERE coid='brother';
+DELETE FROM cosr WHERE coid='brother';
+DELETE FROM persons WHERE coid='brother';
+DELETE FROM rolewho WHERE coid='brother';
+
+
+SELECT c.*, r.* FROM `timecards`.`cosr` r
+JOIN `timecards`.`co` c 
+ON c.coid=r.coid;
+WHERE r.effective < CURDATE()
+ORDER BY r.effective DESC LIMIT 1;
+
+SELECT c.*, r.* FROM `timecards`.`cosr` r
+JOIN `timecards`.`co` c 
+ON c.coid=r.coid
+AND r.effective < CURDATE()
+AND r.coid = 'sbs'
+ORDER BY r.effective DESC LIMIT 1;
+
+ALTER TABLE `timecards`.`cosr` ADD UNIQUE `coef` (`coid`, `effective`);
+
+
+USE timecards;
+INSERT INTO tcardpu
+SET `name` = 'mckenna.tim@gmail.com',
+    `selected` = '[0,0,0,1,1,0,0,0,0,1,0]'
+ON DUPLICATE KEY
+UPDATE 
+    `name` = 'mckenna.tim@gmail.com',
+    `selected` = '[1,1,0,1,1,0,0,0,0,1,0]'
+
+SELECT `job`, `category` FROM jobcatact WHERE week=42 AND coid='reroo' ORDER BY idx, category

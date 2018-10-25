@@ -210,7 +210,7 @@ const processUser = (reqbody, baseURL, done)=>{
           done(null, {apikey: apikey, alreadyRegistered: false});
           return
         });            
-      } else if(!user.local.auth){
+      } else if(true || !user.local.auth){//HACK TO FORCE NEW APIKEY
         cons.log('IN NOT user.local.auth')
         apikey = user.local.apikey
         emailApikey(apikey, email, appId, baseURL, function(ret){

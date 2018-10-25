@@ -117,7 +117,7 @@ module.exports = function() {
           cons.log(mess)
           res.jsonp(mess)
       } else {
-          var query = conn.query('SELECT * FROM `timecards`.`cosr` WHERE effective < CURDATE() AND coid =? ORDER BY effective DESC LIMIT 1 ', req.userTok.coid, function(error, settings) {
+          var query = conn.query('SELECT * FROM `timecards`.`cosr` WHERE effective <= CURDATE() AND coid =? ORDER BY effective DESC LIMIT 1 ', req.userTok.coid, function(error, settings) {
               cons.log(query.sql)
               cons.log(error)
               res.jsonp(settings)
@@ -135,7 +135,7 @@ module.exports = function() {
               cons.log(query.sql)
               cons.log(error)
               const st= cores[0].st
-              const q2 = conn.query("SELECT * FROM `timecards`.`cosr` WHERE effective < CURDATE() AND coid =? ORDER BY effective DESC LIMIT 1; SELECT * FROM `timecards`.`fedr` WHERE year = YEAR(CURDATE()); SELECT * FROM `timecards`.`fedwh` WHERE year = YEAR(CURDATE()); SELECT * FROM `timecards`.`strates` WHERE year = YEAR(CURDATE()) AND st= ?; ", [req.userTok.coid, st], (error2, rr)=>{
+              const q2 = conn.query("SELECT * FROM `timecards`.`cosr` WHERE effective <= CURDATE() AND coid =? ORDER BY effective DESC LIMIT 1; SELECT * FROM `timecards`.`fedr` WHERE year = YEAR(CURDATE()); SELECT * FROM `timecards`.`fedwh` WHERE year = YEAR(CURDATE()); SELECT * FROM `timecards`.`strates` WHERE year = YEAR(CURDATE()) AND st= ?; ", [req.userTok.coid, st], (error2, rr)=>{
                   cons.log(q2.sql)
                   cons.log(error2)
                   res.jsonp({cosr: rr[0][0], fedr:rr[1][0], fedwh:rr[2], strates:rr[3][0]})
@@ -164,7 +164,7 @@ module.exports = function() {
           res.jsonp(mess)
       } else {
           const coid = req.userTok.coid
-          var query = conn.query("DROP TABLE IF EXISTS `timecards`.`cureff` ; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective < CURDATE() AND p.coid =? GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective` ; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT t.*, c.* FROM `timecards`.`tcardwk` t JOIN `timecards`.`cureffective` c ON c.emailid = t.emailid WHERE t.status='approved' AND t.coid= ?;",[coid,coid] , function(error, results) {
+          var query = conn.query("DROP TABLE IF EXISTS `timecards`.`cureff` ; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective <= CURDATE() AND p.coid =? GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective` ; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective; SELECT t.*, c.* FROM `timecards`.`tcardwk` t JOIN `timecards`.`cureffective` c ON c.emailid = t.emailid WHERE t.status='approved' AND t.coid= ?;",[coid,coid] , function(error, results) {
               cons.log(query.sql)
               cons.log(error)
               var arrres = results.slice(-1)[0]

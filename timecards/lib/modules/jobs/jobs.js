@@ -48,7 +48,7 @@ module.exports = function() {
                 const updins = conn.query('INSERT INTO jobcatact (' + keys + ') VALUES ? ', vals, function(err) {
                     cons.log('updins.sql: ', updins.sql)
                     cons.log('err: ', err)
-                    res.jsonp(mess)
+                    res.jsonp({mess, err:err})
                 })
             })
         }

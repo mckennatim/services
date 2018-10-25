@@ -22,7 +22,7 @@ module.exports = function() {
             cons.log(mess)
             res.jsonp(mess)
         } else {
-            var query = conn.query('SELECT * FROM `timecards`.`cosr` WHERE effective < CURDATE() AND coid =? ORDER BY effective DESC LIMIT 1 ', req.userTok.coid, function(error, settings) {
+            var query = conn.query('SELECT * FROM `timecards`.`cosr` WHERE effective <= CURDATE() AND coid =? ORDER BY effective DESC LIMIT 1 ', req.userTok.coid, function(error, settings) {
                 cons.log(query.sql)
                 cons.log(error)
                 res.jsonp(settings)

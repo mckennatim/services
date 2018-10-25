@@ -39,8 +39,8 @@ module.exports = function() {
         }
       })
     }
-
   })
+
   router.get('/coids', bearerTokenApp, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /reg/coids (not authorized)-' + req.userTok.message }
@@ -98,7 +98,7 @@ module.exports = function() {
           }else{
             const goodtil = moment().add(30, 'days').format('YYYY-MM-DD')
             const effective = moment().format('YYYY-MM-DD')
-            var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective) VALUES(?,?,?); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.body.co.emailid, req.body.co.coid, req.body.co.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
+            var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective) VALUES(?,?,?); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.userTok.emailid, req.body.co.coid, req.userTok.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
               cons.log(query2.sql)
               cons.log(error2)
               cons.log(result)
@@ -108,11 +108,11 @@ module.exports = function() {
                 coid: req.body.co.coid,
                 role: 'partner',
                 appid: 'signup',
-                emailid: req.body.co.emailid,
+                emailid: req.userTok.emailid,
                 exp: exp
               };
               var token = jwt.encode(payload, secret);
-              res.jsonp({message: 'ok setting you up', goodtil:goodtil,result:result, token:token, emailid:req.body.co.emailid})
+              res.jsonp({message: 'ok setting you up', goodtil:goodtil,result:result, token:token, emailid:req.userTok.emailid})
             })
           }
       })  
