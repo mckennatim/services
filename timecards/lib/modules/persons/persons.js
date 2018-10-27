@@ -149,7 +149,7 @@ module.exports = function() {
     } else {
       mess = { message: 'nothing happenning yet-' }
       cons.log(req.body)
-      var query1 = conn.query('DELETE FROM persons WHERE emailid=? AND coid=? AND effective=?', [req.body.person.emailid, req.userTok.coid, req.body.person.effective], function(error, results) {
+      var query1 = conn.query('DELETE FROM rolewho WHERE emailid=? AND coid=?; DELETE FROM persons WHERE emailid=? AND coid=? AND effective=?', [req.body.person.emailid, req.userTok.coid, req.body.person.emailid, req.userTok.coid, req.body.person.effective], function(error, results) {
         cons.log(query1.sql)
         cons.log(error)
         cons.log(results)
