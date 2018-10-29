@@ -25,7 +25,7 @@ module.exports = function() {
     if(appid=='signup'){
       res.jsonp({ auth: true, message: payload.email + ' is authenticating for ' + payload.appId, payload: payload });
     }else{
-      const query1 = conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ?', [emailid, appid], function(error, results) {
+      const query1 = conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND w.active=1', [emailid, appid], function(error, results) {
         cons.log('query1.sql: ', query1.sql)
         if (error) {
           res.jsonp({ auth: false, message: 'Sorry, database error ' + error.code + ' occured.' });

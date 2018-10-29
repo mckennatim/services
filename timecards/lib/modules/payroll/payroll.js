@@ -19,7 +19,7 @@ module.exports = function() {
   });
   router.post('/jc', addAppId, bearerTokenCoid, function(req,res){
     if (!req.userTok.auth) {
-      var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }
+      var mess = { message: 'in get /payroll/jc (not authorized)-' + req.userTok.message }
       res.jsonp(mess)
     } else {
       cons.log('req.userTok: ', req.userTok)
@@ -37,7 +37,7 @@ module.exports = function() {
             cons.log('results: ', sesults[0])
             sesults[0].map((s)=>{
               const cst = hrcost*s.hrs
-              const updjc =conn.query("INSERT INTO gl (coid, account, wdprt, job,cat,someid,somenum,debit) VALUES (?, ?, ?, ?, ?, ?, ?, ?);  UPDATE tcardjc SET hrcost=?, cost=? WHERE id = ?",[s.coid, 'a5010-COGS'  , s.wdprt, s.job, s.cat, s.emailid, s.hrs, cst, hrcost, cst, s.id], function(error, results){
+              const updjc =conn.query("INSERT INTO gl (coid, account, wdprt, job,cat,date,someid,somenum,debit) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?);  UPDATE tcardjc SET hrcost=?, cost=? WHERE id = ?",[s.coid, 'a5010-COGS', s.wdprt, s.job, s.cat, j.paydate, s.emailid, s.hrs, cst, hrcost, cst, s.id], function(error, results){
                 cons.log(updjc.sql)
                 cons.log(error)
                 cons.log('results: ', results)

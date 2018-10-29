@@ -20,7 +20,7 @@ var bearerTokenApp = function(req, res, next) {
     next()
     return
   }
-  const q1 = conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND a.appid = ?', [tokdata.email, tokdata.appId], function(error, results) {
+  const q1 = conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND a.appid = ? AND w.active=1', [tokdata.email, tokdata.appId], function(error, results) {
     //cons.log('c.goodtil > CURDATE(): ', c.goodtil > CURDATE() ? true : false)
     cons.log('results: ', results)
     cons.log('q1.sql: ', q1.sql)
@@ -67,7 +67,7 @@ var bearerTokenCoid = function(req, res, next) {
     return
   }
   cons.log('tokdata in BearerTokenCoid: ', tokdata)
-  const qco =conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND c.coid = ?', [tokdata.emailid, req.appid, tokdata.coid], function(error, results){
+  const qco =conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND c.coid = ? AND w.active=1', [tokdata.emailid, req.appid, tokdata.coid], function(error, results){
     cons.log('qco results: ', results)
     cons.log('qco.sql: ', qco.sql)
     if (error) {
@@ -101,7 +101,7 @@ var bearerTokenCoidApps = function(req, res, next) {
     next()
     return
   }
-  const qco =conn.query('SELECT w.emailid, w.role, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND c.coid = ?', [tokdata.emailid, tokdata.coid], function(error, results){
+  const qco =conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND c.coid = ? AND w.active=1', [tokdata.emailid, tokdata.coid], function(error, results){
     cons.log('qco results: ', results)
     cons.log('qco.sql: ', qco.sql)
     if (error) {

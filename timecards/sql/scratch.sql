@@ -1647,3 +1647,75 @@ UPDATE
     `selected` = '[1,1,0,1,1,0,0,0,0,1,0]'
 
 SELECT `job`, `category` FROM jobcatact WHERE week=42 AND coid='reroo' ORDER BY idx, category
+
+
+SELECT someid, SUM(debit) as gross
+FROM gl
+WHERE account='a6010-gross'
+AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY someid
+
+SELECT someid, SUM(credit) as ss
+FROM gl
+WHERE (account='a2010-SS' OR account='a2020-medi')
+AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY someid
+
+SELECT account, SUM(credit) as credit, SUM(debit) as debit
+FROM gl
+WHERE (account='a2010-SS' OR account='a2020-medi' OR account= 'a2050-fedWh')
+AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY account
+
+SELECT account, SUM(credit) as credit, SUM(debit) as debit
+FROM gl
+WHERE (account='a2010-SS' 
+OR account='a2020-medi' 
+OR account= 'a2050-fedWh'
+OR account= 'a6010-gross'
+OR account= 'a2200-grossAP'
+)
+AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY account
+
+SELECT coid, SUM(debit) as debit, SUM(credit) as credit,
+FROM gl
+GROUP BY coid
+
+SELECT SUM(debit) as debit, SUM(credit) as credit
+FROM gl
+
+
+TRUNCATE TABLE gl;
+
+-- SELECT someid, SUM(debit) as gross, SUM(credit) as ss
+-- FROM gl
+-- WHERE (account='a6010-gross' OR account='a2010-SS')
+-- AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+-- AND coid = 'reroo'
+-- GROUP BY someid
+
+SELECT someid, SUM(credit) as ss
+FROM gl
+WHERE account='a2010-SS'
+AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY someid
+
+SELECT someid, SUM(credit) as ss
+FROM gl
+WHERE account='a2020-medi'
+AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY someid
+
+UPDATE tcardwk SET status ='approved' 
+WHERE status = 'paid'
+
+SELECT SUM(credit) as credit, SUM(debit) as debit
+FROM gl
+WHERE account='a5010-COGS'

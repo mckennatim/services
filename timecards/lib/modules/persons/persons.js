@@ -77,7 +77,7 @@ module.exports = function() {
     } else {
       cons.log(req.userTok);
       // var q = conn.query('SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.marital, p.rate, p.w4add, p.stadd, p.sthoh, p.stblind, p.w4exempt, p.`w4allow`, p.student, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',        
-      var q = conn.query('SELECT p.*, r.id, r.role, r.`active` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',  req.userTok.coid, function(error, results) {
+      var q = conn.query('SELECT p.*, r.emailid as email, r.id, r.role, r.`active` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY r.emailid,p.effective DESC',  req.userTok.coid, function(error, results) {
         cons.log(q.sql)
         cons.log(error)
         var arrres = results.map((res) => res)
@@ -143,19 +143,43 @@ module.exports = function() {
   })
   router.delete('/del', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
-      var mess = { message: 'in get /persons/list (not authorized)-' + req.userTok.message }
+      var mess = { message: 'in get /persons/del (not authorized)-' + req.userTok.message }
       cons.log(mess)
       res.jsonp(mess)
     } else {
       mess = { message: 'nothing happenning yet-' }
       cons.log(req.body)
-      var query1 = conn.query('DELETE FROM rolewho WHERE emailid=? AND coid=?; DELETE FROM persons WHERE emailid=? AND coid=? AND effective=?', [req.body.person.emailid, req.userTok.coid, req.body.person.emailid, req.userTok.coid, req.body.person.effective], function(error, results) {
-        cons.log(query1.sql)
+      var is1 = conn.query('SELECT emailid FROM persons WHERE emailid=? AND coid=?', [req.body.person.emailid, req.userTok.coid, req.body.person.effective], function(error, resis1) {
+        cons.log(is1.sql)
         cons.log(error)
-        cons.log(results)
-        res.jsonp(mess)
+        if(resis1.length<=1){
+          res.jsonp({emailid:req.body.person.emailid, appuser:req.userTok.emailid, resis1: resis1, message: 'last persons record, permanently delete?'})
+        }else{
+          var delq = conn.query('DELETE FROM persons WHERE emailid=? AND coid=? AND effective=?', [req.body.person.emailid, req.userTok.coid, req.body.person.effective], function(error, resdel) {
+            cons.log(delq.sql)
+            cons.log('resdel: ', resdel)
+            cons.log(error)
+            res.jsonp({resis1:resis1, message: 'person deleted for effective data'})
+          })
+        }
       })
     }
   })
+  router.delete('/obliterate', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /persons/obliterate(not authorized)-' + req.userTok.message }
+      cons.log(mess)
+      res.jsonp(mess)
+    } else {
+      mess = { message: 'nothing happenning yet-' }
+      cons.log(req.body)
+      var query1 = conn.query('DELETE FROM rolewho WHERE emailid=? AND coid=?; DELETE FROM persons WHERE emailid=? AND coid=?', [req.body.person.emailid, req.userTok.coid, req.body.person.emailid, req.userTok.coid], function(error, results) {
+        cons.log(query1.sql)
+        cons.log(error)
+        cons.log(results)
+        res.jsonp({message: req.body.person.emailid + ' is obliterated'})
+      })
+    }
+  })    
   return router
 }
