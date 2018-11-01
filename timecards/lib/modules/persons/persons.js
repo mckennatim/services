@@ -35,11 +35,14 @@ module.exports = function() {
       mess = { message: 'nothing happenning yet-' }
       const p = req.body.person
       const roho ={emailid:p.emailid, role:p.role, coid:req.userTok.coid, active:p.active}
+
+      
       // const per ={emailid:p.emailid, coid:req.userTok.coid, firstmid:p.firstmid, lastname:p.lastname, street:p.street, city:p.city, st:p.st, zip:p.zip,rate:p.rate, ssn:p.ssn, w4allow:p.w4allow, w4add:p.w4add, stallow:p.stallow, stadd:p.stadd, sthoh: p.sthoh, stblind:p.stblind, effective:p.effective, marital:p.marital, w4exempt:p.w4exempt, student: p.student }
       const per = {...p, coid:req.userTok.coid}
       delete per.role
       delete per.active
       delete per.id
+      delete per.email
       const iroho = conn.query('INSERT INTO rolewho SET ? ON DUPLICATE KEY UPDATE ?', [roho,roho], function(err0) {
         cons.log('iroho.sql: ', iroho.sql)
         cons.log('err0: ', err0)
@@ -51,24 +54,24 @@ module.exports = function() {
       })
     }
   });
-  router.put('/ck', addAppId, bearerTokenCoid, function(req,res){
-    if (!req.userTok.auth) {
-      var mess = { message: 'in get /persons/update (not authorized)-' + req.userTok.message }
-      res.jsonp(mess)
-    } else {
-      if(req.body.job.week>0){
-        const ckq = conn.query('DELETE FROM jobcatact WHERE id = ?', req.body.job.id, function(){
-          cons.log('ckq.sql: ', ckq.sql)
-          res.jsonp({message: 'done,I hope'})
-        })
-      }else{
-        const ckq = conn.query('UPDATE jobcatact SET active = ? WHERE id = ?',[req.body.job.active, req.body.job.id], function(){
-          cons.log('ckq.sql: ', ckq.sql)
-          res.jsonp({message: 'done,I hope'})
-        })
-      }
-    }
-  })
+  // router.put('/ck', addAppId, bearerTokenCoid, function(req,res){
+  //   if (!req.userTok.auth) {
+  //     var mess = { message: 'in get /persons/update (not authorized)-' + req.userTok.message }
+  //     res.jsonp(mess)
+  //   } else {
+  //     if(req.body.job.week>0){
+  //       const ckq = conn.query('DELETE FROM jobcatact WHERE id = ?', req.body.job.id, function(){
+  //         cons.log('ckq.sql: ', ckq.sql)
+  //         res.jsonp({message: 'done,I hope'})
+  //       })
+  //     }else{
+  //       const ckq = conn.query('UPDATE jobcatact SET active = ? WHERE id = ?',[req.body.job.active, req.body.job.id], function(){
+  //         cons.log('ckq.sql: ', ckq.sql)
+  //         res.jsonp({message: 'done,I hope'})
+  //       })
+  //     }
+  //   }
+  // })
   router.get('/list/', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /persons/list/ (not authorized)-' + req.userTok.message }

@@ -69,18 +69,22 @@ module.exports = function() {
       cons.log(mess)
       res.jsonp(mess)
     } else {
-      //res.jsonp({ message: 'in get /reg/ctoken/:coid/:role ' })
-      cons.log(req.userTok);
-      const exp = Math.floor(Date.now()) + addDays(40)
-      var payload = {
-        coid: req.params.coid,
-        role: req.params.role,
-        appid: req.userTok.appid,
-        emailid: req.userTok.emailid,
-        exp: exp
-      };
-      var token = jwt.encode(payload, secret);
-      res.jsonp({ token: token, binfo: req.userTok, coid:req.params.coid,role: req.params.role})
+      var getco = conn.query('SELECT r.firstday FROM `timecards`.`cosr` r JOIN `timecards`.`co` c ON c.coid=r.coid AND r.effective <= CURDATE() AND r.coid = ? ORDER BY r.effective DESC LIMIT 1 ', req.params.coid, function(error, results) {
+        cons.log(getco.sql)
+        cons.log(error)
+        cons.log(results[0])
+        //cons.log(req.userTok);
+        const exp = Math.floor(Date.now()) + addDays(40)
+        var payload = {
+          coid: req.params.coid,
+          role: req.params.role,
+          appid: req.userTok.appid,
+          emailid: req.userTok.emailid,
+          exp: exp
+        };
+        var token = jwt.encode(payload, secret);
+        res.jsonp({ token: token, firstday:results[0].firstday, binfo: req.userTok, coid:req.params.coid,role: req.params.role})
+      })      
     }
   })
   router.post('/ckcoid', bearerTokenApp, function(req,res){
@@ -98,7 +102,7 @@ module.exports = function() {
           }else{
             const goodtil = moment().add(30, 'days').format('YYYY-MM-DD')
             const effective = moment().format('YYYY-MM-DD')
-            var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective) VALUES(?,?,?); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.userTok.emailid, req.body.co.coid, req.userTok.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
+            var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective, wtype) VALUES(?,?,?,'partner'); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.userTok.emailid, req.body.co.coid, req.userTok.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
               cons.log(query2.sql)
               cons.log(error2)
               cons.log(result)

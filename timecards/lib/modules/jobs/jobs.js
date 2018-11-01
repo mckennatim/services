@@ -6,7 +6,7 @@ var bearerTokenCoid = require('../regtokau/strategy').bearerTokenCoid
 
 var router = express.Router();
 function addAppId(req,res,next){
-    req.appid = 'pay'
+    req.appid = 'jobs'
     next()
   }
 module.exports = function() {
@@ -15,7 +15,7 @@ module.exports = function() {
     });
     router.get('/settings', addAppId, bearerTokenCoid, function(req, res){
       if (!req.userTok.auth) {
-          var mess = { message: 'in get /payroll/settings (not authorized)-' + req.userTok.message }
+          var mess = { message: 'in get /jobs/settings (not authorized)-' + req.userTok.message }
           cons.log(mess)
           res.jsonp(mess)
       } else {

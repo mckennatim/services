@@ -1615,10 +1615,10 @@ CREATE TABLE `gl` (
 
 ALTER TABLE `cosr` ADD `otrate` DECIMAL(3,2) NOT NULL DEFAULT '1.5' AFTER `firstday`, ADD `sarate` DECIMAL(3,2) NOT NULL DEFAULT '1' AFTER `otrate`, ADD `surate` DECIMAL(3,2) NOT NULL DEFAULT '1' AFTER `sarate`;
 
-DELETE FROM co WHERE coid='brother';
-DELETE FROM cosr WHERE coid='brother';
-DELETE FROM persons WHERE coid='brother';
-DELETE FROM rolewho WHERE coid='brother';
+DELETE FROM co WHERE coid='tim4co';
+DELETE FROM cosr WHERE coid='tim4co';
+DELETE FROM persons WHERE coid='tim4co';
+DELETE FROM rolewho WHERE coid='tim4co';
 
 
 SELECT c.*, r.* FROM `timecards`.`cosr` r
@@ -1647,6 +1647,7 @@ UPDATE
     `selected` = '[1,1,0,1,1,0,0,0,0,1,0]'
 
 SELECT `job`, `category` FROM jobcatact WHERE week=42 AND coid='reroo' ORDER BY idx, category
+
 
 
 SELECT someid, SUM(debit) as gross
