@@ -1707,7 +1707,7 @@ AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
 AND coid = 'reroo'
 GROUP BY someid
 
-SELECT someid, SUM(credit) as ss
+SELECT someid, SUM(credit) as medi
 FROM gl
 WHERE account='a2020-medi'
 AND wdprt like(CONCAT(YEAR(CURDATE()),'%'))
@@ -1720,3 +1720,23 @@ WHERE status = 'paid'
 SELECT SUM(credit) as credit, SUM(debit) as debit
 FROM gl
 WHERE account='a5010-COGS'
+
+SELECT SUM(debit) as debit, SUM(credit) as credit
+FROM gl;
+
+TRUNCATE TABLE gl; UPDATE tcardwk SET status ='approved' 
+WHERE status = 'paid';
+
+SELECT * FROM `tcardwk` order by emailid desc, wprt desc
+
+SELECT account, someid, SUM(credit)
+FROM gl
+WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY account, someid 
+
+SELECT  someid, account, SUM(credit), SUM(debit)
+FROM gl
+WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY someid,account 

@@ -70,8 +70,13 @@ module.exports = function() {
           cons.log(query.sql)
           cons.log(error)
           cons.log(results)
-          cons.log(mess)
-          res.jsonp(mess)
+          const qtrba = conn.query('SELECT SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid =?',req.userTok.coid, function(errtrba, restrba){
+            cons.log(qtrba.sql)
+            cons.log(errtrba)
+            cons.log(restrba)
+            cons.log(mess)
+            res.jsonp({error:errtrba, tribal: restrba })
+          })
       })
     }
   })
@@ -125,6 +130,19 @@ module.exports = function() {
 
       }
   })
+  router.get('/accrued', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+        var mess = { message: 'in get /payroll/accrued (not authorized)-' + req.userTok.message }
+        cons.log(mess)
+        res.jsonp(mess)
+    } else {
+        var query = conn.query("SELECT someid, account, SUM(credit), SUM(debit) FROM gl WHERE wdprt like(CONCAT(YEAR(CURDATE()),'%')) AND coid = ? GROUP BY someid,account", req.userTok.coid, function(error, accrued) {
+            cons.log(query.sql)
+            cons.log(error)
+            res.jsonp(accrued)
+        })
+    }
+})  
   router.get('/rates', addAppId,  bearerTokenCoid, function(req, res) {
       if (!req.userTok.auth) {
           var mess = { message: 'in get /payroll/rates (not authorized)-' + req.userTok.message }
