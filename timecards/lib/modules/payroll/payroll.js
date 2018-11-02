@@ -136,7 +136,7 @@ module.exports = function() {
         cons.log(mess)
         res.jsonp(mess)
     } else {
-        var query = conn.query("SELECT someid, account, SUM(credit), SUM(debit) FROM gl WHERE wdprt like(CONCAT(YEAR(CURDATE()),'%')) AND coid = ? GROUP BY someid,account", req.userTok.coid, function(error, accrued) {
+        var query = conn.query("SELECT someid, account, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE wdprt like(CONCAT(YEAR(CURDATE()),'%')) AND coid = ? GROUP BY someid,account", req.userTok.coid, function(error, accrued) {
             cons.log(query.sql)
             cons.log(error)
             res.jsonp(accrued)
