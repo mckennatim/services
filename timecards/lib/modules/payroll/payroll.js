@@ -37,7 +37,7 @@ module.exports = function() {
             cons.log('results: ', sesults[0])
             sesults[0].map((s)=>{
               const cst = hrcost*s.hrs
-              const updjc =conn.query("INSERT INTO gl (coid, account, wdprt, job,cat,date,someid,somenum,debit) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?);  UPDATE tcardjc SET hrcost=?, cost=? WHERE id = ?",[s.coid, 'a5010-COGS', s.wdprt, s.job, s.cat, j.paydate, s.emailid, s.hrs, cst, hrcost, cst, s.id], function(error, results){
+              const updjc =conn.query("INSERT INTO gl (coid, account, wdprt, job,cat,date,someid,somenum,debit) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?);  UPDATE tcardjc SET hrcost=?, cost=? WHERE id = ?; UPDATE gl SET account='a6000-labor' WHERE job = 'labor expense';",[s.coid, 'a5010-COGS', s.wdprt, s.job, s.cat, j.paydate, s.emailid, s.hrs, cst, hrcost, cst, s.id], function(error, results){
                 cons.log(updjc.sql)
                 cons.log(error)
                 cons.log('results: ', results)
@@ -182,7 +182,7 @@ module.exports = function() {
           res.jsonp(mess)
       } else {
           const coid = req.userTok.coid
-          var query = conn.query("DROP TABLE IF EXISTS `timecards`.`cureff` ; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective <= CURDATE() AND p.coid =? GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective` ; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective AND p.coid =?; SELECT t.*, c.* FROM `timecards`.`tcardwk` t JOIN `timecards`.`cureffective` c ON c.emailid = t.emailid WHERE t.status='approved' AND t.coid= ?;",[coid,coid,coid] , function(error, results) {
+          var query = conn.query("DROP TABLE IF EXISTS `timecards`.`cureff` ; CREATE TABLE `timecards`.`cureff` SELECT p.emailid , MAX(p.effective) AS curedate FROM `timecards`.`persons` p WHERE effective <= CURDATE() AND p.coid =? GROUP BY p.emailid; DROP TABLE IF EXISTS `timecards`.`cureffective` ; CREATE TABLE `timecards`.`cureffective` SELECT p.* FROM `timecards`.`cureff` c JOIN `timecards`.`persons` p ON c.emailid=p.emailid AND c.curedate=p.effective AND p.coid =?; SELECT t.*, c.* FROM `timecards`.`tcardwk` t JOIN `timecards`.`cureffective` c ON c.emailid = t.emailid WHERE t.status='approved' AND t.coid= ? ORDER BY t.wprt, t.emailid;",[coid,coid,coid] , function(error, results) {
               cons.log(query.sql)
               cons.log(error)
               var arrres = results.slice(-1)[0]

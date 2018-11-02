@@ -1586,8 +1586,28 @@ VALUES
 ('a2200-grossAP', 'Gross Pay Payable'),
 ('a4010-revenue', 'Job Revenue'),
 ('a5010-COGS', 'Cost of Goods Sold debit'),
+('a6000-labor', 'General Labor Expense'),
 ('a6010-gross', 'Gross Payroll Expense'),
-('a6020-burden', 'Payroll Burden Expense');
+('a6011-reg', 'Regular Pay Expense'),
+('a6012-ot', 'Overtime Pay Expense'),
+('a6020-burden', 'Payroll Burden Expense'),
+('a6021-FICA', 'Employer FICA Expense'),
+('a6022-insurance', 'Worker Insurance Expense'),
+('a6023-401k', 'Worker 401K Expense'),
+('a6024-health', 'Worker Health Expense'),
+('a6025-PTO', 'Paid Time Off Expense'),
+('a6030-wages', 'Wage Expense'),
+('a6031-1099', '1099 Wage Expense'),
+('a6032-net', 'Net Pay Wage Expense'),
+('a6033-fed', 'Federal Tax Wage Expense'),
+('a6034-state', 'State Tax Wage Expense'),
+('a6035-local', 'Local Tax Wage Expense'),
+('a6036-SS', 'Social Security Wage Expense'),
+('a6037-medi', 'Medicare Wage Expense'),
+('a6038-meda', 'Medicare Additional Wage Expense'),
+
+
+;
 
 use timecards;
 DROP TABLE IF EXISTS `gl`;
@@ -1735,8 +1755,24 @@ WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
 AND coid = 'reroo'
 GROUP BY account, someid 
 
-SELECT  someid, account, SUM(credit), SUM(debit)
+SELECT  someid, account, SUM(debit) as debit, SUM(credit) as credit
 FROM gl
 WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
 AND coid = 'reroo'
 GROUP BY someid,account 
+
+SELECT  someid, wdprt, `date`, account, SUM(debit) as debit, SUM(credit) as credit
+FROM gl 
+WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY someid, wdprt, `date`, account 
+
+UPDATE gl SET account='a6000-labor' WHERE job = 'labor expense'
+
+SELECT  g.account, d.description, SUM(g.debit) as debit, SUM(g.credit) as credit
+FROM gl g
+JOIN glaccounts d
+ON g.account=d.account
+WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY g.account, d.description 
