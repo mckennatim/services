@@ -24,24 +24,20 @@ module.exports = function() {
     } else {
       cons.log('req.userTok: ', req.userTok)
       const {jcrates} = req.body
-      console.log('req.body.jcrates: ', req.body.jcrates)
-      console.log('ratearr: ', req.body.jcrates[0].ratearr)
-      jcrates.map((j)=>{
-        j.ratearr.map((hrcost,i)=>{
-          const wdprt = j.wprt+'-'+(i+1)
-          console.log('wdprt: ', wdprt)
-          console.log('hrcost: ', hrcost)
-          const seljc = conn.query('SELECT * FROM tcardjc WHERE emailid= ? AND wdprt = ? AND coid = ? ; UPDATE tcardwk SET status=? WHERE coid=? AND wprt=? AND emailid=?',[j.emailid, wdprt, req.userTok.coid, 'paid', req.userTok.coid, j.wprt, j.emailid], function(error1, sesults){
-            cons.log(seljc.sql)
-            cons.log(error1)
-            cons.log('results: ', sesults[0])
-            sesults[0].map((s)=>{
-              const cst = hrcost*s.hrs
-              const updjc =conn.query("INSERT INTO gl (coid, account, wdprt, job,cat,date,someid,somenum,debit) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?);  UPDATE tcardjc SET hrcost=?, cost=? WHERE id = ?; UPDATE gl SET account='a6000-labor' WHERE job = 'labor expense';",[s.coid, 'a5010-COGS', s.wdprt, s.job, s.cat, j.paydate, s.emailid, s.hrs, cst, hrcost, cst, s.id], function(error, results){
-                cons.log(updjc.sql)
-                cons.log(error)
-                cons.log('results: ', results)
-              })
+      jcrates.ratearr.map((hrcost,i)=>{
+        const wdprt = jcrates.wprt+'-'+(i+1)
+        console.log('wdprt: ', wdprt)
+        console.log('hrcost: ', hrcost)
+        const seljc = conn.query('SELECT * FROM tcardjc WHERE emailid= ? AND wdprt = ? AND coid = ? ; UPDATE tcardwk SET status=? WHERE coid=? AND wprt=? AND emailid=?',[jcrates.emailid, wdprt, req.userTok.coid, 'paid', req.userTok.coid, jcrates.wprt, jcrates.emailid], function(error1, sesults){
+          cons.log(seljc.sql)
+          cons.log(error1)
+          cons.log('results: ', sesults[0])
+          sesults[0].map((s)=>{
+            const cst = hrcost*s.hrs
+            const updjc =conn.query("INSERT INTO gl (coid, account, wdprt, job,cat,date,someid,somenum,debit) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?);  UPDATE tcardjc SET hrcost=?, cost=? WHERE id = ?; UPDATE gl SET account='a6000-labor' WHERE job = 'labor expense';",[s.coid, 'a5010-COGS', s.wdprt, s.job, s.cat, jcrates.paydate, s.emailid, s.hrs, cst, hrcost, cst, s.id], function(error, results){
+              cons.log(updjc.sql)
+              cons.log(error)
+              cons.log('results: ', results)
             })
           })
         })
@@ -56,7 +52,7 @@ module.exports = function() {
       res.jsonp(mess)
     } else {
       cons.log('req.userTok: ', req.userTok)
-      const {journal} = req.body
+      const {journal, paydate, emailid} = req.body
       cons.log(journal)
       const keys = Object.keys(req.body.journal[0]).join()+',coid'
       const vals = [req.body.journal.map((j) => {
@@ -64,18 +60,21 @@ module.exports = function() {
         anarr.push(req.userTok.coid)
         return anarr
       })]
-      console.log(keys);
-      console.log(vals);
+      // const emailid = vals[0][2]
+      // const pdate = vals[0][5]
+      // cons.log('keys: ', keys)
       var query = conn.query('INSERT INTO gl (' + keys + ') VALUES ? ', vals, function(error, results) {
           cons.log(query.sql)
           cons.log(error)
           cons.log(results)
-          const qtrba = conn.query('SELECT SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid =?',req.userTok.coid, function(errtrba, restrba){
+          // const qtrba = conn.query('SELECT SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid =?',req.userTok.coid, function(errtrba, restrba){
+          const qtrba = conn.query("SELECT someid, `date`, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE `date`=? AND  someid=? AND coid = ? GROUP BY someid, `date` ",[paydate, emailid, req.userTok.coid], function(errtrba, restrba){
             cons.log(qtrba.sql)
             cons.log(errtrba)
             cons.log(restrba)
             cons.log(mess)
-            res.jsonp({error:errtrba, tribal: restrba })
+            //res.jsonp({errtrba:errtrba, tribal: restrba, error:error, keys:keys, emailid:emailid, paydate:paydate})
+            res.jsonp({errtrba:errtrba, tribal: restrba, error:error, paydate:paydate, emailid:emailid})
           })
       })
     }
@@ -136,7 +135,7 @@ module.exports = function() {
         cons.log(mess)
         res.jsonp(mess)
     } else {
-        var query = conn.query("SELECT someid, account, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE wdprt like(CONCAT(YEAR(CURDATE()),'%')) AND coid = ? GROUP BY someid,account", req.userTok.coid, function(error, accrued) {
+        var query = conn.query("SELECT someid, account, SUM(somenum) as hrs, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE wdprt like(CONCAT(YEAR(CURDATE()),'%')) AND coid = ? GROUP BY someid,account", req.userTok.coid, function(error, accrued) {
             cons.log(query.sql)
             cons.log(error)
             res.jsonp(accrued)

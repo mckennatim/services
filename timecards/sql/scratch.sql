@@ -1577,7 +1577,7 @@ VALUES
 ('a2070-locWh', 'Local Income Tax Witheld'),
 ('a2080-FUTA', 'Federal Unemployment Tax'),
 ('a2090-SUTA', 'State Unemployment Tax'),
-('a2100-WC', 'Accrued Workmens Comp'),
+('a2100-comp', 'Accrued Workmens Comp'),
 ('a2100-401K', 'Accrued 401K'),
 ('a2120-health', 'Accrued Health Insurance'),
 ('a2130-holiday', 'Accrued Holiday Benefit'),
@@ -1593,8 +1593,8 @@ VALUES
 ('a6020-burden', 'Payroll Burden Expense'),
 ('a6021-FICA', 'Employer FICA Expense'),
 ('a6022-insurance', 'Worker Insurance Expense'),
-('a6023-401k', 'Worker 401K Expense'),
-('a6024-health', 'Worker Health Expense'),
+('a6023-401k', 'Company Paid 401K Expense'),
+('a6024-health', 'Company Paid Health Expense'),
 ('a6025-PTO', 'Paid Time Off Expense'),
 ('a6030-wages', 'Wage Expense'),
 ('a6031-1099', '1099 Wage Expense'),
@@ -1605,9 +1605,7 @@ VALUES
 ('a6036-SS', 'Social Security Wage Expense'),
 ('a6037-medi', 'Medicare Wage Expense'),
 ('a6038-meda', 'Medicare Additional Wage Expense'),
-
-
-;
+('a6039-dedu', 'Deductions-Health and 401k');
 
 use timecards;
 DROP TABLE IF EXISTS `gl`;
@@ -1771,8 +1769,14 @@ UPDATE gl SET account='a6000-labor' WHERE job = 'labor expense'
 
 SELECT  g.account, d.description, SUM(g.debit) as debit, SUM(g.credit) as credit
 FROM gl g
-JOIN glaccounts d
+LEFT JOIN glaccounts d
 ON g.account=d.account
 WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
 AND coid = 'reroo'
 GROUP BY g.account, d.description 
+
+SELECT  someid, `date` SUM(debit) as debit, SUM(credit) as credit
+FROM gl 
+WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+GROUP BY someid, `date`
