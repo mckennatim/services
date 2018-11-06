@@ -1753,7 +1753,7 @@ WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
 AND coid = 'reroo'
 GROUP BY account, someid 
 
-SELECT  someid, account, SUM(debit) as debit, SUM(credit) as credit
+SELECT  someid, account, SUM(somenum) as hrs, SUM(debit) as debit, SUM(credit) as credit
 FROM gl
 WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
 AND coid = 'reroo'
