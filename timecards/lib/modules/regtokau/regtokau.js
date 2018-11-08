@@ -102,7 +102,7 @@ module.exports = function() {
           }else{
             const goodtil = moment().add(30, 'days').format('YYYY-MM-DD')
             const effective = moment().format('YYYY-MM-DD')
-            var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective, wtype) VALUES(?,?,?,'partner'); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); ", [goodtil, req.body.co.coid, req.userTok.emailid, req.body.co.coid, req.userTok.emailid, req.body.co.coid, effective, req.body.co.coid, effective], function(error2, result) {
+            var query2 = conn.query("INSERT INTO `timecards`.`co` (goodtil, coid) VALUES(?,?); INSERT INTO `timecards`.`rolewho` (role, emailid, coid,active) VALUES('partner',?,?,1); INSERT INTO `timecards`.`persons` (emailid, coid, effective, wtype) VALUES(?,?,?,'partner'); INSERT INTO `timecards`.`cosr` (coid, effective) VALUES(?,?); INSERT INTO jobcatact (job, category, active, idx, coid) VALUES ('labor expense', 'general', 0, 0, ?), ('labor expense', 'admin', 0, 0, ?) ", [goodtil, req.body.co.coid, req.userTok.emailid, req.body.co.coid, req.userTok.emailid, req.body.co.coid, effective, req.body.co.coid, effective, req.body.co.coid, req.body.co.coid], function(error2, result) {
               cons.log(query2.sql)
               cons.log(error2)
               cons.log(result)

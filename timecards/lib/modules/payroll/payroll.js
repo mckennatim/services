@@ -141,7 +141,9 @@ module.exports = function() {
             res.jsonp(accrued)
         })
     }
-})  
+  })  
+
+
   router.get('/rates', addAppId,  bearerTokenCoid, function(req, res) {
       if (!req.userTok.auth) {
           var mess = { message: 'in get /payroll/rates (not authorized)-' + req.userTok.message }

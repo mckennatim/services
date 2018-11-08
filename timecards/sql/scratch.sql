@@ -1571,7 +1571,6 @@ VALUES
 ('a2010-SS', 'Accrued Social Security'),
 ('a2020-medi', 'Accrued Medicare'),
 ('a2030-meda', 'Additional Medicare'),
-('a2040-fedWh', 'Federal Income Tax Witheld'),
 ('a2050-fedWh', 'Federal Income Tax Witheld'),
 ('a2060-stWh', 'State Income Tax Witheld'),
 ('a2070-locWh', 'Local Income Tax Witheld'),
@@ -1583,6 +1582,7 @@ VALUES
 ('a2130-holiday', 'Accrued Holiday Benefit'),
 ('a2140-vacation', 'Accrued Vacation Benefit'),
 ('a2150-personal', 'Accrued Personal Benefit'),
+('a2160-PTO', 'Accrued PTO Benefit'),
 ('a2200-grossAP', 'Gross Pay Payable'),
 ('a4010-revenue', 'Job Revenue'),
 ('a5010-COGS', 'Cost of Goods Sold debit'),
@@ -1598,6 +1598,7 @@ VALUES
 ('a6025-PTO', 'Paid Time Off Expense'),
 ('a6030-wages', 'Wage Expense'),
 ('a6031-1099', '1099 Wage Expense'),
+('a6031-dedu', 'Deductions'),
 ('a6032-net', 'Net Pay Wage Expense'),
 ('a6033-fed', 'Federal Tax Wage Expense'),
 ('a6034-state', 'State Tax Wage Expense'),
@@ -1605,7 +1606,20 @@ VALUES
 ('a6036-SS', 'Social Security Wage Expense'),
 ('a6037-medi', 'Medicare Wage Expense'),
 ('a6038-meda', 'Medicare Additional Wage Expense'),
-('a6039-dedu', 'Deductions-Health and 401k');
+('a6039-dedu', 'Deductible Expense'),
+('a6040-fedWages', 'Federal Wages'),
+('a6041-fedTaxable', 'Federal Taxable'),
+('a6042-fedDed', 'Federal Deductions'),
+('a6050-stateWages', 'State Wages'),
+('a6051-stateTaxable', 'Stae Taxable'),
+('a6052-stateDed', 'State Deductions'),
+('a6060-FICAwages', 'FICA wages'),
+('a6061-FICAtaxable', 'FICA Taxable'),
+('a6062-FICAded', 'FICA Deductible'),
+('a6070-addFICA', 'Additional FICA'),
+('a6080-localWages', 'Local Wages'),
+('a6081-localTaxablle', 'Local Taxable'),
+('a6082-localDed', 'Local Deductions');
 
 use timecards;
 DROP TABLE IF EXISTS `gl`;
@@ -1775,8 +1789,120 @@ WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
 AND coid = 'reroo'
 GROUP BY g.account, d.description 
 
-SELECT  someid, `date` SUM(debit) as debit, SUM(credit) as credit
+SELECT  someid, `date`, SUM(debit) as debit, SUM(credit) as credit
 FROM gl 
 WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
 AND coid = 'reroo'
 GROUP BY someid, `date`
+
+INSERT INTO jobcatact (job, category, active, idx, coid) 
+VALUES 
+('labor expense', 'general', 0, 0, 'monkeyshines'),
+('labor expense', 'admin', 0, 0, 'monkeyshines')
+
+DELETE FROM co WHERE coid='mokeyshines';
+DELETE FROM cosr WHERE coid='mokeyshines';
+DELETE FROM persons WHERE coid='mokeyshines';
+DELETE FROM rolewho WHERE coid='mokeyshines';
+DELETE FROM jobcatact WHERE coid='mokeyshines';
+
+SELECT  MONTH(`date`) as mont, g.account, d.description, SUM(g.debit) as debit, SUM(g.credit) as credit
+FROM gl g
+LEFT JOIN glaccounts d
+ON g.account=d.account
+WHERE  wdprt like(CONCAT(YEAR(CURDATE()),'%'))
+AND coid = 'reroo'
+AND g.account='a2010-SS'
+GROUP BY g.account, d.description, MONTH(`date`) 
+
+SELECT  YEAR(`date`) as year, MONTHNAME(`date`) as month,  SUM(debit) as paid, SUM(credit) as accrued
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a2020-meda' ||
+  account='a2050-fedWh' 
+)
+GROUP BY YEAR(`date`), MONTH(`date`), MONTHNAME(`date`) 
+
+SELECT  YEAR(`date`) as year,  SUM(debit) as paid, SUM(credit) as accrued
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a2020-meda' ||
+  account='a2050-fedWh' 
+)
+GROUP BY YEAR(`date`)
+
+SELECT  YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a2020-meda' ||
+  account='a2050-fedWh' 
+)
+GROUP BY YEAR(`date`), QUARTER(`date`)
+
+SELECT  YEAR(`date`) as year,  QUARTER(`date`) as qtr, account, SUM(debit) as paid, SUM(credit) as accrued
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a2020-meda' ||
+  account='a2050-fedWh' 
+)
+GROUP BY YEAR(`date`), QUARTER(`date`), account
+
+SELECT  YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued, ROUND(SUM(credit)/.124, 2) as taxable
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a2020-meda' 
+)
+GROUP BY YEAR(`date`), QUARTER(`date`)
+
+SELECT  YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND account='a6010-gross'
+GROUP BY YEAR(`date`), QUARTER(`date`)
+
+SELECT 'a6010-gross', YEAR(`date`) as year,  QUARTER(`date`) as qtr, someid, wdprt,SUM(debit) as paid, SUM(credit) as accrued
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND account='a6010-gross'
+GROUP BY YEAR(`date`), QUARTER(`date`), someid, wdprt
+
+SELECT * FROM gl
+WHERE someid = 'mckenna.tim@gmail.com' 
+AND coid = 'reroo'
+AND wdprt = '2018-W11'
+ORDER BY account
+
+
+--to find which payroll record causes imbalance
+SELECT coid, someid, SUBSTRING(wdprt, 1,8) as wprt, SUM(debit) as debit, SUM(credit) as credit from gl
+GROUP BY coid, someid, SUBSTRING(wdprt, 1,8)
+
+SELECT coid, someid, SUBSTRING(wdprt, 1,8) as wprt, account, SUM(debit) as debit, SUM(credit) as credit from gl
+GROUP BY coid, someid, SUBSTRING(wdprt, 1,8), account
+
+SELECT coid, someid, SUBSTRING(wdprt, 1,8) as wprt, account, SUM(debit) as debit, SUM(credit) as credit from gl
+WHERE someid = 'tim2@sitebuilt.net'
+AND SUBSTRING(wdprt, 1,8) = '2018-W11'
+GROUP BY coid, someid, SUBSTRING(wdprt, 1,8), account
