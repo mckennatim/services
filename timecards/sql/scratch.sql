@@ -1554,6 +1554,26 @@ SELECT * FROM tcardjc WHERE emailid = 'mckenna.tim@gmail.com' AND coid ='sbs' AN
 
 SELECT * FROM tcardwk WHERE emailid = 'mckenna.tim@gmail.com' AND coid ='sbs' AND wprt = '2018-W40'
 
+CREATE TABLE `months` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mo` varchar(20),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+INSERT INTO `months` (`mo`)
+VALUES 
+('January'),
+('February'),
+('March'),
+('April'),
+('May'),
+('June'),
+('July'),
+('August'),
+('September'),
+('October'),
+('November'),
+('December')
+
 use timecards;
 DROP TABLE IF EXISTS `glaccounts`;
 CREATE TABLE `glaccounts` (
@@ -1753,9 +1773,11 @@ SELECT SUM(credit) as credit, SUM(debit) as debit
 FROM gl
 WHERE account='a5010-COGS'
 
+--trialbalance of entire gl
 SELECT SUM(debit) as debit, SUM(credit) as credit
 FROM gl;
 
+--redo gl
 TRUNCATE TABLE gl; UPDATE tcardwk SET status ='approved' 
 WHERE status = 'paid';
 
@@ -1815,6 +1837,8 @@ AND coid = 'reroo'
 AND g.account='a2010-SS'
 GROUP BY g.account, d.description, MONTH(`date`) 
 
+
+--accrued/paid whithheld by month for year and coid
 SELECT  YEAR(`date`) as year, MONTHNAME(`date`) as month,  SUM(debit) as paid, SUM(credit) as accrued
 FROM gl 
 WHERE coid = 'reroo'
@@ -1827,6 +1851,7 @@ AND (
 )
 GROUP BY YEAR(`date`), MONTH(`date`), MONTHNAME(`date`) 
 
+--accrued/paid witholding by year for year and coid
 SELECT  YEAR(`date`) as year,  SUM(debit) as paid, SUM(credit) as accrued
 FROM gl 
 WHERE coid = 'reroo'
@@ -1839,6 +1864,7 @@ AND (
 )
 GROUP BY YEAR(`date`)
 
+--accrued/paid witholding by quarter for year and coid
 SELECT  YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued
 FROM gl 
 WHERE coid = 'reroo'
@@ -1851,6 +1877,7 @@ AND (
 )
 GROUP BY YEAR(`date`), QUARTER(`date`)
 
+--accrued/paid witholding by tax accrual account by quarter for year and coid
 SELECT  YEAR(`date`) as year,  QUARTER(`date`) as qtr, account, SUM(debit) as paid, SUM(credit) as accrued
 FROM gl 
 WHERE coid = 'reroo'
@@ -1863,6 +1890,7 @@ AND (
 )
 GROUP BY YEAR(`date`), QUARTER(`date`), account
 
+----accrued/paid witholding by quarter for year and coid NOT THAT USEFUL
 SELECT  YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued, ROUND(SUM(credit)/.124, 2) as taxable
 FROM gl 
 WHERE coid = 'reroo'
@@ -1896,13 +1924,216 @@ ORDER BY account
 
 
 --to find which payroll record causes imbalance
+
 SELECT coid, someid, SUBSTRING(wdprt, 1,8) as wprt, SUM(debit) as debit, SUM(credit) as credit from gl
 GROUP BY coid, someid, SUBSTRING(wdprt, 1,8)
 
 SELECT coid, someid, SUBSTRING(wdprt, 1,8) as wprt, account, SUM(debit) as debit, SUM(credit) as credit from gl
 GROUP BY coid, someid, SUBSTRING(wdprt, 1,8), account
 
+-- by someid
+--sum of accounts for ONE coid,someid,wprt
 SELECT coid, someid, SUBSTRING(wdprt, 1,8) as wprt, account, SUM(debit) as debit, SUM(credit) as credit from gl
-WHERE someid = 'tim2@sitebuilt.net'
+WHERE someid = 'mckenna.tim@gmail.com'
+AND coid = 'reroo'
+AND YEAR(`date`) = '2018'
 AND SUBSTRING(wdprt, 1,8) = '2018-W11'
 GROUP BY coid, someid, SUBSTRING(wdprt, 1,8), account
+
+--check that accrued SS is based upn the same wages as a6041-fedtaxable
+SELECT  someid, account, YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued, ROUND(SUM(credit)/.124, 2) as taxable
+FROM gl 
+WHERE someid = 'mckenna.tim@gmail.com'
+AND coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND SUBSTRING(wdprt, 1,8) = '2018-W11'
+AND (
+  account='a2010-SS' ||
+  account='a6061-FICAtaxable'
+  ) 
+GROUP BY coid, someid, account, YEAR(`date`), QUARTER(`date`)
+
+--check that accrued medicare is based upn the same wages as a6041-fedtaxable
+SELECT  someid, account, YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued, 
+FROM gl 
+WHERE someid = 'mckenna.tim@gmail.com'
+AND coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND SUBSTRING(wdprt, 1,8) = '2018-W11'
+AND (
+  account='a6041-fedTaxable' ||
+  account='a6051-stateTaxable' ||
+  account='a6061-FICAtaxable'
+  ) 
+GROUP BY coid, someid, account, YEAR(`date`), QUARTER(`date`)
+
+--first try on count employees per qtr
+DROP TABLE IF EXISTS `timecards`.`tempqtr` ;
+CREATE TABLE `timecards`.`tempqtr`
+SELECT  someid, YEAR(`date`) as year,  QUARTER(`date`) as qtr
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+GROUP BY coid, YEAR(`date`), QUARTER(`date`), someid;
+SELECT COUNT(someid), year, qtr
+FROM tempqtr
+GROUP BY year,qtr
+
+--smarter count employees by quarter (subquery)
+SELECT year, qtr, COUNT(someid)
+FROM (
+SELECT DISTINCT YEAR(`date`) as year,  QUARTER(`date`) as qtr, someid
+FROM gl
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+GROUP BY YEAR(`date`), QUARTER(`date`), someid
+) b
+GROUP BY year, qtr
+
+--FORM 941 {sumempl}results[1]
+--*** mobetter count employees by quarter LINE 1 941, MA M-941 numempl & period
+SELECT COUNT(DISTINCT(someid)) as numempl, YEAR(`date`) as year, QUARTER(`date`) as qtr
+FROM gl
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+GROUP BY YEAR(`date`), QUARTER(`date`)
+
+SELECT COUNT(DISTINCT(someid)) as numempl, YEAR(`date`) as year, QUARTER(`date`) as qtr FROM gl WHERE coid = 'reroo' AND YEAR(`date`) = '2018' GROUP BY YEAR(`date`), QUARTER(`date`)
+"SELECT COUNT(DISTINCT(someid)) as numempl, YEAR(`date`) as year, QUARTER(`date`) as qtr FROM gl WHERE coid = 'reroo' AND YEAR(`date`) = '2018' GROUP BY YEAR(`date`), QUARTER(`date`)"
+
+--accounts by month {acctsmo}reaults[0]
+SELECT  account, YEAR(`date`) as year,  QUARTER(`date`) as qtr, MONTH(`date`) as mo, SUM(debit) as debit, SUM(credit) as credit
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND (
+  account='a6041-fedTaxable' ||
+  account='a2050-fedWh' ||
+  account='a2060-stWh' ||
+  account='a6051-stateTaxable' ||
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a6061-FICAtaxable' ||
+  account='a6070-addFICA' ||
+  account='a2030-meda' 
+  ) 
+GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), coid, account
+
+SELECT account, YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = 'reroo' AND YEAR(`date`) = '2018' AND ( account='a6041-fedTaxable' || account='a2050-fedWh' || account='a2060-stWh' || account='a6051-stateTaxable' || account='a2010-SS' || account='a2020-medi' || account='a6061-FICAtaxable' || account='a6070-addFICA' || account='a2030-meda' ) GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), coid, account
+
+"SELECT account, YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = ? AND YEAR(`date`) = ? AND ( account='a6041-fedTaxable' || account='a2050-fedWh' || account='a2060-stWh' || account='a6051-stateTaxable' || account='a2010-SS' || account='a2020-medi' || account='a6061-FICAtaxable' || account='a6070-addFICA' || account='a2030-meda' ) GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), coid, account"
+
+--FED 941 and MA M-941 {acctqtr}results[2]
+SELECT  account, YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as debit, SUM(credit) as credit
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND (
+  account='a6041-fedTaxable' ||
+  account='a2050-fedWh' ||
+  account='a2060-stWh' ||
+  account='a6051-stateTaxable' ||
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a6061-FICAtaxable' ||
+  account='a6070-addFICA' ||
+  account='a2030-meda' 
+  ) 
+GROUP BY YEAR(`date`), QUARTER(`date`),coid, account
+
+  -- account='a6041-fedTaxable' ||  --LINE 2, LINE 5c COLUMN 1
+  -- account='a2050-fedWh' ||       --LINE 3 
+  -- account='a2060-stWh' ||        --MA M-941 LINE 1
+  -- account='a6051-stateTaxable' ||
+  -- account='a2010-SS' ||           --LINE 5a COLUMN 2
+  -- account='a2020-medi' ||         --LINE 5c COLUMN 2
+  -- account='a6061-FICAtaxable' ||  --LINE 5a COLUMN 1
+  -- account='a6070-addFICA' ||      --LINE 5d COLUMN 1
+  -- account='a2030-meda' ||         --LINE 5d COLUMN 2
+
+
+SELECT account, YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = 'reroo' AND YEAR(`date`) = '2018'AND ( account='a6041-fedTaxable' || account='a2050-fedWh' || account='a2060-stWh' || account='a6051-stateTaxable' || account='a2010-SS' || account='a2020-medi' || account='a6061-FICAtaxable' || account='a6070-addFICA' || account='a2030-meda' ) GROUP BY YEAR(`date`), QUARTER(`date`),coid, account 
+
+"SELECT account, YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = ? AND YEAR(`date`) = ?  AND ( account='a6041-fedTaxable' || account='a2050-fedWh' || account='a2060-stWh' || account='a6051-stateTaxable' || account='a2010-SS' || account='a2020-medi' || account='a6061-FICAtaxable' || account='a6070-addFICA' || account='a2030-meda' ) GROUP BY YEAR(`date`), QUARTER(`date`),coid, account"
+
+
+
+
+--941 Line 16  {fmobyqtr}results[3]
+--monthly accrued and paid by quarter
+SELECT  YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo,  MONTHNAME(`date`) as month,  SUM(debit) as paid, SUM(credit) as accrued
+FROM gl g
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a2020-meda' ||
+  account='a2050-fedWh' 
+)
+GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), MONTHNAME(`date`) 
+
+SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, MONTHNAME(`date`) as month, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = 'reroo' AND YEAR(`date`)= '2018' AND ( account='a2010-SS' || account='a2020-medi' || account='a2020-meda' || account='a2050-fedWh') GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), MONTHNAME(`date`)
+
+"SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, MONTHNAME(`date`) as month, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2010-SS' || account='a2020-medi' || account='a2020-meda' || account='a2050-fedWh') GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), MONTHNAME(`date`)"
+
+--{fqtrtot}results[4]
+--quarterly totals 941 LINE 12, LINE 16 Total Liability for quarter
+SELECT  YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued
+FROM gl g
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a2020-meda' ||
+  account='a2050-fedWh' 
+)
+GROUP BY YEAR(`date`), QUARTER(`date`)
+
+SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = 'reroo' AND YEAR(`date`)= '2018' AND ( account='a2010-SS' || account='a2020-medi' || account='a2020-meda' || account='a2050-fedWh' ) GROUP BY YEAR(`date`), QUARTER(`date`)
+
+"SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2010-SS' || account='a2020-medi' || account='a2020-meda' || account='a2050-fedWh' ) GROUP BY YEAR(`date`), QUARTER(`date`)"
+
+
+--quarterly FICAtotals 941 LINE 5e, 10 NOT in payrol/taxes/year
+SELECT  YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued
+FROM gl g
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a2020-meda' 
+)
+GROUP BY YEAR(`date`), QUARTER(`date`)
+
+--{smobyqtr} Result[5] -in payrol/taxes/year
+--state monthly accrued and paid by quarter 
+SELECT  YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo,  MONTHNAME(`date`) as month,  SUM(debit) as paid, SUM(credit) as accrued
+FROM gl g
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2060-stWh' 
+)
+GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), MONTHNAME(`date`)
+
+SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, MONTHNAME(`date`) as month, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = 'reroo' AND YEAR(`date`)= '2018' AND ( account='a2060-stWh' ) GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), MONTHNAME(`date`)
+
+"SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, MONTHNAME(`date`) as month, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2060-stWh' ) GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), MONTHNAME(`date`)"
+
+--{sqtrtot} Result[6] -in payrol/taxes/year
+--quarterly totals 
+SELECT  YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued
+FROM gl g
+WHERE coid = 'reroo'
+AND YEAR(`date`)= '2018'
+AND (
+  account='a2060-stWh' 
+)
+GROUP BY YEAR(`date`), QUARTER(`date`)
+
+SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = 'reroo' AND YEAR(`date`)= '2018' AND ( account='a2060-stWh' ) GROUP BY YEAR(`date`), QUARTER(`date`)
+
+"SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2060-stWh' ) GROUP BY YEAR(`date`), QUARTER(`date`)"

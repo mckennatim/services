@@ -48,7 +48,7 @@ module.exports = function() {
 
   router.post('/gl', addAppId, bearerTokenCoid, function(req,res){
     if (!req.userTok.auth) {
-      var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }
+      var mess = { message: 'in get /payroll/gl (not authorized)-' + req.userTok.message }
       res.jsonp(mess)
     } else {
       cons.log('req.userTok: ', req.userTok)
@@ -76,6 +76,28 @@ module.exports = function() {
             //res.jsonp({errtrba:errtrba, tribal: restrba, error:error, keys:keys, emailid:emailid, paydate:paydate})
             res.jsonp({errtrba:errtrba, tribal: restrba, error:error, paydate:paydate, emailid:emailid})
           })
+      })
+    }
+  })
+  router.post('/payment', addAppId, bearerTokenCoid, function(req,res){
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/payment (not authorized)-' + req.userTok.message }
+      res.jsonp(mess)
+    } else {
+      cons.log('req.userTok: ', req.userTok)
+      const {journal} = req.body
+      cons.log(journal)
+      const keys = Object.keys(req.body.journal[0]).join()+',coid'
+      const vals = [req.body.journal.map((j) => {
+        let anarr = Object.values(j)
+        anarr.push(req.userTok.coid)
+        return anarr
+      })]
+      var query = conn.query('INSERT INTO gl (' + keys + ') VALUES ? ', vals, function(error, results) {
+          cons.log(query.sql)
+          cons.log(error)
+          cons.log(results)
+          res.jsonp({results, error})
       })
     }
   })
@@ -192,6 +214,24 @@ module.exports = function() {
 
       }
   })
+
+  router.get('/taxes/:year', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+        var mess = { message: 'in get /payroll/taxes/:year (not authorized)-' + req.userTok.message }
+        cons.log(mess)
+        res.jsonp(mess)
+    } else {
+        const coid = req.userTok.coid
+        const year = req.params.year
+        var query = conn.query("SELECT account, YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = ? AND YEAR(`date`) = ? AND ( account='a6041-fedTaxable' || account='a2050-fedWh' || account='a2060-stWh' || account='a6051-stateTaxable' || account='a2010-SS' || account='a2020-medi' || account='a6061-FICAtaxable' || account='a6070-addFICA' || account='a2030-meda' ) GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), coid, account; SELECT COUNT(DISTINCT(someid)) as numempl, YEAR(`date`) as year, QUARTER(`date`) as qtr FROM gl WHERE coid = ? AND YEAR(`date`) = ? GROUP BY YEAR(`date`), QUARTER(`date`); SELECT account, YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = ? AND YEAR(`date`) = ?  AND ( account='a6041-fedTaxable' || account='a2050-fedWh' || account='a2060-stWh' || account='a6051-stateTaxable' || account='a2010-SS' || account='a2020-medi' || account='a6061-FICAtaxable' || account='a6070-addFICA' || account='a2030-meda' ) GROUP BY YEAR(`date`), QUARTER(`date`),coid, account; SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, MONTHNAME(`date`) as month, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2010-SS' || account='a2020-medi' || account='a2020-meda' || account='a2050-fedWh') GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), MONTHNAME(`date`); SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2010-SS' || account='a2020-medi' || account='a2020-meda' || account='a2050-fedWh' ) GROUP BY YEAR(`date`), QUARTER(`date`); SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, MONTH(`date`) as mo, MONTHNAME(`date`) as month, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2060-stWh' ) GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), MONTHNAME(`date`); SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2060-stWh' ) GROUP BY YEAR(`date`), QUARTER(`date`)",[coid,year,coid,year,coid,year,coid, year,coid, year,coid,year,coid,year] , function(error, results) {
+            cons.log(query.sql)
+            cons.log(error)
+            
+            res.jsonp({ results: results, binfo: req.userTok })
+        })
+
+    }
+})
   // router.get('/tcard/:wprt/:emailid', bearerTokenCoid, function(req, res) {
   //     if (!req.userTok.auth) {
   //         var mess = { message: 'in get /payroll/tcard (not authorized)-' + req.userTok.message }
