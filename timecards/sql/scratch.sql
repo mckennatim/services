@@ -2137,3 +2137,22 @@ GROUP BY YEAR(`date`), QUARTER(`date`)
 SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = 'reroo' AND YEAR(`date`)= '2018' AND ( account='a2060-stWh' ) GROUP BY YEAR(`date`), QUARTER(`date`)
 
 "SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(credit) as accrued FROM gl g WHERE coid = ? AND YEAR(`date`)= ? AND ( account='a2060-stWh' ) GROUP BY YEAR(`date`), QUARTER(`date`)"
+
+DELETE FROM gl WHERE cat='payment' ; SELECT * FROM `gl` ORDER BY id DESC limit 100 ;
+
+---
+SELECT wdprt as ref, job as gov, QUARTER(`date`)as qtr, MONTH(`date`)as mo,
+MONTHNAME(`date`) as month,
+someid as paydate, credit as paid FROM gl 
+WHERE YEAR(`date`)='2018' 
+AND coid ='reroo' 
+AND account = 'a1010-cash' 
+AND (job='fed' OR job='state') 
+AND cat='WhTaxPayment' AND credit>0
+ORDER BY job, `date`
+
+SELECT wdprt as ref, job as gov, QUARTER(`date`)as qtr, MONTH(`date`)as mo, MONTHNAME(`date`) as month, someid as paydate, credit as paid FROM gl WHERE YEAR(`date`)='2018' AND coid ='reroo' AND account = 'a1010-cash' AND (job='fed' OR job='state') AND cat='WhTaxPayment' AND credit>0 ORDER BY job, `date` 
+
+"SELECT wdprt as ref, job as gov, QUARTER(`date`)as qtr, MONTH(`date`)as mo, MONTHNAME(`date`) as month, someid as paydate, credit as paid FROM gl WHERE YEAR(`date`)=? AND coid =? AND account = 'a1010-cash' AND (job='fed' OR job='state') AND cat='WhTaxPayment' AND credit>0 ORDER BY job, `date` "
+
+update gl set cat = 'WhTaxPayment' where cat = 'payment'
