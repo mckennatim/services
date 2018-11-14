@@ -2140,7 +2140,7 @@ SELECT YEAR(`date`) as year, QUARTER(`date`) as qtr, SUM(debit) as paid, SUM(cre
 
 DELETE FROM gl WHERE cat='payment' ; SELECT * FROM `gl` ORDER BY id DESC limit 100 ;
 
----
+---payroll/payments/:year  this.state.txpayments
 SELECT wdprt as ref, job as gov, QUARTER(`date`)as qtr, MONTH(`date`)as mo,
 MONTHNAME(`date`) as month,
 someid as paydate, credit as paid FROM gl 
@@ -2156,3 +2156,54 @@ SELECT wdprt as ref, job as gov, QUARTER(`date`)as qtr, MONTH(`date`)as mo, MONT
 "SELECT wdprt as ref, job as gov, QUARTER(`date`)as qtr, MONTH(`date`)as mo, MONTHNAME(`date`) as month, someid as paydate, credit as paid FROM gl WHERE YEAR(`date`)=? AND coid =? AND account = 'a1010-cash' AND (job='fed' OR job='state') AND cat='WhTaxPayment' AND credit>0 ORDER BY job, `date` "
 
 update gl set cat = 'WhTaxPayment' where cat = 'payment'
+
+--/jobcosts/:year
+SELECT wdprt, job, cat, `date`, someid, somenum, debit as cost 
+FROM gl
+WHERE account = 'a5010-COGS'
+AND YEAR(`date`)= '2018'
+AND coid ='reroo'
+ORDER BY job, cat, `date`
+
+SELECT wdprt, job, cat, `date`, someid, somenum, debit as cost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2018' AND coid ='reroo' ORDER BY job, cat, `date` 
+
+"SELECT wdprt, job, cat, `date`, someid, somenum, debit as cost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? ORDER BY job, cat, `date` "
+
+SELECT job, SUM(somenum) as hrs, SUM(debit) as cost,
+ROUND(SUM(debit)/SUM(somenum),2) as hrcost
+FROM gl
+WHERE account = 'a5010-COGS'
+AND YEAR(`date`)= '2018'
+AND coid ='reroo'
+GROUP BY job
+ORDER BY job
+
+SELECT job, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2018' AND coid ='reroo' GROUP BY job ORDER BY job
+
+"SELECT job, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? GROUP BY job ORDER BY job; "
+
+SELECT job, cat, SUM(somenum) as hrs, SUM(debit) as cost, 
+ROUND(SUM(debit)/SUM(somenum),2) as hrcost
+FROM gl
+WHERE account = 'a5010-COGS'
+AND YEAR(`date`)= '2018'
+AND coid ='reroo'
+GROUP BY job,cat
+ORDER BY job,cat
+
+SELECT job, cat, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2018' AND coid ='reroo' GROUP BY job,cat ORDER BY job,cat
+
+"SELECT job, cat, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? GROUP BY job,cat ORDER BY job,cat; "
+
+SELECT job, cat, someid, SUM(somenum) as hrs, SUM(debit) as cost, 
+ROUND(SUM(debit)/SUM(somenum),2) as hrcost
+FROM gl
+WHERE account = 'a5010-COGS'
+AND YEAR(`date`)= '2018'
+AND coid ='reroo'
+GROUP BY job,cat, someid
+ORDER BY job,cat,someid
+
+SELECT job, cat, someid, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2018' AND coid ='reroo' GROUP BY job,cat, someid ORDER BY job,cat,someid
+
+"SELECT job, cat, someid, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? GROUP BY job,cat, someid ORDER BY job,cat,someid; "

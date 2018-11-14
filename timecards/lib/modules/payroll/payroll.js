@@ -246,6 +246,22 @@ module.exports = function() {
       })
     }
   })
+
+  router.get('/jobcosts/:year', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/jobcosts/:year (not authorized)-' + req.userTok.message }
+      cons.log(mess)
+      res.jsonp(mess)
+    } else {
+      const coid = req.userTok.coid
+      const year = req.params.year
+      var query = conn.query("SELECT job, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? GROUP BY job ORDER BY job; SELECT job, cat, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? GROUP BY job,cat ORDER BY job,cat; SELECT job, cat, someid, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? GROUP BY job,cat, someid ORDER BY job,cat,someid; ",[year,coid,year,coid,year,coid] , function(error, results) {
+        cons.log(query.sql)
+        cons.log(error)
+        res.jsonp({ results: results, binfo: req.userTok })
+      })
+    }
+  })
   // router.get('/tcard/:wprt/:emailid', bearerTokenCoid, function(req, res) {
   //     if (!req.userTok.auth) {
   //         var mess = { message: 'in get /payroll/tcard (not authorized)-' + req.userTok.message }
