@@ -101,6 +101,44 @@ module.exports = function() {
       })
     }
   })
+
+  router.post('/payment', addAppId, bearerTokenCoid, function(req,res){
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/payment (not authorized)-' + req.userTok.message }
+      res.jsonp(mess)
+    } else {
+      cons.log('req.userTok: ', req.userTok)
+      const {journal} = req.body
+      cons.log(journal)
+      const keys = Object.keys(req.body.journal[0]).join()+',coid'
+      const vals = [req.body.journal.map((j) => {
+        let anarr = Object.values(j)
+        anarr.push(req.userTok.coid)
+        return anarr
+      })]
+      var query = conn.query('INSERT INTO gl (' + keys + ') VALUES ? ', vals, function(error, results) {
+          cons.log(query.sql)
+          cons.log(error)
+          cons.log(results)
+          res.jsonp({results, error})
+      })
+    }
+  })  
+  router.put('/bid', addAppId, bearerTokenCoid, function(req,res){
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/bid (not authorized)-' + req.userTok.message }
+      res.jsonp(mess)
+    } else {
+      cons.log('req.userTok: ', req.userTok)
+      const {bid} = req.body
+      bid.coid =req.userTok.coid 
+      var query = conn.query('INSERT INTO bids SET ? ON DUPLICATE KEY UPDATE ?', [bid, bid], function(error, results) {
+        cons.log('query.sql: ', query.sql)
+        cons.log(bid)
+        res.jsonp({bid, results})
+      })
+    }
+  })
   // router.post('/ckcoid', bearerTokenApp, function(req,res){
   //     if (!req.userTok.auth) {
   //       var mess = { message: 'in get /payroll/ckcoid (not authorized)-' + req.userTok.message }
@@ -164,6 +202,21 @@ module.exports = function() {
         })
     }
   })  
+
+
+  router.get('/bids', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+        var mess = { message: 'in get /payroll/bids (not authorized)-' + req.userTok.message }
+        cons.log(mess)
+        res.jsonp(mess)
+    } else {
+        var query = conn.query("SELECT job, labor FROM bids WHERE coid=?", req.userTok.coid, function(error, bids) {
+            cons.log(query.sql)
+            cons.log(error)
+            res.jsonp(bids)
+        })
+    }
+  }) 
 
 
   router.get('/rates', addAppId,  bearerTokenCoid, function(req, res) {

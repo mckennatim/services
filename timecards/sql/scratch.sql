@@ -2207,3 +2207,43 @@ ORDER BY job,cat,someid
 SELECT job, cat, someid, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2018' AND coid ='reroo' GROUP BY job,cat, someid ORDER BY job,cat,someid
 
 "SELECT job, cat, someid, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? GROUP BY job,cat, someid ORDER BY job,cat,someid; "
+
+DROP TABLE IF EXISTS `bids`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bids` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `coid` varchar(20) DEFAULT 'reroo',
+  `job` varchar(65) DEFAULT '',
+  `material` varchar(10 DEFAULT '',
+  `labor` varchar(10) DEFAULT '',
+  `subs` varchar(10) DEFAULT '',
+  `equip` varchar(10) DEFAULT '',
+  `overhead` varchar(10) DEFAULT '',
+  `contingency` varchar(10) DEFAULT '',
+  `profit` varchar(10) DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY (`coid`),
+  KEY (`job`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+insert into bids (`job`, `labor`) 
+values 
+('105 Green St', '7417'),
+('15 Atherton', '6100'),
+('2054 Dot Ave', '13526'),
+('241-5 Chestnut Ave', '20027'),
+('349 VFW Parkway - Bunny Hickey', '13001'),
+('827 Centre St - Bob Min', '10041'),
+('Arbour Hospital', '17942'),
+('connolly library', '7031'),
+('Eastie Farm', '7322'),
+('Egleston Library', '11229'),
+('HYCC', '15591'),
+('JPNDC brewery', '6768'),
+('Ken Wing - Rockview', '8967'),
+('Marketting', '18203'),
+('Nursery', '21243'),
+('Roz Walter - 20 Dell', '7513'),
+('yo boss - no job list', '16133'),
+('yo boss: no job list', '21265');
