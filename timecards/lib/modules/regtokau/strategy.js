@@ -101,7 +101,7 @@ var bearerTokenCoidApps = function(req, res, next) {
     next()
     return
   }
-  const qco =conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND c.coid = ? AND w.active=1', [tokdata.emailid, tokdata.coid], function(error, results){
+  const qco =conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > NOW() AND c.coid = ? AND w.active=1', [tokdata.emailid, tokdata.coid], function(error, results){
     cons.log('qco results: ', results)
     cons.log('qco.sql: ', qco.sql)
     if (error) {
@@ -109,7 +109,7 @@ var bearerTokenCoidApps = function(req, res, next) {
       next()
       return
     }
-    if (!results) {
+    if (!results || results.length==0) {
       req.userTok = { auth: false, message: 'no user or active coid' }
       next()
       return

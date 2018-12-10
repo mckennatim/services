@@ -237,6 +237,21 @@ module.exports = function() {
           })
       }
   })
+
+  router.get('/state/:st', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get payroll/state/:st (not authorized)-' + req.userTok.message }
+      cons.log(mess)
+      res.jsonp(mess)
+    } else {
+      const st =req.params.st
+      var query = conn.query("SELECT * FROM `timecards`.`strates` WHERE year = YEAR(CURDATE()) AND st= ? ", st, function(error, results) {
+        cons.log(query.sql)
+        cons.log(error)
+        res.jsonp(results)
+      })
+    }
+  }) 
   // router.get('/submitted', bearerTokenCoid, function(req, res) {
   //     if (!req.userTok.auth) {
   //         var mess = { message: 'in get /payroll/submitted (not authorized)-' + req.userTok.message }

@@ -2247,3 +2247,68 @@ values
 ('Roz Walter - 20 Dell', '7513'),
 ('yo boss - no job list', '16133'),
 ('yo boss: no job list', '21265');
+
+SELECT job, labor FROM bids WHERE coid='reroo'
+"SELECT job, labor FROM bids WHERE coid=?"
+
+SELECT * FROM `timecards`.`strates`
+WHERE year = YEAR(CURDATE())
+AND st= 'MD';
+
+SELECT * FROM `timecards`.`strates` WHERE year = YEAR(CURDATE()) AND st= 'MD' 
+
+"SELECT * FROM `timecards`.`strates` WHERE year = YEAR(CURDATE()) AND st= ? "
+
+--archive into jobcost
+CREATE DATABASE IF NOT EXISTS `demo`;
+
+DROP DATABASE IF EXISTS `demo`;
+DROP TABLE IF EXISTS `jobcost`.`rolewho` ; 
+CREATE TABLE `jobcost`.`rolewho` 
+SELECT * FROM `timecards`.`rolewho`
+WHERE coid='reroo';
+UPDATE `jobcost`.`rolewho` SET coid= 'demo';
+DROP TABLE IF EXISTS `jobcost`.`bids` ; 
+CREATE TABLE `jobcost`.`bids` 
+SELECT * FROM `timecards`.`bids`
+WHERE coid='reroo';
+UPDATE `jobcost`.`bids` SET coid= 'demo';
+
+--replace demo with jobcost
+DELETE FROM `timecards`.`rolewho` WHERE coid='demo';
+INSERT INTO `timecards`.`rolewho` SELECT * FROM `jobcost`.`rolewho`;
+
+DROP TABLE IF EXISTS `reroo`.`rolewho`;
+
+--DROP DATABASE IF EXISTS `timecards`;
+CREATE DATABASE IF NOT EXISTS `timecards`;
+
+DROP DATABASE IF EXISTS `reroo`;
+
+UPDATE `timecards`.`co` SET goodtil = '2018-12-31' WHERE coid='tim4co' OR coid='tim8co';
+
+INSERT INTO `timecards`.`co`
+
+SHOW COLUMNS FROM `timecards`.`co`;
+
+DESCRIBE `timecards`.`co`;
+
+INSERT INTO `timecards`.`tcardpu` (wdprt,emailid,inout,hrs,coid) SELECT wdprt,emailid,inout,hrs,coid FROM `demo`.`tcardpu`;
+
+USE timecards
+ALTER TABLE `persons` CHANGE `locality` `locality` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
+
+USE timecards;
+ALTER TABLE `co` CHANGE `goodtil` `goodtil` DATETIME NULL DEFAULT '2017-12-31 00:00:00';
+
+ALTER TABLE `timecards`.`co` DROP INDEX `coid`, ADD UNIQUE `coid` (`coid`) USING BTREE;
+
+
+INSERT INTO `timecards`.`rolewho` (emailid, effective, wtype) VALUES('donnc@sitebuilt.net','2018-12-15','dog'); 
+
+--key ece emailid,coid
+INSERT INTO `timecards`.`rolewho` SET `role` = 'partner', `emailid` = 'donnc@sitebuilt.net', `coid` = 'demo00', `active` = 1 ON DUPLICATE KEY UPDATE `role` = 'partner', `emailid` = 'donnc@sitebuilt.net', `coid` = 'demo00', `active` = 1;
+
+DESCRIBE `timecards`.`co`;
+
+DROP DATABASE IF EXISTS `demo3`;
