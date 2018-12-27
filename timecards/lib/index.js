@@ -10,6 +10,7 @@ var OKtcard = require('./modules/OKtcard/OKtcard')();
 var payroll = require('./modules/payroll/payroll')();
 var persons = require('./modules/persons/persons')();
 var co = require('./modules/co/co')();
+var common = require('./modules/common/common')();
 
 // dog = 'fred'
 
@@ -20,6 +21,7 @@ app.use('/api/OKtcard', OKtcard);
 app.use('/api/payroll', payroll);
 app.use('/api/persons', persons);
 app.use('/api/co', co);
+app.use('/api/common', common);
 
 app.get('/api', function(req, res) {
     res.send("<h4>in timecards server /api</h4>")

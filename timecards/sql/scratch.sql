@@ -2312,3 +2312,148 @@ INSERT INTO `timecards`.`rolewho` SET `role` = 'partner', `emailid` = 'donnc@sit
 DESCRIBE `timecards`.`co`;
 
 DROP DATABASE IF EXISTS `demo3`;
+
+DROP TABLE IF EXISTS `timecards`.`help` ; 
+CREATE TABLE `timecards`.`help` (
+  id  INT NOT NULL AUTO_INCREMENT,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  app TEXT NOT NULL,
+  comp TEXT NOT NULL,
+  keywords TEXT NOT NULL,
+  stats VARCHAR(40) NOT NULL DEFAULT 'open',
+  rank INT NOT NULL DEFAULT '0',
+  PRIMARY KEY (id)
+);
+
+INSERT INTO `timecards`.`help` 
+(title, content, app, pathn, keywords, stats) VALUES 
+('make monthly payment', 'Choose year then period. Click on month for which you owe. After you have paid via the automated tax site, record a reference # and verify amount paid,', 'pay', 'taxes', 'taxes, monthly, fed, state', 'answered'),
+('file quarterly taxes','Fill in the form; at the line numbers indicated enter the values listed', 'pay','taxes','fed, taxes, 941, state','answered'),
+('determine job labor status','Chooose Year and by job. Select a job and enter or update bid total for labor and estimate of percent completion. App will calculate whether you are winning or losing and by how much', 'pay', 'jobcosts', 'job, jobcost, labor','answered');
+
+
+DROP TABLE IF EXISTS `timecards`.`helpq`;
+CREATE TABLE `timecards`.`helpq` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `howto` text NOT NULL,
+  `qrank` int(11) NOT NULL DEFAULT '0',
+  `appid` varchar(40) NOT NULL DEFAULT '',
+  `pagename` varchar(40) NOT NULL DEFAULT '',
+  `contributor` varchar(60) NOT NULL DEFAULT 'tim@sitebuilt.net',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `timecards`.`helpq` (`howto`, `qrank`, `appid`, `pagename`, `contributor`) SELECT `howto`, `qrank`, `appid`, `pagename`, `contributor` FROM `timecards`.`help`;
+
+DROP TABLE IF EXISTS `timecards`.`helpa`;
+CREATE TABLE `timecards`.`helpa` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `qid` int(11) NOT NULL,
+  `hereshow` text NOT NULL,
+  `arank` int(11) NOT NULL DEFAULT '0',
+  `contributor` varchar(60) NOT NULL DEFAULT 'tim@sitebuilt.net',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `timecards`.`helpa` (`hereshow`, `arank`, `contributor`) SELECT `hereshow`, `rank`, `contributor` FROM `timecards`.`help`;
+
+INSERT INTO `help` (`id`, `howid`, `howto`, `qrank`, `hereshow`, `appid`, `pagename`, `keywords`, `stats`, `rank`, `contributor`) VALUES
+(1, 'monthly', 'make monthly payment', 0, 'Choose year then period. Click on month for which you owe. After you have paid via the automated tax site, record a reference # and verify amount paid,', 'pay', 'Taxes', 'taxes, monthly, fed, state', 'answered', 0, 'tim@sitebuilt.net'),
+(2, 'quarterly', 'file quarterly taxes', 0, 'Fill in the form; at the line numbers indicated enter the values listed', 'pay', 'Taxes', 'fed, taxes, 941, state', 'answered', 0, 'tim@sitebuilt.net'),
+(3, 'jobcost', 'determine job labor status', 0, 'Chooose Year and by job. Select a job and enter or update bid total for labor and estimate of percent completion. App will calculate whether you are winning or losing and by how much', 'pay', 'JobCosts', 'job, jobcost, labor', 'answered', 0, 'tim@sitebuilt.net'),
+(5, 'checks', 'print checks', 0, '', 'pay', 'Pay', 'paycheck, payroll', 'open ', 0, 'tim@sitebuilt.net'),
+(6, 'checks', 'print checks', 0, 'To print a check you need to order blank checks printed in magnetic ink and perforated.', 'pay', 'Pay', 'paycheck, payroll', 'open ', 1, 'mckenna.tim@gmail.com'),
+(7, 'checks', 'print checks', 0, 'The most common (and cheapest) checks are quickbook comapatible.', 'pay', 'Pay', 'paycheck, payroll', 'open ', 1, 'mckenna.tim@gmail.com');
+
+--
+
+
+INSERT INTO `timecards`.`help` 
+(title, content, app, pathn, keywords, stats) VALUES 
+('print checks', '', 'pay', 'pay', 'paycheck, payroll', 'open ');
+
+SELECT * FROM `timecards`.`help`;
+
+ALTER TABLE `timecards`.`help` ADD `contributor` VARCHAR(60) NOT NULL DEFAULT 'tim@sitebuilt.net' AFTER `rank`;
+
+UPDATE `timecards`.`help` SET contributor='tim@sitebuilt.net';
+SELECT * FROM `timecards`.`help`;
+
+ALTER TABLE `timecards`.`help` CHANGE `content` `hereshow` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+ALTER TABLE `timecards`.`help` CHANGE `app` `appid` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+ALTER TABLE `timecards`.`help` CHANGE `pathn` `pagename` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+ALTER TABLE `timecards`.`help` ADD FULLTEXT (howto, hereshow, keywords);
+ALTER TABLE `timecards`.`help` ADD INDEX (`appid`);
+ALTER TABLE `timecards`.`help` ADD INDEX (`pagename`);
+ALTER TABLE `timecards`.`help` ADD INDEX (`contributor`);
+
+ALTER TABLE `timecards`.`help` CHANGE `pagename` `pagename` VARCHAR(40) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
+
+ALTER TABLE `timecards`.`help` CHANGE `appid` `appid` VARCHAR(40) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '';
+
+SELECT * FROM `timecards`.`help` WHERE MATCH (howto, hereshow, keywords) AGAINST ('pay 941 taxes' IN NATURAL LANGUAGE MODE);
+
+ALTER TABLE `timecards`.`help` ADD `howid` VARCHAR(60) NOT NULL DEFAULT '' AFTER `id`;
+
+UPDATE `timecards`.`help` SET howid='monthly' WHERE id = 1; 
+SELECT * FROM `timecards`.`help`;
+UPDATE `timecards`.`help` SET howid='quarterly' WHERE id = 2; 
+SELECT * FROM `timecards`.`help`;
+UPDATE `timecards`.`help` SET howid='jobcost' WHERE id = 3; 
+SELECT * FROM `timecards`.`help`;
+UPDATE `timecards`.`help` SET howid='checks' WHERE id = 4; 
+SELECT * FROM `timecards`.`help`;
+
+ALTER TABLE `timecards`.`help` ADD INDEX `rank` (`rank`);
+
+ALTER TABLE `timecards`.`help` ADD `qrank` INT NOT NULL DEFAULT '0' AFTER `howto`, ADD INDEX `qrank` (`qrank`);
+
+
+DROP TABLE IF EXISTS `helpq`;
+CREATE TABLE `helpq` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `howto` text NOT NULL,
+  `qrank` int(11) NOT NULL DEFAULT '0',
+  `appid` varchar(40) NOT NULL DEFAULT '',
+  `pagename` varchar(40) NOT NULL DEFAULT '',
+  `qcontributor` varchar(60) NOT NULL DEFAULT 'tim@sitebuilt.net',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE helpq AUTO_INCREMENT=1000; 
+
+INSERT INTO `helpq` (`howto`, `qrank`, `appid`, `pagename`, `qcontributor`) VALUES
+('make monthly payment', 0, 'pay', 'Taxes', 'tim@sitebuilt.net'),
+('file quarterly taxes', 0, 'pay', 'Taxes', 'tim@sitebuilt.net'),
+('determine job labor status', 0, 'pay', 'JobCosts', 'tim@sitebuilt.net'),
+('print checks', 0, 'pay', 'Pay', 'mckenna.tim@gmail.com');
+
+ALTER TABLE `helpq`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+DROP TABLE IF EXISTS `helpa`;
+CREATE TABLE `helpa` (
+  `aid` int(11) NOT NULL AUTO_INCREMENT,
+  `qid` int(11) NOT NULL DEFAULT '0',
+  `hereshow` text NOT NULL,
+  `arank` int(11) NOT NULL DEFAULT '0',
+  `acontributor` varchar(60) NOT NULL DEFAULT 'tim@sitebuilt.net',
+  PRIMARY KEY (aid),
+  INDEX (qid),
+  FOREIGN KEY (`qid`) REFERENCES `helpq` (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE helpa AUTO_INCREMENT=2000; 
+
+INSERT INTO `helpa` (`qid`, `hereshow`, `arank`, `acontributor`) VALUES
+(1000, 'Choose year then period. Click on month for which you owe. After you have paid via the automated tax site, record a reference # and verify amount paid,', 0, 'tim@sitebuilt.net'),
+(1001, 'Fill in the form; at the line numbers indicated enter the values listed', 0, 'tim@sitebuilt.net'),
+(1002, 'Chooose Year and by job. Select a job and enter or update bid total for labor and estimate of percent completion. App will calculate whether you are winning or losing and by how much', 0, 'tim@sitebuilt.net'),
+(1003, 'To print a check you need to order blank checks printed in magnetic ink and perforated.', 1, 'mckenna.tim@gmail.com'),
+(1003, 'The most common (and cheapest) checks are quickbook comapatible.', 1, 'mckenna.tim@gmail.com');
+
+SELECT q.appid, q.pagename, q.howto, q.qcontributor, q.qrank, a.qid, a.aid, a.hereshow, a.arank, a.acontributor FROM `helpq` q JOIN `helpa` a ON q.id=a.qid ORDER by q.appid, q.qrank desc, a.arank desc;
