@@ -57,7 +57,7 @@ module.exports = function() {
         delete ans.aid
         ans.arank=0
         ans.acontributor = req.userTok.emailid
-        const qr = conn.query("INSERT INTO helpa SET ?", ans,(err,result)=>{
+        const qr = conn.query("INSERT INTO helpa SET ?; SELECT LAST_INSERT_ID();", ans,(err,result)=>{
           cons.log('err: ', err)
           cons.log('qr: ', qr.sql)
           cons.log('result: ', result)
@@ -86,7 +86,7 @@ module.exports = function() {
         //isert new
         delete ques.qid
         ques.qcontributor = req.userTok.emailid
-        const qr = conn.query("INSERT INTO helpq SET ?", ques,(err,result)=>{
+        const qr = conn.query("INSERT INTO helpq SET ?; SELECT LAST_INSERT_ID();", ques,(err,result)=>{
           cons.log('err: ', err)
           cons.log('qr: ', qr.sql)
           cons.log('result: ', result)
@@ -94,7 +94,7 @@ module.exports = function() {
         })
       }else{
         //update existing
-        const qr = conn.query("UPDATE helpq SET ? WHERE aid = ?", [ques, ques.qid],(err,result)=>{
+        const qr = conn.query("UPDATE helpq SET ? WHERE qid = ?", [ques, ques.qid],(err,result)=>{
           cons.log('err: ', err)
           cons.log('qr: ', qr.sql)
           cons.log('result: ', result)
@@ -103,7 +103,7 @@ module.exports = function() {
       }
     }
   }) 
-  router.delete('/help/:appid/:qa/:id', addAppId, bearerTokenCoid, function(req, res) {
+  router.delete('/help/del/:appid/:qa/:id', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
         var mess = { message: 'in put /common/help/:appid/:qa/:id (not authorized)-' + req.userTok.message }
         cons.log(mess)

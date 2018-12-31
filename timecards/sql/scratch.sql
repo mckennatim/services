@@ -2457,3 +2457,5 @@ INSERT INTO `helpa` (`qid`, `hereshow`, `arank`, `acontributor`) VALUES
 (1003, 'The most common (and cheapest) checks are quickbook comapatible.', 1, 'mckenna.tim@gmail.com');
 
 SELECT q.appid, q.pagename, q.howto, q.qcontributor, q.qrank, a.qid, a.aid, a.hereshow, a.arank, a.acontributor FROM `helpq` q JOIN `helpa` a ON q.id=a.qid ORDER by q.appid, q.qrank desc, a.arank desc;
+
+INSERT INTO helpa SET ? 
