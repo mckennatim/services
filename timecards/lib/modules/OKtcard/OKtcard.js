@@ -53,6 +53,7 @@ module.exports = function() {
             cons.log('req.params: ', req.params)
             const wprt = req.params.wprt
             const wk = wprt.slice(-2)*1
+            const yr = wprt.split('-')[0]
             cons.log('wk: ', wk)
             const emailid =req.params.emailid
             const wdprt = `${wprt}%`
@@ -73,7 +74,7 @@ module.exports = function() {
                             cons.log(q.sql)
                             cons.log(jobs)
                             cons.log(error3)
-                            const wkarr = combinePuJc(punch, jcost, wk, emailid)
+                            const wkarr = combinePuJc(punch, jcost, yr, wk, emailid)
                             res.jsonp({ wk: wk, wkarr: wkarr, jobs: jobs, wstat: wstat[0] })
                         })
                     })

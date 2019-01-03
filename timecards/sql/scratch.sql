@@ -2459,3 +2459,37 @@ INSERT INTO `helpa` (`qid`, `hereshow`, `arank`, `acontributor`) VALUES
 SELECT q.appid, q.pagename, q.howto, q.qcontributor, q.qrank, a.qid, a.aid, a.hereshow, a.arank, a.acontributor FROM `helpq` q JOIN `helpa` a ON q.id=a.qid ORDER by q.appid, q.qrank desc, a.arank desc;
 
 INSERT INTO helpa SET ? 
+
+-- by someid
+--sum of accounts for ONE coid,someid,wprt
+SELECT coid, someid, SUBSTRING(wdprt, 1,8) as wprt, account, SUM(debit) as debit, SUM(credit) as credit from gl
+WHERE someid = 'tim2@sitebuilt.net'
+AND coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND SUBSTRING(wdprt, 1,8) = '2018-W46'
+GROUP BY coid, someid, SUBSTRING(wdprt, 1,8), account
+
+SELECT * FROM `tcardpu` WHERE coid = 'RRCLLC' AND emailid = 'sminboston@gmail.com' ORDER BY id desc 
+
+SELECT * FROM `tcardjc` WHERE coid = 'RRCLLC' AND emailid = 'sminboston@gmail.com' AND wdprt like('2018-W51-%') ORDER BY id desc 
+
+SELECT * FROM `tcardjc` WHERE coid = 'RRCLLC' AND emailid = 'sminboston@gmail.com' AND wdprt like('2018-W51-%') ORDER BY id desc
+
+SELECT * FROM `tcardwk` WHERE coid = 'RRCLLC' AND emailid = 'sminboston@gmail.com' AND wprt like('2018-W51-%') ORDER BY id desc
+
+SELECT * FROM `tcardwk` WHERE coid = 'RRCLLC' AND emailid = 'sminboston@gmail.com' ORDER BY id desc
+
+UPDATE helpq set howto = CONCAT('How to ',howto) Where qid = 1001
+
+UPDATE helpq set howto = CONCAT('How to ',howto)
+
+--- select all gl records for coid wk emialid
+SELECT * FROM gl WHERE wdprt like('2018-W46%') AND coid='reroo' AND someid='tim2@sitebuilt.net'
+
+--- search for recoords causing imbalance
+SELECT coid, someid, SUBSTRING(wdprt, 1,8) as wprt, SUM(debit) as debit, SUM(credit) as credit from gl
+GROUP BY coid, someid, SUBSTRING(wdprt, 1,8)
+
+--trialbalance of entire gl
+SELECT SUM(debit) as debit, SUM(credit) as credit
+FROM gl;

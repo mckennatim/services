@@ -7,8 +7,8 @@ const get = (path, props) => {
         .slice(1)
         .reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, props)
 }
-const combinePuJc = (punch, jcost, wk, emailid) => {
-    const blwk = createBlWk(wk, emailid)
+const combinePuJc = (punch, jcost, yr, wk, emailid) => {
+    const blwk = createBlWk(yr, wk, emailid)
     const filledwk = blwk.map((d) => {
         punch
             .filter((pu) => pu.wdprt == d.wdprt)
@@ -37,9 +37,9 @@ module.exports = {
     get: get,
     combinePuJc:combinePuJc
 }
-const createBlWk = (wk, emailid) => {
+const createBlWk = (yr, wk, emailid) => {
     let blwk = []
-    const wdprt = `${moment().format('YYYY')}-W${wk.toString().padStart(2,"0")}-`
+    const wdprt = `${yr}-W${wk.toString().padStart(2,"0")}-`
     for (let i = 1; i <= 7; i++) {
         let obj = { wdprt: wdprt + i, emailid: emailid, hrs: 0, inout: [], jcost: [], jchrs: 0 }
         blwk.push(obj)

@@ -170,14 +170,14 @@ module.exports = function() {
 
         }
     })
-    router.get('/week/:wk', addAppId, bearerTokenCoid, function(req, res) {
+    router.get('/week/:yr/:wk', addAppId, bearerTokenCoid, function(req, res) {
         if (!req.userTok.auth) {
             var mess = { message: 'in get /tcard/week/:wk (not authorized)-' + req.userTok.message }
             cons.log(mess)
             res.jsonp(mess)
         } else {
             const wk = req.params.wk
-            const yr = moment().format('YYYY')
+            const yr = req.params.yr
             const wprt = `${yr}-W${wk.toString().padStart(2,'0')}`
             const wdprt = `${wprt}%`
             var query0 = conn.query('SELECT `wprt`, `emailid`, `status`, `hrs` FROM tcardwk WHERE emailid = ? AND coid = ? AND wprt =?', [req.userTok.emailid, req.userTok.coid, wprt], function(error0, wstat) {
@@ -197,7 +197,7 @@ module.exports = function() {
                             cons.log(q.sql)
                             cons.log(jobs)
                             cons.log(error3)
-                            const wkarr = combinePuJc(punch, jcost, wk, req.userTok.emailid)
+                            const wkarr = combinePuJc(punch, jcost, yr, wk, req.userTok.emailid)
                             res.jsonp({ wk: wk, wkarr: wkarr, jobs: jobs, wstat: wstat[0] })
                         })
                     })

@@ -19,7 +19,7 @@ module.exports = function() {
         cons.log(mess)
         res.jsonp(mess)
     } else {
-      const qr = conn.query("SELECT q.appid, q.pagename, q.howto, q.qcontributor, q.qrank, q.qid , a.aid, a.hereshow, a.arank, a.acontributor FROM `helpq` q LEFT JOIN `helpa` a ON q.qid=a.qid WHERE appid = ? ORDER by q.appid, q.qrank desc, a.arank desc;", req.params.appid,(err,result)=>{
+      const qr = conn.query("SELECT q.appid, q.pagename, q.howto, q.qcontributor, q.qrank, q.qid , a.aid, a.hereshow, a.arank, a.acontributor FROM `helpq` q LEFT JOIN `helpa` a ON q.qid=a.qid WHERE appid = ? ORDER by q.appid, q.pagename, q.qrank desc, q.qid, a.arank desc;", req.params.appid,(err,result)=>{
         cons.log('err: ', err)
         cons.log('qr: ', qr.sql)
         cons.log('result: ', result)
