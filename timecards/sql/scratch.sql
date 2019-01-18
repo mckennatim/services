@@ -2493,3 +2493,173 @@ GROUP BY coid, someid, SUBSTRING(wdprt, 1,8)
 --trialbalance of entire gl
 SELECT SUM(debit) as debit, SUM(credit) as credit
 FROM gl;
+
+SELECT * FROM tcardpu WHERE wdprt like('2018-W46%') AND coid='reroo' AND emailid='tim2@sitebuilt.net'
+
+SELECT * FROM tcardjc WHERE wdprt like('2018-W46%') AND coid='reroo' AND emailid='tim2@sitebuilt.net'
+
+SELECT * FROM tcardwk WHERE wprt like('2018-W46%') AND coid='reroo' AND emailid='tim2@sitebuilt.net'
+
+select wdprt, job, someid, somenun from gl Where job not null order by job, wdprt
+
+select account, wdprt, job, someid, somenum from gl where account ='a5010-COGS' AND coid = 'reroo' order by job, wdprt
+select account, wdprt, job, someid, somenum from gl where account ='a5010-COGS' AND coid = 'RRCLLC' order by job, wdprt
+select account, wdprt, job, someid, somenum from gl where account ='a5010-COGS' AND coid = 'reroo' WHERE sommeid IN('mckenna.tim@gmail.com' 'noah@sitebuilt.net' )order by job, wdprt
+
+create table select * from gl where coid ='RRCLC'
+
+SELECT * FROM gl WHERE coid= 'RRCLLC';
+
+CREATE TABLE glRRCLLC2 SELECT * FROM gl WHERE coid= 'RRCLLC' ORDER by id desc;
+
+SELECT someid, account, SUM(somenum), SUM(debit), SUM(credit) FROM gl WHERE coid= 'RRCLLC' GROUP BY someid, account ;
+
+CREATE TABLE glRRCLLCtots SELECT someid, account, SUM(somenum), SUM(debit), SUM(credit) FROM gl WHERE coid= 'RRCLLC' GROUP BY account, someid
+
+
+/*
+queries required for state dui reports
+
+
+*/
+SELECT DISTINCT(someid) as numempl, YEAR(`date`) as year, MONTH(`date`) as month,  QUARTER(`date`) as qtr, SUM(debit) as 'a6050-stateWages'
+FROM gl
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018' 
+AND QUARTER(`date`)='3'
+AND account = 'a6050-stateWages'
+GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), someid
+
+select * from gl
+where account='a6050-stateWages'
+
+SELECT  account, YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as debit, SUM(credit) as credit
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND (
+  account='a6040-fedWages' ||
+  account='a6041-fedTaxable' ||
+  account='a2050-fedWh' ||
+  account='a6010-gross' ||
+  account='a2200-grossAP' ||
+  account='a6050-stateWages' ||
+  account='a6050-stateWages' ||
+  account='a2060-stWh' ||
+  account='a6051-stateTaxable' ||
+  account='a2010-SS' ||
+  account='a2020-medi' ||
+  account='a6061-FICAtaxable' ||
+  account='a6070-addFICA' ||
+  account='a2030-meda' 
+  ) 
+GROUP BY YEAR(`date`), QUARTER(`date`),coid, account
+
+
+
+SELECT DISTINCT(someid) as numempl, YEAR(`date`) as year, MONTH(`date`) as month,  QUARTER(`date`) as qtr, SUM(debit) as 'a6050-stateWages'
+FROM gl
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018' 
+AND QUARTER(`date`)='3'
+AND account = 'a6050-stateWages'
+GROUP BY YEAR(`date`), QUARTER(`date`), MONTH(`date`), someid
+
+/*
+How many paychecks did each worker get for each month of the quarter
+*/
+
+SELECT DISTINCT(someid) as numempl, 
+COUNT(CASE WHEN MONTH(`date`)=7 THEN debit END) as 'month-7',
+COUNT(CASE WHEN MONTH(`date`)=8 THEN debit END) as 'month-8',
+COUNT(CASE WHEN MONTH(`date`)=9 THEN debit END) as 'month-9'
+FROM gl
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018' 
+AND QUARTER(`date`)='3'
+AND account = 'a6050-stateWages'
+GROUP BY someid
+
+SELECT DISTINCT(someid) as numempl, COUNT(CASE WHEN MONTH(`date`)=7 THEN debit END) as 'month-7', COUNT(CASE WHEN MONTH(`date`)=8 THEN debit END) as 'month-8', COUNT(CASE WHEN MONTH(`date`)=9 THEN debit END) as 'month-9' FROM gl WHERE coid = 'reroo' AND YEAR(`date`) = '2018' AND QUARTER(`date`)='3' AND account = 'a6050-stateWages' GROUP BY someid
+
+"SELECT DISTINCT(someid) as numempl, COUNT(CASE WHEN MONTH(`date`)=7 THEN debit END) as 'month-7', COUNT(CASE WHEN MONTH(`date`)=8 THEN debit END) as 'month-8', COUNT(CASE WHEN MONTH(`date`)=9 THEN debit END) as 'month-9' FROM gl WHERE coid = ? AND YEAR(`date`) = ? AND QUARTER(`date`)= ? AND account = 'a6050-stateWages' GROUP BY someid"
+
+/*
+What were wages, taxable wages and witholding for quarter
+*/
+
+SELECT  account, YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as debit, SUM(credit) as credit
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND (
+  account='a6050-stateWages' ||
+  account='a6051-stateTaxable' ||
+  account='a2060-stWh'
+  ) 
+GROUP BY YEAR(`date`), QUARTER(`date`),coid, account
+
+SELECT  DISTINCT QUARTER(`date`) as qtr, 
+SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',
+SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',
+SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh',
+SUM(CASE WHEN account='a2060-stWh' THEN debit END) as 'a2060-stWh-paid'
+FROM gl
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND (
+  account='a6050-stateWages' ||
+  account='a6051-stateTaxable' ||
+  account='a2060-stWh'
+  ) 
+GROUP BY QUARTER(`date`)
+
+/*
+What were wages, taxable wages and witholding for quarter per employee
+*/
+
+SELECT  someid, account, YEAR(`date`) as year,  QUARTER(`date`) as qtr, SUM(debit) as debit, SUM(credit) as credit
+FROM gl 
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND (
+  account='a6050-stateWages' ||
+  account='a6051-stateTaxable' ||
+  account='a2060-stWh'
+  ) 
+GROUP BY YEAR(`date`), QUARTER(`date`),coid, account, someid
+
+SELECT  DISTINCT someid as employee, 
+SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',
+SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',
+SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'
+FROM gl
+WHERE coid = 'reroo'
+AND YEAR(`date`) = '2018'
+AND QUARTER(`date`)='3'
+AND someid NOT LIKE 'paid%'
+AND (
+  account='a6050-stateWages' ||
+  account='a6051-stateTaxable' ||
+  account='a2060-stWh'
+  ) 
+GROUP BY someid
+
+/*
+state payments per quarter
+*/
+SELECT `date` as `month`, someid, debit 
+FROM gl 
+WHERE account='a2060-stWh'
+AND coid='reroo'
+AND YEAR(`date`)='2018'
+AND debit>0
+
+/*
+state wh & payments subtot by year
+*/
+SELECT QUARTER(`date`) as qtr, MONTHNAME(`date`) as month, SUM(debit) as paid, SUM(credit) as accrued FROM gl 
+WHERE account='a2060-stWh'
+AND coid='reroo'
+AND YEAR(`date`)='2018'
+GROUP BY QUARTER(`date`), MONTHNAME(`date`)
