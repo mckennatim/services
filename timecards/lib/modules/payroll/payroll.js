@@ -376,13 +376,16 @@ module.exports = function() {
       /*
       List state witholding payments for quarter
       */
-      let qpmt = "SELECT `date` as `month`, someid, debit \
+      let qpmt = "SELECT MONTH(`date`) as `month`, \
+      someid as date_paid, \
+      debit as amount \
       FROM gl \
       WHERE account='a2060-stWh' \
       AND coid=? \
       AND YEAR(`date`)=? \
       AND QUARTER(`date`)= ? \
-      AND debit>0; "
+      AND debit>0 \
+      ORDER BY MONTH(`date`); "
       /*
       What state payments and acruals for witholding for year
       */
