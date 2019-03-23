@@ -1,4 +1,0 @@
-
--R spec
---ui bdd
--r ../node_modules/mocha-clean

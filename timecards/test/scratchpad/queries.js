@@ -5,7 +5,6 @@ const coid = 'reroo'
 const year = '2018'
 const qtr = '3'
 const fmo = moment(`${year}-${qtr}`,'YYYY-Q').format('M')*1
-
 /*
 How many paychecks did each worker get for each month of the quarter
 */

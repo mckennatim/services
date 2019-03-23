@@ -10,7 +10,7 @@ var mysql = require('mysql');
 var mconn = cfg.mysql;
 const conn = mysql.createConnection(mconn);
 
-const tbarr = [`bids`, `co`, `cosr`, `gl`, `jobcatact`, `persons`, `rolewho`, `tcardjc`, `tcardpu`, `tcardwk` ]
+const tbarr = [`bids`, `co`, `cosr`, `gl`, `jobcatact`, `persons`, `rolewho`, `tcardjc`, `tcardpu`, `tcardwk`, `paystubs` ]
 const arrlen=tbarr.length
 const bkarr = [`bids`, `co`, `cosr`, `gl`, `jobcatact`, `persons`, `rolewho`,]
 //let goodtil=''

@@ -2648,12 +2648,14 @@ GROUP BY someid
 /*
 state payments per quarter
 */
-SELECT `date` as `month`, someid, debit 
+SELECT MONTH(`date`) as `month`, someid as date_paid, debit as amount 
 FROM gl 
 WHERE account='a2060-stWh'
 AND coid='reroo'
 AND YEAR(`date`)='2018'
+AND QUARTER(`date`)= '3'
 AND debit>0
+ORDER BY MONTH(`date`)
 
 /*
 state wh & payments subtot by year
@@ -2663,3 +2665,20 @@ WHERE account='a2060-stWh'
 AND coid='reroo'
 AND YEAR(`date`)='2018'
 GROUP BY QUARTER(`date`), MONTHNAME(`date`)
+
+SELECT someid, date, account, credit FROM gl WHERE coid='RRCLLC' AND account='a1010-cash' ORDER BY date, someid
+
+DROP TABLE IF EXISTS `paystubs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `paystubs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `coid` varchar(20) DEFAULT '',
+  `email` varchar(60) DEFAULT '',
+  `week` varchar(20) DEFAULT '',
+  `stub` varchar(2560) DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY (`week`),
+  KEY (`email`),
+  KEY (`coid`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

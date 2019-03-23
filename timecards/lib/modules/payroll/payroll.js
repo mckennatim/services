@@ -103,6 +103,38 @@ module.exports = function() {
     }
   })
 
+  router.post('/stub', addAppId, bearerTokenCoid, function(req,res){
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/paystub (not authorized)-' + req.userTok.message }
+      res.jsonp(mess)
+    } else {
+      cons.log('req.userTok: ', req.userTok)
+      const {paystub} = req.body
+      cons.log(paystub)
+      var query = conn.query('INSERT INTO paystubs SET ? ', paystub, function(error, results) {
+          cons.log(query.sql)
+          cons.log(error)
+          cons.log(results)
+          res.jsonp({results, error})
+      })
+    }
+  })
+
+  router.get('/stubs', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+        var mess = { message: 'in get /payroll/stubs (not authorized)-' + req.userTok.message }
+        cons.log(mess)
+        res.jsonp(mess)
+    } else {
+        var query = conn.query('SELECT * FROM `timecards`.`paystubs` WHERE coid =? ORDER BY week DESC LIMIT 25 ', req.userTok.coid, function(error, payres) {
+            cons.log(query.sql)
+            cons.log(error)
+            res.jsonp(payres)
+        })
+
+    }
+})
+
   router.post('/payment', addAppId, bearerTokenCoid, function(req,res){
     if (!req.userTok.auth) {
       var mess = { message: 'in get /payroll/payment (not authorized)-' + req.userTok.message }
