@@ -3,13 +3,13 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var ejs = require('ejs')
-var passport = require('passport');
-var expressSession = require('express-session');
+// var ejs = require('ejs')
+// var passport = require('passport');
+// var expressSession = require('express-session');
 
 var app = express();
-app.set('views', __dirname + '/views/');
-app.set('view engine', 'ejs');
+// app.set('views', __dirname + '/views/');
+// app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(bodyParser.json());

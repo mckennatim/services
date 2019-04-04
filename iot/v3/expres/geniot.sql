@@ -1524,3 +1524,218 @@ ALTER TABLE `user_app_loc`
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+DROP TABLE IF EXISTS `app_loc_user`;
+CREATE TABLE `app_loc_user` (
+  `id` int(11) NOT NULL,
+  `appid` varchar(20) DEFAULT NULL,
+  `locid` varchar(60) DEFAULT NULL,
+  `userid` varchar(60) NOT NULL,
+  `role` varchar(20) DEFAULT NULL,
+  `auth` tinyint(4) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `app_loc_user` (`id`, `appid`, `locid`, `userid`, `role`, `auth`) VALUES
+(27, 'hvac', '12ParleyVale', 'mckenna.tim@gmail.com', 'user', 1),
+(55, 'hvac', '255ChestnutAve', 'tim@sitebuilt.net', 'user', 1),
+(57, 'hvac', '12ParleyVale', 'tim@sitebuilt.net', 'user', 1),
+(59, 'hvac', '255ChestnutAve', 'mckenna.tim@gmail.com', 'user', 1),
+(63, 'hvac', '794048thAveS', 'tim@sitebuilt.net', 'admin', 1),
+(71, 'cascada', '12ParleyVale', 'tim@sitebuilt.net', 'admin', 0),
+(78, 'builder', '794048thAveS', 'tim@sitebuilt.net', 'admin', 1),
+(79, 'cascada', '794048thAveS', 'tim@sitebuilt.net', 'admin', 0),
+(80, 'hvac', '4505NHaightAve', 'tim@sitebuilt.net', 'obs', 1),
+(81, 'base', '4505NHaightAve', 'tim@sitebuilt.net', 'admin', 0),
+(86, 'builder', '4505NHaightAve', 'tim@sitebuilt.net', 'admin', 1),
+(87, 'cascada', '4505NHaightAve', 'tim@sitebuilt.net', 'admin', 0),
+(89, 'installer', '12ParleyVale', 'tim@sitebuilt.net', 'admin', 0),
+(90, 'builder', '12ParleyVale', 'tim@sitebuilt.net', 'admin', 1),
+(96, 'shrooms', '12ParleyVale', 'tim@sitebuilt.net', 'user', 0),
+(98, 'lightsoff', '12ParleyVale', 'tim@sitebuilt.net', 'user', 1),
+(106, 'shrooms', '255ChestnutAve', 'tim@sitebuilt.net', 'admin', 0),
+(100, 'demo', 'anywhere', 'anybody', 'obs', 1),
+(108, 'lightsoff', '255ChestnutAve', 'tim@sitebuilt.net', 'admin', 1),
+(118, 'lightsoff', '794048thAveS', 'tim@sitebuilt.net', 'admin', 1),
+(122, 'builder', '12ParleyVale', 'mckenna.tim@gmail.com', 'user', 1),
+(123, 'installer', '12ParleyVale', 'mckenna.tim@gmail.com', 'admin', 1),
+(143, 'pahoRawSB', '12ParleyVale', 'mckenna.tim@gmail.com', 'user', 1),
+(144, 'pahoRawSB', '255ChestnutAve', 'mckenna.tim@gmail.com', 'admin', 1),
+(165, 'timr', '12ParleyVale', 'tim@sitebuilt.net', 'user', 1),
+(166, 'timr', '255ChestnutAve', 'tim@sitebuilt.net', 'user', 1),
+(167, 'timr', '794048thAveS', 'tim@sitebuilt.net', 'user', 1),
+(168, 'timr', '4505NHaightAve', 'tim@sitebuilt.net', 'user', 1),
+(170, 'greenhouse', '12ParleyVale', 'mckenna.tim@gmail.com', 'user', 1),
+(171, 'greenhouse', '255ChestnutAve', 'mckenna.tim@gmail.com', 'user', 1),
+(172, 'greenhouse', '794048thAveS', 'mckenna.tim@gmail.com', 'admin', 1),
+(194, 'greenhouse', '4505NHaightAve', 'mckenna.tim@gmail.com', 'user', 1),
+(195, 'cascada', '4505NHaightAve', 'mckenna.tim@gmail.com', 'user', NULL),
+(196, 'builder', '4505NHaightAve', 'tim@sitebuilt.net', 'user', 1),
+(198, 'cascada', '12ParleyVale', 'clipperjohn@gmail.com', 'admin', 1),
+(199, 'cascada', '12ParleyVale', 'clippingersue@gmail.com', 'admin', 1);
+
+ALTER TABLE `app_loc_user`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `main` (`userid`,`appid`,`locid`,`role`) USING BTREE,
+  ADD KEY `userid` (`userid`) USING BTREE,
+  ADD KEY `appid` (`appid`) USING BTREE,
+  ADD KEY `role` (`role`) USING BTREE,
+  ADD KEY `auth` (`auth`),
+  ADD KEY `locid` (`locid`) USING BTREE;
+
+ALTER TABLE `app_loc_user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+CREATE TABLE `locations` (
+  `id` int(11) NOT NULL,
+  `locid` varchar(20) NOT NULL,
+  `address` varchar(120) NOT NULL,
+  `latlng` varchar(100) DEFAULT NULL,
+  `timezone` varchar(40) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `locations`
+--
+
+INSERT INTO `locations` (`id`, `locid`, `address`, `latlng`, `timezone`) VALUES
+(1000, '12ParleyVale', '12 Parley Vale, Jamaica Plain, MA 02130', '{"lat":42.315,"lng":-71.111}', 'America/New_York'),
+(1001, '255ChestnutAve', '255 Chestnut Ave, Jamaica Plain, MA 02130, USA', '{"lat":42.31381409999999,"lng":-71.10874749999999}', 'America/New_York'),
+(1002, '794048thAveS', '7940 48th Ave S, Seattle, WA 98118, USA', '{"lat":47.5303635,"lng":-122.2724899}', 'America/Los_Angeles'),
+(1003, '4505NHaightAve', '4505 N Haight Ave, Portland, OR 97217, USA', '{"lat":45.5555363,"lng":-122.6703647}', 'America/Los_Angeles');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `locations`
+--
+ALTER TABLE `locations`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `locid` (`locid`) USING BTREE,
+  ADD KEY `timezone` (`timezone`);
+
+ALTER TABLE `locations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1004;  
+
+select * from app_loc_user order by appid, `role`, locid, userid
+
+
+
+DROP TABLE if exists app_loc_user2 ;
+CREATE TABLE app_loc_user2 
+select appid,locid,userid,`role`,auth 
+from app_loc_user order by appid, `role`, locid, userid;
+ALTER TABLE `app_loc_user2`
+  ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, 
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `main` (`userid`,`appid`,`locid`,`role`) USING BTREE,
+  ADD KEY `userid` (`userid`) USING BTREE,
+  ADD KEY `appid` (`appid`) USING BTREE,
+  ADD KEY `role` (`role`) USING BTREE,
+  ADD KEY `auth` (`auth`),
+  ADD KEY `locid` (`locid`) USING BTREE;
+DROP TABLE if exists app_loc_user ;
+RENAME TABLE `app_loc_user2` TO `app_loc_user`;
+
+DROP TABLE IF EXISTS `app_loc_user`;
+CREATE TABLE `app_loc_user` (
+  `id` int(11) NOT NULL,
+  `appid` varchar(20) DEFAULT NULL,
+  `locid` varchar(60) DEFAULT NULL,
+  `userid` varchar(60) NOT NULL,
+  `role` varchar(20) DEFAULT NULL,
+  `auth` tinyint(4) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `app_loc_user` (`id`, `appid`, `locid`, `userid`, `role`, `auth`) VALUES
+(1, 'base', '4505NHaightAve', 'tim@sitebuilt.net', 'admin', 0),
+(2, 'builder', '12ParleyVale', 'tim@sitebuilt.net', 'admin', 1),
+(3, 'builder', '4505NHaightAve', 'tim@sitebuilt.net', 'admin', 1),
+(4, 'builder', '794048thAveS', 'tim@sitebuilt.net', 'admin', 1),
+(5, 'builder', '12ParleyVale', 'mckenna.tim@gmail.com', 'user', 1),
+(6, 'builder', '4505NHaightAve', 'tim@sitebuilt.net', 'user', 1),
+(7, 'cascada', '12ParleyVale', 'clipperjohn@gmail.com', 'admin', 1),
+(8, 'cascada', '12ParleyVale', 'clippingersue@gmail.com', 'admin', 1),
+(9, 'cascada', '12ParleyVale', 'tim@sitebuilt.net', 'admin', 0),
+(10, 'cascada', '4505NHaightAve', 'tim@sitebuilt.net', 'admin', 0),
+(11, 'cascada', '794048thAveS', 'tim@sitebuilt.net', 'admin', 0),
+(12, 'cascada', '4505NHaightAve', 'mckenna.tim@gmail.com', 'user', NULL),
+(13, 'demo', 'anywhere', 'anybody', 'obs', 1),
+(130, 'demo', 'anywhere', 'mckenna.tim@gmail.com', 'admin', 1),
+(14, 'greenhouse', '794048thAveS', 'mckenna.tim@gmail.com', 'admin', 1),
+(15, 'greenhouse', '12ParleyVale', 'mckenna.tim@gmail.com', 'user', 1),
+(16, 'greenhouse', '255ChestnutAve', 'mckenna.tim@gmail.com', 'user', 1),
+(17, 'greenhouse', '4505NHaightAve', 'mckenna.tim@gmail.com', 'user', 1),
+(18, 'hvac', '794048thAveS', 'tim@sitebuilt.net', 'admin', 1),
+(19, 'hvac', '4505NHaightAve', 'tim@sitebuilt.net', 'obs', 1),
+(20, 'hvac', '12ParleyVale', 'mckenna.tim@gmail.com', 'user', 1),
+(21, 'hvac', '12ParleyVale', 'tim@sitebuilt.net', 'admin', 1),
+(22, 'hvac', '255ChestnutAve', 'mckenna.tim@gmail.com', 'user', 1),
+(23, 'hvac', '255ChestnutAve', 'tim@sitebuilt.net', 'user', 1),
+(24, 'installer', '12ParleyVale', 'mckenna.tim@gmail.com', 'admin', 1),
+(25, 'installer', '12ParleyVale', 'tim@sitebuilt.net', 'admin', 0),
+(26, 'lightsoff', '255ChestnutAve', 'tim@sitebuilt.net', 'admin', 1),
+(27, 'lightsoff', '794048thAveS', 'tim@sitebuilt.net', 'admin', 1),
+(28, 'lightsoff', '12ParleyVale', 'tim@sitebuilt.net', 'user', 1),
+(29, 'pahoRawSB', '255ChestnutAve', 'mckenna.tim@gmail.com', 'admin', 1),
+(30, 'pahoRawSB', '12ParleyVale', 'mckenna.tim@gmail.com', 'user', 1),
+(31, 'shrooms', '255ChestnutAve', 'tim@sitebuilt.net', 'admin', 0),
+(32, 'shrooms', '12ParleyVale', 'tim@sitebuilt.net', 'user', 0),
+(33, 'timr', '12ParleyVale', 'tim@sitebuilt.net', 'user', 1),
+(34, 'timr', '255ChestnutAve', 'tim@sitebuilt.net', 'user', 1),
+(35, 'timr', '4505NHaightAve', 'tim@sitebuilt.net', 'user', 1),
+(36, 'timr', '794048thAveS', 'tim@sitebuilt.net', 'user', 1);
+--
+ALTER TABLE `app_loc_user`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `main` (`userid`,`appid`,`locid`,`role`) USING BTREE,
+  ADD KEY `userid` (`userid`) USING BTREE,
+  ADD KEY `appid` (`appid`) USING BTREE,
+  ADD KEY `role` (`role`) USING BTREE,
+  ADD KEY `auth` (`auth`),
+  ADD KEY `locid` (`locid`) USING BTREE;
+--
+ALTER TABLE `app_loc_user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+
+--new query for broker/mysqldb/dbAuth for anybody
+SELECT role FROM app_loc_user WHERE appid='demo' AND userid='anybody' AND auth=1 
+SELECT role FROM app_loc_user WHERE appid='demo' AND userid='anybody' AND auth=1
+SELECT role FROM app_loc_user WHERE appid='demo' AND userid='anybody' AND auth=1;
+SELECT role FROM geniot.app_loc_user WHERE appid='demo' AND userid='anybody' AND auth=1
+SELECT role FROM geniot.app_loc_user WHERE appid='demo' AND userid='anybody' AND auth=1
+
+--new query for broker/mysqldb/dbSubscr check auth
+SELECT auth FROM app_loc_user
+WHERE appid='hvac' AND userid='tim@sitebuilt.net' AND locid='12parleyVale' AND auth=1
+"SELECT auth FROM app_loc_user WHERE appid=? AND userid=? AND locid=? AND auth=1"
+
+
+
+--new query for broker/mysqldb/dbPublish check role
+SELECT * FROM app_loc_user
+WHERE appid='hvac' AND userid='tim@sitebuilt.net' AND locid='12parleyVale'
+
+--new query for broker/mysqldb/dbSet check role
+SELECT * FROM app_loc_user
+WHERE appid='hvac' AND userid='tim@sitebuilt.net' AND locid='12parleyVale' AND role='admin'
+
+--new query for broker/mysqldb/dbSet can publish
+SELECT * FROM app_loc_user
+WHERE appid='hvac' AND (userid='tim@sitebuilt.net'OR userid='anybody') AND locid='12parleyVale'
+
+--strategy/bearerToken
+SELECT locid FROM app_loc_user WHERE userid= 'tim@sitebuilt.net' AND auth=1;
+
+SELECT locid FROM app_loc_user  WHERE userid = 'tim@sitebult.net' AND auth = 1
+--new query for broker/mysqldb/dbSet can publish
+SELECT DISTINCT locid FROM app_loc_user
+WHERE userid='tim@sitebuilt.net'
+ORDER BY locid
+
+SELECT selected FROM hepeop 
+
+SELECT appid FROM app_loc_user  WHERE userid = 'mckenna.tim@gmail.com' AND locid='12ParleyVale' AND auth = 1
+'SELECT appid FROM app_loc_user  WHERE userid = ? AND locid=? AND auth = 1'

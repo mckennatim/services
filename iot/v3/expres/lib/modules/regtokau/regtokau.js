@@ -3,69 +3,86 @@ var jwt = require('jwt-simple');
 var cons = require('tracer').console();
 var env = require('../../../env.json')
 var conn = require('../../db/mysqldb')
+var bearerToken= require('./strategy').bearerToken
 
 var cfg= env[process.env.NODE_ENV||'development']
-var db = cfg.db
 var secret = cfg.secret
 
 var router = express.Router();
 
 module.exports = function() {
-	router.get('/', function(req, res) {
-		res.jsonp({message: "in root of registration module"})		
-	});
+  router.get('/', function(req, res) {
+    res.jsonp({message: "in root of registration module"})
+  });
 
-	router.post('/auth', function(req, res){
-		cons.log("in api/reg/auth")
-		cons.log(req.body)
-		const payload = jwt.decode(req.body.token, secret)
-		cons.log(payload)
-		// if (payload.email==cfg.super){
-		// 	//if you are a superuser add if no there the superuser records
-		// 	const superdev = "CYURD14I"
-		// 	cons.log('your are a superuser')
-		// 	var ins = {devid: superdev, userid:  payload.email, appid: payload.appId, role:'super', auth: true }
-		// 	var ins3 = {devid: superdev, userid: payload.email, appid: payload.appId, role:'admin', auth: true }
-		// 	conn.query('INSERT INTO user_app_loc SET ? ON DUPLICATE KEY UPDATE ?', [ins,ins] , function (error, results, fields) {
-		// 	  if(error) {
-		// 	  	console.log(error.code)
-		// 	  }else {
-		// 	  	console.log(results.insertId);
-		// 	  }
-		// 	})
-		// 	conn.query('INSERT INTO user_app_loc SET ? ON DUPLICATE KEY UPDATE ?', [ins3,ins3] , function (error, results, fields) {
-		// 	  if(error) {
-		// 	  	console.log(error.code)
-		// 	  }else {
-		// 	  	console.log(results.insertId);
-		// 	  }
-		// 	})
-		// 	res.jsonp({auth:true, message: 'authenticated a superuser'});
-		// }else{
-			//see if there are any apps/devices for that user or tell them they are shit outa luck and should contact the bossman to add your email to the system. If there is a record(s) for the user/appid then make auth true for them. If not have them ask to be added. 
-			var query1= conn.query('SELECT * FROM user_app_loc  WHERE userid = ? AND appid = ?', [payload.email, payload.appId], function (error, results, fields) {
-				cons.log(query1.sql)
-				if(results.length==0){
-					var mes = {auth:false, message: 'You are not authorized for this app on any device. Contact device owner'}
-					cons.log(mes)
-					res.jsonp(mes);
-				}else{
-					//ok we will auth you for this app for whatever devices
-					var ins4 = {userid: payload.email, appid: payload.appId}
-					var query = conn.query("UPDATE user_app_loc SET auth= true WHERE userid = ? AND appid = ?", [payload.email, payload.appId] , function (error, results, fields){
-						cons.log(query.sql)
-						cons.log(error)
-						if(error){
-							res.jsonp({auth:false, message: 'Sorry, database error '+ error.code +' occured.'});
-						}else{
-							cons.log(results)
-							res.jsonp({auth:true, message: payload.email +' is authorized for ' + payload.appId, payload:payload});
-						}
-					})					
-				}
-			})
-		// }
-	})
-	return router;
+  router.post('/auth', function(req, res){
+    cons.log("in api/reg/auth")
+    cons.log(req.body)
+    const payload = jwt.decode(req.body.token, secret)
+    cons.log(payload)
+      var query1= conn.query('SELECT auth FROM app_loc_user  WHERE userid = ? AND auth = 1 ', [payload.email, payload.appId], function (error, results) {
+        cons.log(query1.sql)
+        if(results.length==0){
+          var mes = {auth:false, message: 'You are not authorized for this app at any location. Contact device owner'}
+          cons.log(mes)
+          res.jsonp(mes);
+        }else {
+          cons.log(results[0])
+          res.jsonp({auth:true, message: payload.email +' is authorized for ' + payload.appId, payload:payload});
+        }
+      })
+  })
+  router.get('/locs', bearerToken, function(req,res){
+    if(!req.userTok.auth){
+      var mess={auth:false, message: 'in get /dedata/apps (not authoried)-'+req.userTok.message}
+      cons.log(mess)
+      res.jsonp(mess)
+    }else{
+      console.log('req.userTok: ', req.userTok)
+      var qry= conn.query('SELECT DISTINCT locid FROM app_loc_user  WHERE userid = ? AND auth = 1', req.userTok.emailId, function (error, results) {
+        console.log('qry.sql: ', qry.sql)
+        console.log('results: ', results)
+        res.jsonp({results, message:'huh'})
+      })
+    }
+  })
+  router.get('/apps/:loc', bearerToken, function(req,res){
+    if(!req.userTok.auth){
+      var mess={auth:false, message: 'in get /dedata/apps (not authoried)-'+req.userTok.message}
+      cons.log(mess)
+      res.jsonp(mess)
+    }else{
+      console.log('req.userTok: ', req.userTok)
+      var qry= conn.query('SELECT appid, role FROM app_loc_user  WHERE userid = ? AND locid=? AND auth = 1', [req.userTok.emailId, req.params.loc], function (error, results) {
+        console.log('qry.sql: ', qry.sql)
+        console.log('results: ', results)
+        res.jsonp({results, message:'huh'})
+      })
+    }
+  })
+
+  router.get('/la/:loc/:app/:role', bearerToken, function(req,res){
+    if(!req.userTok.auth){
+      var mess={auth:false, message: 'in get /la/loc/app/role (not authoried)-'+req.userTok.message}
+      cons.log(mess)
+      res.jsonp(mess)
+    }else{
+      const exp = Math.floor(Date.now()) + addDays(40)
+      const payload = {
+        app: req.params.app,
+        email: req.userTok.emailId,
+        loc: req.params.loc,
+        role: req.params.role,
+        exp:exp
+      }
+      var token = jwt.encode(payload, secret);
+      const rev = {app:req.params.app, tdata:{email:req.userTok.emailId, token:token}}
+      res.jsonp(rev)
+    }
+  })
+  return router;
 }
 
+function addDays (x){
+  return x*(24*60*60*1000)
+}

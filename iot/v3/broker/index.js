@@ -3,13 +3,12 @@ var cons = require('tracer').console();
 var my=require('./mysqldb')
 var cfg= my.cfg
 console.log(cfg.db)
-var currentPacket = {dog: "uli"};
 var sched =require('./sched')
-var Reco = require('./reco').Reco
-var get = require('./utility').get
+// var Reco = require('./reco').Reco
+// var get = require('./utility').get
 
 var mongoose = require('mongoose');
-mongoose.connect(cfg.db.url);
+mongoose.connect(cfg.db.url,{ useNewUrlParser: true });
 
 // const cassandra = require('cassandra-driver');
 // const cassClient = new cassandra.Client({ contactPoints: ['sitebuilt.net'], keyspace: 'geniot' });
@@ -34,18 +33,17 @@ var authenticate = function(client, username, password, callback) {
   }
 }
 
-var authorizePublish = function(client, topic, payload, callback) {
+var authorizePublish = function(client, atopic, payload, callback) {
   // cons.log('GOT TO authorizePUBLISH')
-  var dev = topic.split('/')[0]
-  var topic = topic.split('/')[1]   
-  var appId = client.id.split('0.')[0]
-  var winp = [dev,appId,client.user]
+  //console.log('client.token: ', client.token)
+  var dev = atopic.split('/')[0]
+  var topic = atopic.split('/')[1]   
   switch(true){
     case client.id==dev || dev=='presence':
       callback(null,true)
       break;
     case topic=='cmd' || topic=='prg':
-      my.dbPublish(winp, function(cb){
+      my.dbPublish(client.token, function(cb){
         cons.log(`${client.user} can publish ${dev}/cmd||prg?: ${cb}`)
           if(!cb){
             cons.log('no publishing for you, connected: ',cb)
@@ -62,7 +60,7 @@ var authorizePublish = function(client, topic, payload, callback) {
         cons.log(`${client.user} is super and can publish ${dev}/set`)
         callback(null,true)
       }else{
-        my.dbPubSet([dev, client.user], function(cb){
+        my.dbPubSet(client.token, function(cb){
           cons.log(`${client.user} can publish ${dev}/set?: ${cb}`)
           if(!cb){
             callback (null,cb)
@@ -81,14 +79,11 @@ var authorizePublish = function(client, topic, payload, callback) {
 var authorizeSubscribe = function(client, topic, callback) {
   var dev = topic.split('/')[0]
   var appId = client.id.split('0.')[0]
-  console.log('CLIENT  TOKEN')
-  cons.log('CLIENT: ', client.token)
   cons.log(client.id, dev, appId, client.user)
   if(client.id==dev){
     callback(null,true)
   }else{
-    var winp = [dev,appId,client.user]
-    my.dbSubscr(winp, function(cb){
+    my.dbSubscr(client.token, function(cb){
       cons.log(cb)
       callback(null, cb);      
     })
@@ -129,9 +124,10 @@ function setup() {
 
 var moserver = new mosca.Server(moscaSettings);   //here we start mosca
 moserver.on('ready', setup);  //on init it fires up setup()
-var moclient= moserver.on('clientConnected', function(client) {
-    console.log('client connected', client.id, client.user);
-    return client;
+//var moclient= moserver.on('clientConnected', function(client) {
+moserver.on('clientConnected', function(client) {
+  console.log('client connected', client.id, client.user);
+  return client;
 });
 
 moserver.published = function(packet, moclient, cb) {
@@ -181,19 +177,17 @@ var mq = {
         var pl = JSON.parse(payload.toString())
         var top =`${this.devid}/userInf`
         cons.log(pl.user)
-        my.dbGetUser([this.devid,pl.appId,pl.user], function(cbv){
-          var pla= `{"canPublish":${cbv}}`
-          var oPacket = {
-            topic: top,
-            payload: pla,
-            retain: false,
-            qos: 0
-          };    
-          //console.log(oPacket)    
-          moserver.publish(oPacket, ()=>{
-            cons.log('did PUBLISH IT')
-          })          
-        })
+        var pla= `{"canPublish":${true}}`
+        var oPacket = {
+          topic: top,
+          payload: pla,
+          retain: false,
+          qos: 0
+        };    
+  
+        moserver.publish(oPacket, ()=>{
+          cons.log('did PUBLISH IT')
+        })          
         break  
       case this.job=="srstate":
         // var pl = JSON.parse(payload.toString())
