@@ -1739,3 +1739,37 @@ SELECT selected FROM hepeop
 
 SELECT appid FROM app_loc_user  WHERE userid = 'mckenna.tim@gmail.com' AND locid='12ParleyVale' AND auth = 1
 'SELECT appid FROM app_loc_user  WHERE userid = ? AND locid=? AND auth = 1'
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+DROP TABLE IF EXISTS `app_loc`;
+CREATE TABLE `app_loc` (
+  `id` int(11) NOT NULL,
+  `appid` varchar(20) NOT NULL,
+  `locid` varchar(20) NOT NULL,
+  `devs` varchar(300) DEFAULT NULL,
+  `zones` varchar(300) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `app_loc` (`id`, `appid`, `locid`, `devs`, `zones`) VALUES
+(405, 'hvac', '12ParleyVale', '{"CYURD003": [{"sr":0,"label":"kid"}, {"sr":1,"label":"lr"}], "CYURD001": [{"sr":0,"label":"music"}, {"sr":1,"label":"peri"}]}', '[{"id":"kid", "name":"Kid\'s Suite","img":"kid.jpg"}, {"id":"lr","name":"Living Room","img":"lr.jpg"},{"id":"music","name":"Music Room","img":"music.jpg"},{"id":"peri","name":"Peri\'s Study","img":"peri.jpg"}]'),
+(406, 'hvac', '255ChestnutAve', '{"CYURD013": [{"sr":0,"label":"kid"}, {"sr":1,"label":"lr"}], "CYURD016": [{"sr":0,"label":"music"}, {"sr":1,"label":"peri"}]}', '[{"id":"kid", "name":"Kid\'s Suite","img":"kid.jpg"}, {"id":"lr","name":"Living Room","img":"lr.jpg"},{"id":"music","name":"Music Room","img":"music.jpg"},{"id":"peri","name":"Peri\'s Study","img":"peri.jpg"}]'),
+(407, 'timr', '12ParleyVale', '{"CYURD004": [{"sr":0,"label":"temp-gh"}, {"sr":1,"label":"hum-gh"}, {"sr":2,"label":"light-gh"}], "CYURD006": [{"sr":0,"label":"temp-out"}]}', '[{"id":"temp-gh", "name":"Greenhouse Temperature","img":"temp-gh.jpg"}, {"id":"hum-gh","name":"Greenhouse Humidity","img":"hum-gh.jpg"}, {"id": "light-gh", "name":"Greenhouse Lights","img":"light-gh.jpg"},{"id":"temp-out","name":"Outside Temperature","img":"temp-out.jpg"}]'),
+(409, 'timr', '255ChestnutAve', '{"CYURD013": [{"sr":0,"label":"temp-gh"}, {"sr":1,"label":"hum-gh"}, {"sr":2,"label":"light-gh"}], "CYURD016": [{"sr":0,"label":"temp-out"}]}', '[{"id":"temp-gh", "name":"Greenhouse Temperature","img":"temp-gh.jpg"}, {"id":"hum-gh","name":"Greenhouse Humidity","img":"hum-gh.jpg"},{"id":"temp-out","name":"Outside Temperature","img":"temp-out.jpg"}]');
+
+
+ALTER TABLE `app_loc`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `main` (`appid`,`locid`),
+  ADD KEY `locid` (`locid`),
+  ADD KEY `appid` (`appid`);
+
+
+ALTER TABLE `app_loc`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=410;
+
+
+
+SELECT * FROM  app_loc WHERE appid = 'greenhouse' AND locid='12ParleyVale'
+SELECT * FROM  app_loc WHERE appid = ? AND locid=?

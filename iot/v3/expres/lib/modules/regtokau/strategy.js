@@ -119,7 +119,7 @@ var bearerTokenAppLoc = function(req,res, next){
     return
   }
   cons.log(tokdata)
-  var q= conn.query('SELECT userid, appid, locid. role FROM app_loc_user WHERE userid= ? AND appid=? AND locid=?', [tokdata.email,tokdata.app, tokdata.loc, tokdata.role], function (error, results) {
+  var q= conn.query('SELECT userid, appid, locid, role FROM app_loc_user WHERE userid= ? AND appid=? AND locid=? AND role=?', [tokdata.email,tokdata.app, tokdata.loc, tokdata.role], function (error, results) {
     cons.log(q.sql)
     if (error){
       cons.log(error.message)

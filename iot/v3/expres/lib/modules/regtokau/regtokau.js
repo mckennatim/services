@@ -76,6 +76,7 @@ module.exports = function() {
         exp:exp
       }
       var token = jwt.encode(payload, secret);
+      console.log('payload: ', payload)
       const rev = {app:req.params.app, tdata:{email:req.userTok.emailId, token:token}}
       res.jsonp(rev)
     }

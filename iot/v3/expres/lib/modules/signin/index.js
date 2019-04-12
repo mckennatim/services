@@ -1,7 +1,7 @@
 var express = require('express');
 // var cons = require('tracer').console();
-var conn = require('../../db/mysqldb')
-var bearerTokenAppLoc = require('../regtokau/strategy').bearerTokenAppLoc
+// var conn = require('../../db/mysqldb')
+// var bearerTokenAppLoc = require('../regtokau/strategy').bearerTokenAppLoc
 
 var router = express.Router();
 
