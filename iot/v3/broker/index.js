@@ -171,6 +171,20 @@ var mq = {
           console.log(results)
         })
         break
+      case this.job=="mytime":
+        var spot = payload.toString()
+        const timeobj = sched.findNowAtSpot(spot)
+        var topi = 'moment/yourtime'
+        var oPacket = {
+          topic: topi,
+          payload: JSON.stringify(timeobj),
+          retain: false,
+          qos: 0
+        };
+        moserver.publish(oPacket, function(){
+          console.log('just published yourtime')
+        });
+        break  
       case this.job=="sched":
         break
       case this.job=="user":

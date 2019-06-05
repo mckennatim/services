@@ -50,7 +50,7 @@ const dbAuth = (client, username,password, cb)=>{
       cons.log(clientid)
       cons.log(username)
       cons.log(tokdata)
-      if(tokdata.app==clientid && tokdata.email==username){
+      if(tokdata.app==clientid  && tokdata.email==username){
         cons.log('should be true')
         client.appId= tokdata.appId
         cons.log(client.appId)
@@ -72,6 +72,8 @@ const dbSubscr=(password, cb)=>{
     cb(true)
     return
   }
+  console.log('tokdata: ', tokdata)
+  cons.log(tokdata)
   var query = conn.query("SELECT auth FROM app_loc_user WHERE appid=? AND userid=? AND locid=? AND auth=1",[tokdata.app, tokdata.email, tokdata.loc] , function(error,results){
     cons.log(query.sql)
     //cons.log(results[0])
@@ -95,13 +97,13 @@ const dbPublish=(password, cb)=>{
     cb(true)
     return
   }
-  var query = conn.query("SELECT role FROM app_loc_user WHERE appid=? AND userid=? AND locid=? AND auth=1",[tokdata.appid, tokdata.email, tokdata.apploc] , function(error,results){
+  var query = conn.query("SELECT role FROM app_loc_user WHERE appid=? AND userid=? AND locid=? AND auth=1",[tokdata.app, tokdata.email, tokdata.loc] , function(error,results){
     cons.log(query.sql)
     console.log('results: ', results)
     var cbv=false
     if(error){
       cbv=false
-    }else {
+    }else if(results.length>0) {
       var res = results[0];
       cons.log(res)
       if(ut.get('res.role',res)=='obs'){

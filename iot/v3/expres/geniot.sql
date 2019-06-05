@@ -1773,3 +1773,5 @@ ALTER TABLE `app_loc`
 
 SELECT * FROM  app_loc WHERE appid = 'greenhouse' AND locid='12ParleyVale'
 SELECT * FROM  app_loc WHERE appid = ? AND locid=?
+
+update app_loc_user set locid='10-12ParleyVale' where locid = '12ParleyVale' and appid = 'cascada'

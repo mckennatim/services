@@ -2682,3 +2682,51 @@ CREATE TABLE `paystubs` (
   KEY (`email`),
   KEY (`coid`)
   ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+  SELECT * FROM `gl` ORDER BY id DESC limit 500
+
+DELETE FROM `gl` WHERE id > 69383
+
+SELECT SUM(debit) as debit, SUM(credit) as credit
+FROM gl;
+
+SELECT * FROM `tcardwk` where coid = 'RRCLLC'
+SELECT * FROM `tcardwk` where coid = 'RRCLLC' AND wprt like('2019-%')
+
+DELETE FROM `tcardwk` where coid = 'RRCLLC' AND emailid = 'mckenna.tim@gmail.com'
+
+UPDATE `tcardwk` SET status= 'approved' where coid = 'RRCLLC' AND wprt like('2019-%') AND status= 'paid'
+
+
+DELETE FROM `gl` WHERE coid = 'demo00'
+
+SELECT * FROM gl WHERE coid = 'RRCLLC' AND someid =  'noah.mckenna@gmail.com' AND wdprt like('2019-%')
+
+SELECT * FROM gl WHERE coid = 'RRCLLC' AND cat =  'WhTaxPayment' AND wdprt like('2019-%')
+
+SELECT * FROM gl WHERE coid = 'RRCLLC' AND cat = 'WhTaxPayment' ORDER BY someid
+
+CREATE TABLE tmpWhTaxPayment SELECT * FROM gl WHERE coid = 'RRCLLC' AND cat = 'WhTaxPayment' ORDER BY someid
+
+SELECT * FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-%')
+
+SELECT SUM(debit) as debit, SUM(credit) as credit
+FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-%')
+
+DELETE FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-%')
+
+SELECT * FROM `paystubs` WHERE coid = 'RRCLLC' and week != '2019-W01'
+DELETE FROM `paystubs` WHERE coid = 'RRCLLC' and week != '2019-W01'
+
+SELECT * FROM gl WHERE coid = 'RRCLLC' AND account='a6032-net' order by id desc
+
+SELECT * FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-W13%') order by id desc
+SELECT SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-W13%') order by id desc
+DELETE FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-W13%') 
+UPDATE `tcardwk` SET status= 'approved' where coid = 'RRCLLC' AND wprt like('2019-W13%') AND status= 'paid'
+
+SELECT * FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-%') order by id desc
+SELECT SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-%') order by id desc
+DELETE FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-%') 
+UPDATE `tcardwk` SET status= 'approved' where coid = 'RRCLLC' AND wprt like('2019-%') AND status= 'paid'
+DELETE FROM `paystubs` WHERE coid = 'RRCLLC' and week != '2019-%'

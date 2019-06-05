@@ -22,9 +22,15 @@ module.exports = function() {
       cons.log('in /i/speczones no params')
       var q =conn.query('SELECT devs,zones FROM app_loc WHERE appid=? AND locid=?',[req.userTok.app, req.userTok.loc],  function(error, results){
         cons.log(q.sql)
-        const devs=JSON.parse(results[0].devs)
-        const zones=JSON.parse(results[0].zones)
-        res.jsonp({devs, zones, binfo:req.userTok})
+        console.log('results: ', results)
+        if(results.length>0){
+          const devs=JSON.parse(results[0].devs)
+          const zones=JSON.parse(results[0].zones)
+          res.jsonp({devs, zones, binfo:req.userTok})
+        }else{
+          res.jsonp({message: 'There is no app for that location'})
+        }
+
       })
     }
   })
