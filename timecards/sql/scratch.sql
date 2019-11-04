@@ -1,5 +1,5 @@
 show tables from timecards;
-USE timecards;
+USE timecards;update
 SELECT * FROM jobcatact WHERE week=0;
 
 select * from timecards.whoapp;
@@ -315,6 +315,8 @@ ON DUPLICATE KEY UPDATE `wdprt` = '2018-W36-5', `emailid` = 'tim@sitebuilt.net',
 use timecards;
 INSERT INTO tcardpu SET `wdprt` = '2018-W36-6', `emailid` = 'tim@sitebuilt.net', `inout` = '[\"7:30\",\"15:15\",\"15:45\",\"17:00\",\"16:12\"]', `hrs` = 9.5, `coid` = 'timecards' 
 ON DUPLICATE KEY UPDATE `wdprt` = '2018-W36-6', `emailid` = 'tim@sitebuilt.net', `inout` = '[\"7:30\",\"15:15\",\"15:45\",\"17:00\",\"16:12\"]', `hrs` = 9.5, `coid` = 'timecards'
+
+UPDATE jobcatact SET active = 1 WHERE week=0 AND job IN ('827 Centre St - Bob Min', '241-5 Chestnut Ave' AND 
 
 use timecards;
 INSERT INTO tcardpu SET `wdprt` = '2018-W36-5', `emailid` = 'tim@sitebuilt.net', `inout` = '[]', `hrs` = 0, `coid` = 'timecards' 
@@ -2730,3 +2732,45 @@ SELECT SUM(debit) as debit, SUM(credit) as credit FROM gl WHERE coid = 'RRCLLC' 
 DELETE FROM gl WHERE coid = 'RRCLLC' AND wdprt like('2019-%') 
 UPDATE `tcardwk` SET status= 'approved' where coid = 'RRCLLC' AND wprt like('2019-%') AND status= 'paid'
 DELETE FROM `paystubs` WHERE coid = 'RRCLLC' and week != '2019-%'
+
+SELECT  DISTINCT someid as employee, 
+SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',
+SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',
+SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'
+FROM gl
+WHERE coid = 'RRCLLC'
+AND YEAR(`date`) = '2019'
+AND QUARTER(`date`)='3'
+AND someid NOT LIKE 'paid%'
+AND (
+  account='a6050-stateWages' ||
+  account='a6051-stateTaxable' ||
+  account='a2060-stWh'
+  ) 
+GROUP BY someid
+
+
+SELECT * FROM gl WHERE someid='liam.s.o.kelly@gmail.com' AND coid = 'RRCLLC' AND account='a6032-net' order by id desc date
+
+SELECT * FROM gl WHERE someid='liam.s.o.kelly@gmail.com' AND coid = 'RRCLLC' AND account='a6010-gross' order by id desc
+
+SELECT COUNT(DISTINCT(someid)) as numempl, YEAR(`date`) as year, QUARTER(`date`) as qtr FROM gl WHERE someid NOT LIKE 'paid%' AND coid = 'RRCLLC' AND YEAR(`date`) = '2019' GROUP BY YEAR(`date`), QUARTER(`date`);
+
+SELECT job, cat, someid, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2019' AND coid ='RRCLLC' GROUP BY job,cat, someid ORDER BY job,cat,someid;
+
+SELECT job, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2019' AND coid ='RRCLLC' GROUP BY job ORDER BY job;
+
+SELECT job, cat, SUM(somenum) as hrs, SUM(debit) as cost, ROUND(SUM(debit)/SUM(somenum),2) as hrcost FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2019' AND coid ='RRCLLC' GROUP BY job,cat ORDER BY job,cat;
+
+SELECT job, cat, someid as employee, somenum as hrs , wdprt  FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= '2019' AND coid ='RRCLLC' ORDER BY job,cat,wdprt,someid;
+
+SELECT job, cat, someid as employee, somenum as hrs , wdprt  FROM gl WHERE account = 'a5010-COGS' AND YEAR(`date`)= ? AND coid =? ORDER BY job,cat,wdprt,someid;
+
+
+UPDATE `jobcatact` SET active= 0 where coid = ? AND week= 0
+
+UPDATE `jobcatact` SET active= 1 where coid = 'reroo' AND (JOB)
+
+UPDATE jobcatact SET active = 1 WHERE week=0 AND job = '827 Centre St - Bob Min' AND category ='hardscape'
+
+UPDATE jobcatact SET active = 1 WHERE week=0 AND job = ? AND category =?

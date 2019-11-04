@@ -996,3 +996,51 @@ WHERE devid LIKE 'CYURD%'
 ORDER BY devid DESC LIMIT 1
 
 ALTER TABLE `roleapp` CHANGE `appid` `task` VARCHAR(20) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+INSERT INTO `scheds` (`devid`, `senrel`, `dow`, `sched`, `until`) VALUES
+('CYURD030', 0, 0, '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00');
+
+
+SELECT * FROM devs WHERE devid = 'CYURD030' OR devid = 'CYURD006';
+
+SELECT devid, `description`, `server`, specs, `owner` FROM devs WHERE devid IN ('CYURD030','CYURD006');
+
+SELECT 24 & 12;
+
+INSERT INTO `scheds` (`devid`, `senrel`, `dow`, `sched`, `until`, `season`) VALUES
+('CYURD333', 0, 0, '[[0,0,55,53],[17,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 96, '[[0,0,55,53],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 31, '[[0,0,55,53],[4,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 21, '[[0,0,55,53],[5,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 12, '[[0,0,55,53],[6,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 128, '[[0,0,55,53],[7,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 2, '[[0,0,55,53],[8,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 4, '[[0,0,55,53],[9,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 8, '[[0,0,55,53],[10,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 16, '[[0,0,55,53],[11,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 32, '[[0,0,55,53],[12,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD333', 0, 64, '[[0,0,55,53],[13,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current');
+
+DELETE from `scheds` WHERE devid='CYURD333';
+
+SELECT * FROM scheds 
+WHERE (devid,senrel,dow) 
+IN ( 
+  SELECT devid, senrel, MAX(dow) 
+  FROM scheds 
+  WHERE (dow=0 OR dow & POW(2,3) OR dow>=128) 
+  AND (until = '0000-00-00 00:00' OR '2018-03-12' <= until) 
+  GROUP BY devid, senrel 
+  ) 
+AND devid = 'CYURD333';
+
+SELECT * FROM scheds WHERE (devid,senrel,dow) IN ( SELECT devid, senrel, MAX(dow) FROM scheds WHERE (dow=0 OR dow & POW(2,3) OR dow>=128) AND (until = '0000-00-00 00:00' OR '2018-03-12' <= until) GROUP BY devid, senrel ) AND devid = 'CYURD333'
+
+SELECT * FROM scheds WHERE (devid,senrel,dow) IN ( SELECT devid, senrel, MAX(dow) FROM scheds WHERE (dow=0 OR dow & POW(2,?) OR dow>=128) AND (until = '0000-00-00 00:00' OR '2018-03-12' <= until) GROUP BY devid, senrel ) AND devid = ?
+
+INSERT INTO `scheds` (`devid`, `senrel`, `dow`, `sched`, `until`, `season`) VALUES
+('CYURD030', 1, 96, '[[0,0,55,53],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current'),
+('CYURD030', 1, 31, '[[0,0,55,53],[4,12,78,76],[20,50,56,52],[22,50,64,61]]', '0000-00-00 00:00', 'current');
+
+SELECT * FROM scheds WHERE devid='CYURD030' AND senrel=1;
+SELECT * FROM scheds WHERE devid=? AND senrel=?;

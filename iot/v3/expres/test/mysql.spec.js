@@ -208,5 +208,22 @@ describe('admin:', function(done) {
         expect(true).to.equal(true)
         done()
       })
+  })
+  it('gets to admin/i/devzones', function(done){
+    var url=cfg.url.local+":"+cfg.port.express+"/api/admin/i/devzones"
+    console.log(url)
+    console.log(buildertoken)
+    let mytoken ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhcHAiOiJodmFjIiwiZW1haWwiOiJ0aW1Ac2l0ZWJ1aWx0Lm5ldCIsImxvYyI6IjEyUGFybGV5VmFsZSIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTU3NDI3MzY5Mjc3MH0.kGXPHBO7SYj2d8MyY5K5Yf6EWxR47q-qurZCCW4PPi8"
+    
+    // eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhcHAiOiJjYXNjYWRhIiwiZW1haWwiOiJtY2tlbm5hLnRpbUBnbWFpbC5jb20iLCJsb2MiOiIxMC0xMlBhcmxleVZhbGUiLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE1NjMwNjI3OTgyMTV9.x9eTZHEIUBiXYRjvLGFD4TCOet4ZUBHlzUvMEqEg7hk"
+    superagent
+      .get(url)
+      .set('Authorization', 'Bearer ' + mytoken)
+      .end(function(e, res) {
+        console.log(res.body)
+        console.log(res.body.devs)
+        expect(true).to.be(true);
+        done()
+      })
   })	
 })

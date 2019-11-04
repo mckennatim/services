@@ -79,9 +79,15 @@ module.exports = function() {
         } else {
             cons.log(req.userTok);
             cons.log(req.params)
-            var q = conn.query('SELECT * FROM jobcatact WHERE week=? AND coid=? ORDER BY idx, category', [req.params.wk * 1, req.userTok.coid], function(error, results) {
+            var q = conn.query('SELECT * FROM jobcatact WHERE week=? AND coid=? ORDER BY idx, category; UPDATE `jobcatact` SET active= 0 where coid = ? AND week= 0;' , [req.params.wk * 1, req.userTok.coid, req.userTok.coid], function(error, results) {
                 cons.log(q.sql)
-                var arrres = results.map((res) => res)
+                var arrres = results[0].map((res) => res)
+                // console.log('arrres: ', arrres)
+                arrres.map((a)=>{
+                    const q2 = conn.query("UPDATE jobcatact SET active = 1 WHERE week=0 AND job = ? AND category =?", [a.job, a.category], function() {
+                        console.log('q2.sql: ', q2.sql)
+                    })
+                })
                 res.jsonp({ jobs: arrres, binfo: req.userTok })
             })
         }
