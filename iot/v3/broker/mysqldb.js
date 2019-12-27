@@ -161,7 +161,7 @@ const dbGetTimezone=(devId, cb)=>{
 const getTodaysSched=(devid, timeobj, cb)=>{
   let dow = timeobj.dow
   let myuntil = timeobj.mysql.split(' ')[0]
-  var query=conn.query("SELECT * FROM scheds WHERE (devid,senrel,dow) IN ( SELECT devid, senrel, MAX(dow) FROM scheds WHERE (dow=0 OR dow & POW(2,?) OR dow>=128) AND (until = '0000-00-00 00:00' OR ? <= until) GROUP BY devid, senrel ) AND devid = ?", [dow,myuntil,devid], function(error,results){
+  var query=conn.query("SELECT * FROM scheds WHERE (devid,senrel,dow) IN ( SELECT devid, senrel, MAX(dow) FROM scheds WHERE (dow=0 OR dow & POW(2,?-1) OR dow>=128) AND (until = '0000-00-00' OR ? <= until) GROUP BY devid, senrel ) AND devid = ?", [dow,myuntil,devid], function(error,results){
     cons.log(query.sql)
     cons.log(results)
     cb(results)
@@ -176,6 +176,12 @@ const getSenRelSched=(devid,senrel,dow,cb)=>{
   })
 }
 
+const add2bigdata =(rec)=>{
+  var query=conn.query("INSERT INTO bigdata SET ?", rec, function(error,results){
+    cons.log(query.sql)
+  })  
+}
+
 module.exports = {
   cfg: cfg,
   conn: conn,
@@ -185,5 +191,6 @@ module.exports = {
   dbPubSet: dbPubSet,
   dbGetTimezone: dbGetTimezone,
   getTodaysSched: getTodaysSched,
-  getSenRelSched: getSenRelSched
+  getSenRelSched: getSenRelSched,
+  add2bigdata
 }

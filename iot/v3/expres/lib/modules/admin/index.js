@@ -53,6 +53,7 @@ module.exports = function() {
                   console.log('sunrise, sunset: ', sunrise, sunset)
                   locdata.sunrise=sunrise
                   locdata.sunset=sunset
+                  locdata.loc=req.userTok.loc
                 }
                 res.jsonp({devs, zones, binfo:{...req.userTok, locdata}, specs})
               })
@@ -96,6 +97,137 @@ module.exports = function() {
     }
   })
 
+  router.put('/u/zonescheds', bearerTokenAppLoc, function(req,res){
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /u/zonescheds (not authorized)-' + req.userTok.message }
+      res.jsonp(mess)
+    } else {
+      const{dowarr, devarr, edsched, holddate, season}=req.body
+      const bits = dowarr.pop()
+      devarr.map((v)=>{
+        var q =conn.query('SELECT * FROM scheds WHERE devid=? AND senrel=?;',[v.dev,v.sr],  function(error, rscheds){
+          cons.log(q.sql)
+          let modscheds = rscheds        
+            .map((s)=>{
+              delete s.id 
+              const band = s.dow & bits
+              if(band>0){
+                const nb =~band & s.dow
+                if (nb>0){
+                  s.dow=nb
+                  return s
+                }
+              }else{
+                return s
+              }
+            })
+            .filter((f)=>f!=null)
+            const newsched = {devid:v.dev, senrel:v.sr, dow:bits, sched:JSON.stringify(edsched), until:'0000-00-00', season}
+            modscheds.push(newsched)
+            if (dowarr.includes(0)){
+              var foundit = false
+              modscheds = modscheds.map((r)=>{
+                if(r.dow==0){//change if exists
+                  foundit=true
+                  r.sched=JSON.stringify(edsched)
+                }
+                return r
+              })            
+              if (!foundit){
+                const zerosched = {devid:v.dev, senrel:v.sr, dow:0, sched:JSON.stringify(edsched), until:'0000-00-00', season}
+                modscheds.push(zerosched)
+              }
+            }
+            if (dowarr.includes(128)){
+              modscheds= modscheds.filter((f)=>f.dow!=128)
+              const holdsched ={devid:v.dev, senrel:v.sr, dow:128, sched:JSON.stringify(edsched), until:holddate, season}
+              modscheds.push(holdsched)
+            }
+            modscheds.sort((a,b)=>a-b)
+            const dsched =modscheds.slice()
+            const keys = Object.keys(dsched[0])
+            const values = dsched.map((e)=>{
+              return  Object.values(e)
+            })
+            // console.log('keys: ', keys)
+            // console.log('values: ', values)
+            var q2 =conn.query('DELETE FROM scheds WHERE devid=? AND senrel=?;',[v.dev, v.sr], function(){
+              cons.log(q2.sql)
+              var q3 =conn.query('INSERT INTO scheds (' + keys + ') VALUES ? ',[values],function(){
+                cons.log(q3.sql)
+              })
+            })
+        })        
+      })
+      res.jsonp({message:'note waiting for nuttin'})
+    }
+  })
+  
+  router.put('/u/hold', bearerTokenAppLoc, function(req,res){
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /u/hold (not authorized)-' + req.userTok.message }
+      res.jsonp(mess)
+    } else {
+      const recs = req.body
+      recs.map((rec)=>{
+        var q =conn.query('INSERT INTO scheds SET ? ON DUPLICATE KEY UPDATE ?;',[rec, rec],  function(){
+          cons.log(q.sql)
+        })
+      })
+      res.jsonp({message: 'hold updated'})
+    }
+  })
+
+  router.get('/u/unhold/:devid/:senrel/:dow', bearerTokenAppLoc, function(req,res){
+    if(!req.userTok.auth){
+      var mess={message: 'in get admin/u/unhold/:devid/:senrel/:dow (not authoried)-'+req.userTok.message}
+      cons.log(mess)
+      res.jsonp(mess)
+    }else{
+    const{devid,senrel,dow}=req.params
+      const q2 = conn.query("SELECT sched FROM scheds WHERE (devid,senrel,dow) IN \
+      ( SELECT devid, senrel, MAX(dow) FROM scheds \
+      WHERE (dow=0 OR dow & POW(2,?-1))  \
+      GROUP BY devid, senrel ) \
+      AND devid=? AND senrel=?",[dow,devid,senrel] ,(error,results)=>{
+        cons.log(q2.sql)
+        res.jsonp({results})
+      })
+    }
+  })
+
+  router.delete('/u/holds', bearerTokenAppLoc, function(req,res){
+    if(!req.userTok.auth){
+      var mess={message: 'in get admin/u/holds (not authoried)-'+req.userTok.message}
+      cons.log(mess)
+      res.jsonp(mess)
+    }else{
+      console.log('req.body: ', req.body)
+      req.body.map((r)=>{
+        var q =conn.query('DELETE FROM scheds WHERE devid=? AND senrel=? AND dow=128', [r.devid,r.senrel], function(){
+          cons.log(q.sql)
+        })
+      })
+      res.jsonp({message:'do dog done'})
+    }
+  })
+
+  router.put('/u/bigdata', bearerTokenAppLoc, function(req,res){
+    if(!req.userTok.auth){
+      var mess={message: 'in get admin/u/bigdata (not authoried)-'+req.userTok.message}
+      cons.log(mess)
+      res.jsonp(mess)
+    }else{
+      console.log('req.body: ', req.body)
+      const{fro,too,devs}=req.body
+      var q =conn.query('SELECT dev,sr,temp,setpt, calling,`timestamp` FROM `bigdata` WHERE (timestamp BETWEEN ? AND ?) AND dev IN (?)',[fro, too, devs], function(error,results){
+        cons.log(q.sql)
+        console.log('error: ', error)
+        res.jsonp({results})
+      })
+      
+    }
+  })
 
   router.get('/b/devlist', bearerTokenApp, function(req,res){
     if(!req.userTok.auth){

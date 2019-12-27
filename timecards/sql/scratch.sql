@@ -2774,3 +2774,53 @@ UPDATE `jobcatact` SET active= 1 where coid = 'reroo' AND (JOB)
 UPDATE jobcatact SET active = 1 WHERE week=0 AND job = '827 Centre St - Bob Min' AND category ='hardscape'
 
 UPDATE jobcatact SET active = 1 WHERE week=0 AND job = ? AND category =?
+
+
+SELECT  DISTINCT someid as employee, 
+SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',
+SUM(CASE WHEN account='a2050-fedWh' THEN credit END) as 'a2050-fedWh',
+SUM(CASE WHEN account='a6061-FICAtaxable' THEN credit END) as 'a6061-FICAtaxable',
+SUM(CASE WHEN account='a2010-SS' THEN credit END) as 'a2010-SS',
+SUM(CASE WHEN account='a2020-medi' THEN credit END) as 'a2020-medi',
+SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',
+SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',
+SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'
+FROM gl
+WHERE coid = 'RRCLLC'
+AND YEAR(`date`) = '2019'
+AND someid NOT LIKE 'paid%'
+AND (
+  account='a6041-fedTaxable'||
+  account='a2050-fedWh'||
+  account='a6061-FICAtaxable'||
+  account='a2010-SS'||
+  account='a2020-medi'||
+  account='a6050-stateWages' ||
+  account='a6051-stateTaxable' ||
+  account='a2060-stWh'
+  ) 
+GROUP BY someid
+
+SELECT 
+SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',
+SUM(CASE WHEN account='a2050-fedWh' THEN credit END) as 'a2050-fedWh',
+SUM(CASE WHEN account='a6061-FICAtaxable' THEN credit END) as 'a6061-FICAtaxable',
+SUM(CASE WHEN account='a2010-SS' THEN credit END) as 'a2010-SS',
+SUM(CASE WHEN account='a2020-medi' THEN credit END) as 'a2020-medi',
+SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',
+SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',
+SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'
+FROM gl
+WHERE coid = 'RRCLLC'
+AND YEAR(`date`) = '2019'
+AND someid NOT LIKE 'paid%'
+AND (
+  account='a6041-fedTaxable'||
+  account='a2050-fedWh'||
+  account='a6061-FICAtaxable'||
+  account='a2010-SS'||
+  account='a2020-medi'||
+  account='a6050-stateWages' ||
+  account='a6051-stateTaxable' ||
+  account='a2060-stWh'
+  ) 

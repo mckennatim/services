@@ -1044,3 +1044,88 @@ INSERT INTO `scheds` (`devid`, `senrel`, `dow`, `sched`, `until`, `season`) VALU
 
 SELECT * FROM scheds WHERE devid='CYURD030' AND senrel=1;
 SELECT * FROM scheds WHERE devid=? AND senrel=?;
+
+
+DROP TABLE IF EXISTS `bigdata`;
+CREATE TABLE `bigdata` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dev` varchar(30) NOT NULL,
+  `sr` int(2) NOT NULL,
+  `temp` int(3) DEFAULT NULL,
+  `setpt` int(3) DEFAULT NULL,
+  `calling` boolean NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `devsr` (`dev`, `sr`),
+  KEY `timestamp` (`timestamp`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1000 ;
+
+INSERT INTO `bigdata` (`dev`, `sr`, temp, setpt, calling) VALUES
+('CYURD030', 0, 67, 70, false),
+('CYURD030', 4, null, null,0);
+
+INSERT INTO `bigdata` (`dev`, `sr`, temp, setpt, calling) VALUES
+('CYURD030', 0, 67, 70, 1),
+('CYURD030', 4, null, '',1);
+
+SELECT * FROM scheds WHERE (devid,senrel,dow) IN ( SELECT devid, senrel, MAX(dow) FROM scheds WHERE (dow=0 OR dow & POW(2,?-1)  GROUP BY devid, senrel, dow ) AND devid = ?
+
+
+SELECT devid, senrel, MAX(dow) FROM scheds WHERE (dow=0 OR dow & POW(2,4-1)) 
+GROUP BY devid, senrel
+
+SELECT sched FROM scheds WHERE (devid,senrel,dow) IN (
+SELECT devid, senrel, MAX(dow) FROM scheds 
+WHERE (dow=0 OR dow & POW(2,4-1)) 
+GROUP BY devid, senrel) 
+AND devid ='CYURD030'
+AND senrel = 1
+
+
+SELECT dev,sr,temp,setpt, calling,`timestamp` FROM `bigdata` ORDER BY id desc LIMIT 20
+
+SELECT dev,sr,temp,setpt, calling,`timestamp` FROM `bigdata` WHERE (timestamp BETWEEN '2019-11-07T23:14' AND '2019-11-08T13:01') AND dev IN ("CYURD030", "CYURD006")
+
+SELECT dev,sr,temp,setpt, calling,`timestamp` FROM `bigdata` WHERE (timestamp BETWEEN ? AND ?) AND dev IN (?)
+
+SELECT dev,sr,temp,setpt, calling,`timestamp` FROM `bigdata` WHERE (timestamp BETWEEN '2019-11-12T18:29:39' AND '2019-11-14T20:29:39') AND dev IN ('CYURD030', 'CYURD006')
+
+SELECT dev,sr,temp,setpt, calling,`timestamp` FROM `bigdata` WHERE (timestamp BETWEEN '2019-11-12T18:29:39' AND '2019-11-14T20:29:39') AND dev IN ('CYURD030', 'CYURD006');
+
+
+INSERT INTO `devs` (`id`, `devid`, `devpwd`, `description`, `bizid`, `locid`, `server`, `specs`, `owner`, `apps`) VALUES (NULL, 'CYURD071', 'geniot', 'thermostat relay/sensors 1, timer 1.', 'sbs', '12ParleyVale', '{ "url": "sitebuilt.net", "mqtt": 1884, "express": 3333 }', '{ "HAStIMER": 16, "notTimerTags": [ "temp", "onoff", "hilimit", "lolimit" ], "hysteresis": 2, "reportEvery": 5, "software_version": "espboth/hvac", "hardware_version": "d1_wemos", "sr": [ { "srid": 0, "haysensor": { "senses": "temp", "model": "DS18B20" }, "hayrelay": { "controlled": 1, "defsched": [ 0, 0, 55, 52 ] } }, { "srid": 4, "hayrelay": { "controlled": 0, "defsched": [ [ 0, 0, 1 ] ] }, "haysensor": 0 } ] }', 'tim@sitebuilt.net', NULL)
+
+
+DROP TABLE IF EXISTS `ssaRA`;
+CREATE TABLE IF NOT EXISTS `ssaRA` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `rwhat` char(2) ,
+  `ein` char(9) NOT NULL,
+  `agein` char(9) NOT NULL,
+  `sched` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `main` (`devid`,`senrel`,`until`) USING BTREE,
+  KEY `devid` (`devid`),
+  KEY `senrel` (`senrel`),
+  KEY `until` (`until`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `holds`(`devid`, `senrel`, `until`, `sched`) 
+VALUES ('CYURD001',0,'2018-02-15 00:00','[[0,0,72,74]]')
+
+DROP TABLE IF EXISTS `ssaRE`;
+CREATE TABLE IF NOT EXISTS `ssaRE` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `rwhat` char(2) DEFAULT 'RE',
+  `taxyear` char(4) NOT NULL, 
+  `agic` char(1) NOT NULL DEFAULT ' ',
+  `ein` char(9)  NOT NULL,
+  `agein` char(9)  NOT NULL DEFAULT '         ' ,
+  `tbi` char(1) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `ssaRE`(`taxyear`, `ein`) 
+VALUES ('2019','222333445');
+
+select * from ssaRE;

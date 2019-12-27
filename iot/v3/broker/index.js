@@ -15,19 +15,19 @@ mongoose.connect(cfg.db.url,{ useNewUrlParser: true });
 
 var authenticate = function(client, username, password, callback) {
   console.log(client.id)
-  cons.log(username)
-  cons.log(password)
+  // cons.log(username)
+  // cons.log(password)
   client.token=password.toString()
   if(!username || !password){
     callback(null,false)
-    cons.log('!username or !password')
+    // cons.log('!username or !password')
   }else{
     my.dbAuth(client, username,password.toString(), function(authorized){
-      console.log('authorized = ', authorized, ',appid = '+ client.id)
+      // console.log('authorized = ', authorized, ',appid = '+ client.id)
       if (authorized) {
         client.user = username;
       }
-      console.log(client.user)
+      // console.log(client.user)
       callback(null, authorized);
     })
   }
@@ -79,12 +79,12 @@ var authorizePublish = function(client, atopic, payload, callback) {
 var authorizeSubscribe = function(client, topic, callback) {
   var dev = topic.split('/')[0]
   var appId = client.id.split('0.')[0]
-  cons.log(client.id, dev, appId, client.user)
+  // cons.log(client.id, dev, appId, client.user)
   if(client.id==dev){
     callback(null,true)
   }else{
     my.dbSubscr(client.token, function(cb){
-      cons.log(cb)
+      // cons.log(cb)
       callback(null, cb);      
     })
   }
@@ -204,36 +204,21 @@ var mq = {
         })          
         break  
       case this.job=="srstate":
-        // var pl = JSON.parse(payload.toString())
-        // if (pl.new){
-        //   var devid=this.devid
-        //   var key=devid+":"+pl.id
-        //   Reco.count({id:key}, function(err,count){
-        //     if (count>0){ 
-        //     //if device:srid is stored in mongo.demiot.reco then save to cassandra
-        //       var q1,vals,oldrelay
-        //       var d = new Date()
-        //       var iso=d.toISOString()
-        //       var day = iso.split('T')[0]
-        //       var mo =day.substring(0,7)
-        //       var ts = iso.replace('T',' ').split('.')[0]
-        //       if (pl.darr.length==4){
-        //         q1="INSERT INTO tstat_by_day(devid,senrel,date,event_time,temp,relay,hilimit,lolimit) VALUES (?,?,?,?,?,?,?,?);"
-        //         vals=[devid, pl.id,day,ts,pl.darr[0],pl.darr[1],pl.darr[2],pl.darr[3]]
-        //       }else{
-        //         q1="INSERT INTO timr_by_month(devid,senrel,month,event_time,relay) VALUES (?,?,?,?,?);"
-        //         vals=[devid, pl.id,mo,ts,pl.darr[0]]
-        //       }
-        //       cassClient.execute(q1, vals, { prepare: true }, function(err){
-        //         if(err!=null){
-        //           console.log(err)
-        //         }else{
-        //           cons.log('saved to Cassandra')
-        //         }
-        //       })
-        //     }
-        //   })
-        // }
+        var pl = JSON.parse(payload.toString())
+        if(pl.new){
+          let temp=null
+          let setpt=null
+          let calling
+          if (pl.darr.length==1){
+            calling = pl.darr[0]
+          }else{
+            temp = pl.darr[0]
+            calling = pl.darr[1]
+            setpt = (pl.darr[3]+pl.darr[3])/2
+          }
+          const r = {dev:this.devid, sr:pl.id, temp, setpt, calling}
+          my.add2bigdata(r)
+        }
         break
       case this.job=="dog":
         break

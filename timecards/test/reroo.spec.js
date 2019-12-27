@@ -159,7 +159,7 @@ describe('tcard:', function(){
 			}) 
   })
   it('GETs tcard data from api/tcard/week/:wk when passed token', function(done) {
-		var url = httpLoc + 'tcard/week/35'
+		var url = httpLoc + 'tcard/week/5'
 		superagent
 			.get(url)
 			.set('Authorization', 'Bearer ' + token2)
@@ -335,7 +335,20 @@ describe('jobs:', function(){
 				expect(true).to.equal(true)
 				done()
 			})  
-  })
+	})
+})
+describe('w2', ()=>{
+	it('gets W2 file', (done)=>{
+		var url = httpLoc + 'payroll/w2'
+		superagent
+			.get(url)
+			.set('Authorization', 'Bearer ' + ctoken)
+			.end(function(e, res) {
+				console.log(res.body)
+				expect(res.body).to.be.an('object');
+				done()
+			})
+	})
 })
 
 

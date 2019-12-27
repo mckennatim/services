@@ -8,6 +8,7 @@ const conn = mysql.createConnection(mconn);
 
 const aq = conn.query("SELECT goodtil, coid FROM timecards.co WHERE coid LIKE 'tim%' ORDER BY coid;",(err,res)=>{
   console.log('err: ', err)
+  console.log('res: ', res)
   const delarr = res
   .filter((d)=>moment(d.goodtil)<moment())
   .map((d)=>d.coid)
@@ -34,6 +35,12 @@ const aq = conn.query("SELECT goodtil, coid FROM timecards.co WHERE coid LIKE 't
       slot = arr[i]
     }
   }
+
+  const are = conn.query("SELECT * FROM ssaRE;", (err, res)=>{
+    console.log('are.sql: ', are.sql)
+    console.log('err: ', err)
+    console.log('res: ', res)  
+  })
   console.log('slot: ', 'demo'+slot.toString().padStart(2,'0'))
   console.log('arr: ', arr)
   console.log('aq.sql: ', aq.sql)

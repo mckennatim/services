@@ -1,6 +1,10 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+### 54-timecards-scratch.sql
+pulled data from gl for w2 and efw2
+https://www.ssa.gov/employer/EFW2%26EFW2C.htm
+
 ### 53-timecards-signup-payroll
 maybe location of stuff is bad
 
