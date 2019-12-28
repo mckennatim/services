@@ -458,6 +458,36 @@ module.exports = function() {
     }
   })
 
+  router.get('/w2/:year', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/w2/:year/:qtr (not authorized)-' + req.userTok.message }
+      cons.log(mess)
+      res.jsonp(mess)
+    } else {
+      const coid = req.userTok.coid
+      const year = req.params.year
+      getw2data(year, coid, (results)=>{
+        console.log('results: ', results)
+        res.jsonp({results:results})
+      })
+    }
+  })
+
+  router.get('/efw2/:year', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/efw2/:year/:qtr (not authorized)-' + req.userTok.message }
+      cons.log(mess)
+      res.jsonp(mess)
+    } else {
+      const coid = req.userTok.coid
+      const year = req.params.year
+      getw2data(year, coid, (results)=>{
+        console.log('results: ', results)
+        res.jsonp({results:results})
+      })
+    }
+  })
+
   router.get('/jobcosts/:year', addAppId, bearerTokenCoid, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /payroll/jobcosts/:year (not authorized)-' + req.userTok.message }
@@ -522,3 +552,68 @@ module.exports = function() {
 // function addDays (x){
 //   return x*(24*60*60*1000)
 // }
+
+function getw2data(year, coid, cb){
+  console.log('coid: ', coid)
+  var query = conn.query("SELECT  * FROM co WHERE coid = ?;\
+    SELECT emailid,firstmid,lastname,street,city,st,zip,ssn FROM persons \
+    WHERE emailid IN \
+    (SELECT  DISTINCT someid as employee\
+    FROM gl\
+    WHERE coid = ?\
+    AND YEAR(`date`) = ?\
+    AND someid NOT LIKE 'paid%')\
+    AND coid = ?;\
+    SELECT \
+    SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',\
+    SUM(CASE WHEN account='a2050-fedWh' THEN credit END) as 'a2050-fedWh',\
+    SUM(CASE WHEN account='a6061-FICAtaxable' THEN credit END) as 'a6061-FICAtaxable',\
+    SUM(CASE WHEN account='a2010-SS' THEN credit END) as 'a2010-SS',\
+    SUM(CASE WHEN account='a2020-medi' THEN credit END) as 'a2020-medi',\
+    SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',\
+    SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',\
+    SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'\
+    FROM gl\
+    WHERE coid = 'RRCLLC'\
+    AND YEAR(`date`) = ?\
+    AND someid NOT LIKE 'paid%'\
+    AND (\
+      account='a6041-fedTaxable'||\
+      account='a2050-fedWh'||\
+      account='a6061-FICAtaxable'||\
+      account='a2010-SS'||\
+      account='a2020-medi'||\
+      account='a6050-stateWages' ||\
+      account='a6051-stateTaxable' ||\
+      account='a2060-stWh'\
+      ); \
+    SELECT  DISTINCT someid as employee, \
+    SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',\
+    SUM(CASE WHEN account='a2050-fedWh' THEN credit END) as 'a2050-fedWh',\
+    SUM(CASE WHEN account='a6061-FICAtaxable' THEN credit END) as 'a6061-FICAtaxable',\
+    SUM(CASE WHEN account='a2010-SS' THEN credit END) as 'a2010-SS',\
+    SUM(CASE WHEN account='a2020-medi' THEN credit END) as 'a2020-medi',\
+    SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',\
+    SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',\
+    SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'\
+    FROM gl\
+    WHERE coid = 'RRCLLC'\
+    AND YEAR(`date`) = ?\
+    AND someid NOT LIKE 'paid%'\
+    AND (\
+      account='a6041-fedTaxable'||\
+      account='a2050-fedWh'||\
+      account='a6061-FICAtaxable'||\
+      account='a2010-SS'||\
+      account='a2020-medi'||\
+      account='a6050-stateWages' ||\
+      account='a6051-stateTaxable' ||\
+      account='a2060-stWh'\
+      ) \
+    GROUP BY someid; ", [coid, coid, year, coid, year, year], (err,results)=>{
+      console.log('query.sql: ', query.sql)
+      console.log('err: ', err)
+      console.log('results: ', results)
+      cb(results)
+    })
+}

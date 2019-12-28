@@ -2775,6 +2775,15 @@ UPDATE jobcatact SET active = 1 WHERE week=0 AND job = '827 Centre St - Bob Min'
 
 UPDATE jobcatact SET active = 1 WHERE week=0 AND job = ? AND category =?
 
+SELECT firstmid,lastname,street,city,st,zip,ssn FROM persons WHERE emailid IN 
+(SELECT  DISTINCT someid as employee
+FROM gl
+WHERE coid = 'RRCLLC'
+AND YEAR(`date`) = '2019'
+AND someid NOT LIKE 'paid%')
+AND coid = 'RRCLLC'
+
+SELECT  * FROM co WHERE coid = 'RRCLLC'
 
 SELECT  DISTINCT someid as employee, 
 SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',
