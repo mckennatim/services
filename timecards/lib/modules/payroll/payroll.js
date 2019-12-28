@@ -467,7 +467,7 @@ module.exports = function() {
       const coid = req.userTok.coid
       const year = req.params.year
       getw2data(year, coid, (results)=>{
-        console.log('results: ', results)
+        // console.log('results: ', results)
         res.jsonp({results:results})
       })
     }
@@ -483,6 +483,24 @@ module.exports = function() {
       const year = req.params.year
       getw2data(year, coid, (results)=>{
         console.log('results: ', results)
+        const co = results[0][0]
+        console.log('co: ', co)
+        const bid = `RA121440295WG4N37LN${''.padEnd(4+5)}0${''.padEnd(6)}98`
+        const coname = co.name.padEnd(57)
+        const loc = ''.padEnd(22)
+        const costr = co.street.padEnd(22)
+        const cocity = co.city.padEnd(22)
+        const cost = co.st
+        const zip = (co.zip.split('-')[0] + (co.zip.split('-')[1] ? co.zip.split('-')[1] : '')).padEnd(9)
+        const fore = ''.padEnd(5+23+15+2)
+        const erro = `${'Timothy McKenna'.padEnd(57+22)}${costr}${cocity}${cost}${zip}${fore}`
+        const contact = `${'Timothy McKenna'.padEnd(27)}${'8574982574'.padEnd(15+5+3)}${'mckenna.tim@gmail.com'.padEnd(40+3+10+1)}L${''.padEnd(12)}`
+        console.log('contact: ', contact, contact.length)
+        console.log('fore.length: ', fore.length)
+        console.log('zip: ', zip, zip.length)
+        console.log('coname: ', coname, coname.length)
+        let ra =`${bid}${coname}${loc}${costr}${cocity}${cost}${zip}${fore}${erro}${contact}`
+        console.log('ra: ', ra, ra.length)
         res.jsonp({results:results})
       })
     }
@@ -613,7 +631,8 @@ function getw2data(year, coid, cb){
     GROUP BY someid; ", [coid, coid, year, coid, year, year], (err,results)=>{
       console.log('query.sql: ', query.sql)
       console.log('err: ', err)
-      console.log('results: ', results)
+      //console.log('results: ', results)
       cb(results)
     })
 }
+
