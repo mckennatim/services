@@ -1,6 +1,17 @@
 # services
 ## tags
 https://cloudinary.com/console/welcome
+
+### 57-timecards-efw2
+
+https://www.mass.gov/doc/w-2-electronic-filing-specifications-handbook/download
+
+https://www.realtaxtools.com/state-w2-efile-frequently-asked-questions/Massachusetts.html
+
+### 56-tmecards-ra
+
+### 55-timecards-payroll
+
 ### 54-timecards-scratch.sql
 pulled data from gl for w2 and efw2
 https://www.ssa.gov/employer/EFW2%26EFW2C.htm
