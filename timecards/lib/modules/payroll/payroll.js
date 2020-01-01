@@ -536,7 +536,7 @@ module.exports = function() {
           console.log('meditax: ', meditax)
           return rw
         })
-        let raew = rwa.reduce((acc,r,i)=>{
+        let raew = rwa.reduce((acc,r)=>{
           const rcr = `${r}${cr}`
           return acc+rcr
         },rae)
@@ -563,10 +563,9 @@ module.exports = function() {
           .on('finish', function () {
               // JSZip generates a readable stream with a "end" event,
               // but is piped here in a writable stream which emits a "finish" event.
-              console.log("out.zip written.");
+              console.log(`${fname}.zip is written`);
+              res.download(`./${fname}.zip`)
             });
-        console.log('`${coid}${year}efw2.txt`: ', `${coid}${year}efw2.txt`)
-        res.download(`${fname}.zip`)
       })
     }
   })
@@ -639,7 +638,7 @@ module.exports = function() {
 function getw2data(year, coid, cb){
   console.log('coid: ', coid)
   var query = conn.query("SELECT  * FROM co WHERE coid = ?;\
-    SELECT emailid,firstmid,lastname,street,city,st,zip,ssn FROM persons \
+    SELECT emailid,firstmid,lastname,street,city,st,zip,ssn FROM cureffective \
     WHERE emailid IN \
     (SELECT  DISTINCT someid as employee\
     FROM gl\
@@ -652,8 +651,8 @@ function getw2data(year, coid, cb){
     SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',\
     SUM(CASE WHEN account='a2050-fedWh' THEN credit END) as 'a2050-fedWh',\
     SUM(CASE WHEN account='a6061-FICAtaxable' THEN credit END) as 'a6061-FICAtaxable',\
-    SUM(CASE WHEN account='a2010-SS' THEN credit END) as 'a2010-SS',\
-    SUM(CASE WHEN account='a2020-medi' THEN credit END) as 'a2020-medi',\
+    SUM(CASE WHEN account='a6036-SS' THEN credit END) as 'a6036-SS',\
+    SUM(CASE WHEN account='a6037-medi' THEN credit END) as 'a6037-medi',\
     SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',\
     SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',\
     SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'\
@@ -665,8 +664,8 @@ function getw2data(year, coid, cb){
       account='a6041-fedTaxable'||\
       account='a2050-fedWh'||\
       account='a6061-FICAtaxable'||\
-      account='a2010-SS'||\
-      account='a2020-medi'||\
+      account='a6036-SS'||\
+      account='a6037-medi'||\
       account='a6050-stateWages' ||\
       account='a6051-stateTaxable' ||\
       account='a2060-stWh'\
@@ -677,8 +676,8 @@ function getw2data(year, coid, cb){
     SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',\
     SUM(CASE WHEN account='a2050-fedWh' THEN credit END) as 'a2050-fedWh',\
     SUM(CASE WHEN account='a6061-FICAtaxable' THEN credit END) as 'a6061-FICAtaxable',\
-    SUM(CASE WHEN account='a2010-SS' THEN credit END) as 'a2010-SS',\
-    SUM(CASE WHEN account='a2020-medi' THEN credit END) as 'a2020-medi',\
+    SUM(CASE WHEN account='a6036-SS' THEN credit END) as 'a6036-SS',\
+    SUM(CASE WHEN account='a6037-medi' THEN credit END) as 'a6037-medi',\
     SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',\
     SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',\
     SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'\
@@ -690,8 +689,8 @@ function getw2data(year, coid, cb){
       account='a6041-fedTaxable'||\
       account='a2050-fedWh'||\
       account='a6061-FICAtaxable'||\
-      account='a2010-SS'||\
-      account='a2020-medi'||\
+      account='a6036-SS'||\
+      account='a6037-medi'||\
       account='a6050-stateWages' ||\
       account='a6051-stateTaxable' ||\
       account='a2060-stWh'\

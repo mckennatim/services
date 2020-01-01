@@ -824,12 +824,13 @@ USE timecards;
 SELECT p.effective, r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, r.`active`, p.`effective`, p.`coid` 
 FROM rolewho r 
 LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid 
-WHERE r.coid='sbs'
+WHERE r.coid='RRCLLC'
 ORDER BY p.effective DESC
 
-SELECT r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid='sbs' ORDER BY p.effective 
+SELECT r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, r.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid='RRCLLC' ORDER BY p.effective 
 
 SELECT r.id, r.emailid, r.role, p.`firstmid`, p.`lastname`, p.`street`, p.`city`, p.`st`, p.`zip`, p.`ssn`, p.rate, p.`w4allow`, p.`stallow`, p.`active`, p.`effective`, p.`coid` FROM rolewho r LEFT JOIN persons p ON p.emailid = r.emailid AND p.coid =r.coid WHERE r.coid= ?  ORDER BY p.effective 
+
 
 ALTER TABLE `rolewho` ADD `active` INT(1) NOT NULL DEFAULT '1' AFTER `coid`, ADD INDEX `active` (`active`);
 
@@ -934,7 +935,7 @@ GROUP BY 'emailid'
 
 SELECT emailid,coid,MAX(CURDATE()>effective)
 FROM `timecards`.`persons`
-GROUP BY coid,emailid HAVING coid='reroo'
+GROUP BY coid,emailid HAVING coid='RRCLLC'
 
 SELECT t.wprt, t.emailid, t.status, t.hrs, t.coid, p.firstmid, p.effective
 FROM `timecards`.`tcardwk` t
@@ -947,7 +948,7 @@ AND t.status='approved' GROUP BY MAX(effective)
 SELECT * 
 FROM `timecards`.`persons`
 WHERE effective < CURDATE()
-AND coid ='reroo'
+AND coid ='RRCLLC'
 ORDER BY wprt,emailid,effective desc
 
 DROP TABLE `timecards`.`cureff`;
@@ -993,6 +994,7 @@ AND c.curedate=p.effective;
 
 SELECT * FROM `timecards`.`cureffective`;
 
+SELECT * FROM `timecards`.`cureffective` WHERE coid='RRCLLC';
 
 /**query to get current persons and rates for approved tcardwks***/
 DROP TABLE IF EXISTS `timecards`.`cureff` ;
@@ -2790,8 +2792,8 @@ SELECT  DISTINCT someid as employee,
 SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',
 SUM(CASE WHEN account='a2050-fedWh' THEN credit END) as 'a2050-fedWh',
 SUM(CASE WHEN account='a6061-FICAtaxable' THEN credit END) as 'a6061-FICAtaxable',
-SUM(CASE WHEN account='a2010-SS' THEN credit END) as 'a2010-SS',
-SUM(CASE WHEN account='a2020-medi' THEN credit END) as 'a2020-medi',
+SUM(CASE WHEN account='a6036-SS' THEN credit END) as 'a6036-SS',
+SUM(CASE WHEN account='a6037-medi' THEN credit END) as 'a6037-medi',
 SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',
 SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',
 SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'
@@ -2803,8 +2805,8 @@ AND (
   account='a6041-fedTaxable'||
   account='a2050-fedWh'||
   account='a6061-FICAtaxable'||
-  account='a2010-SS'||
-  account='a2020-medi'||
+  account='a6036-SS'||
+  account='a6037-medi'||
   account='a6050-stateWages' ||
   account='a6051-stateTaxable' ||
   account='a2060-stWh'
@@ -2829,6 +2831,7 @@ AND (
   account='a6041-fedTaxable'||
   account='a2050-fedWh'||
   account='a6061-FICAtaxable'||
+  account='a6061-FICAwages'||
   account='a2010-SS'||
   account='a2020-medi'||
   account='a6050-stateWages' ||
@@ -2837,3 +2840,24 @@ AND (
   ) 
  
 SELECT emailid,firstmid,lastname,street,city,st,zip,ssn FROM persons     WHERE emailid IN     (SELECT  DISTINCT someid as employee    FROM gl    WHERE coid = 'RRCLLC'    AND YEAR(`date`) = '2019'    AND someid NOT LIKE 'paid%')    AND coid = 'RRCLLC';
+
+SELECT emailid,firstmid,lastname,street,city,st,zip,ssn FROM persons WHERE emailid IN 
+(SELECT  DISTINCT someid as employee
+FROM gl
+WHERE coid = 'RRCLLC'
+AND YEAR(`date`) = '2019'
+AND someid NOT LIKE 'paid%')
+AND coid = 'RRCLLC'
+ORDER BY emailid;
+
+
+SELECT * FROM `timecards`.`cureffective` WHERE coid='RRCLLC';
+
+SELECT emailid,firstmid,lastname,street,city,st,zip,ssn FROM `cureffective` WHERE emailid IN 
+(SELECT  DISTINCT someid as employee
+FROM gl
+WHERE coid = 'RRCLLC'
+AND YEAR(`date`) = '2019'
+AND someid NOT LIKE 'paid%')
+AND coid = 'RRCLLC'
+ORDER BY emailid;

@@ -2,6 +2,11 @@
 ## tags
 https://cloudinary.com/console/welcome
 
+### 58-timecards-getw2
+prints w2's
+
+https://www.base64-image.de/
+
 ### 57-timecards-efw2
 
 https://www.mass.gov/doc/w-2-electronic-filing-specifications-handbook/download
