@@ -25,8 +25,8 @@ module.exports = function() {
     if(appid=='signup'){
       res.jsonp({ auth: true, message: payload.email + ' is authenticating for ' + payload.appId, payload: payload });
     }else{
-      const query1 = conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND w.active=1', [emailid, appid], function(error, results) {
-        cons.log('query1.sql: ', query1.sql)
+      conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND w.active=1', [emailid, appid], function(error, results) {
+        // cons.log('query1.sql: ', query1.sql)
         if (error) {
           res.jsonp({ auth: false, message: 'Sorry, database error ' + error.code + ' occured.' });
         }
@@ -47,7 +47,7 @@ module.exports = function() {
       cons.log(mess)
       res.jsonp(mess)
     } else {
-      cons.log(req.userTok);
+      // cons.log(req.userTok);
       res.jsonp({ coid: req.userTok.cos, binfo: req.userTok })
     }
   })
@@ -55,10 +55,10 @@ module.exports = function() {
   router.get('/apps', bearerTokenCoidApps, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /reg/apps (not authorized)-' + req.userTok.message }
-      cons.log(mess)
+      // cons.log(mess)
       res.jsonp(mess)
     } else {
-      cons.log(req.userTok);
+      // cons.log(req.userTok);
       res.jsonp(req.userTok.results)
     }
   })
@@ -66,13 +66,13 @@ module.exports = function() {
   router.get('/ctoken/:coid/:role', bearerTokenApp, function(req, res) {
     if (!req.userTok.auth) {
       var mess = { message: 'in get /reg/ctoken/:coid/:role (not authorized)-' + req.userTok.message }
-      cons.log(mess)
+      // cons.log(mess)
       res.jsonp(mess)
     } else {
-      var getco = conn.query('SELECT r.firstday FROM `timecards`.`cosr` r JOIN `timecards`.`co` c ON c.coid=r.coid AND r.effective <= CURDATE() AND r.coid = ? ORDER BY r.effective DESC LIMIT 1 ', req.params.coid, function(error, results) {
-        cons.log(getco.sql)
-        cons.log(error)
-        cons.log(results[0])
+      conn.query('SELECT r.firstday FROM `timecards`.`cosr` r JOIN `timecards`.`co` c ON c.coid=r.coid AND r.effective <= CURDATE() AND r.coid = ? ORDER BY r.effective DESC LIMIT 1 ', req.params.coid, function(error, results) {
+        // cons.log(getco.sql)
+        // cons.log(error)
+        // cons.log(results[0])
         //cons.log(req.userTok);
         const exp = Math.floor(Date.now()) + addDays(40)
         var payload = {

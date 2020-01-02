@@ -2818,8 +2818,8 @@ SELECT
 SUM(CASE WHEN account='a6041-fedTaxable' THEN credit END) as 'a6041-fedTaxable',
 SUM(CASE WHEN account='a2050-fedWh' THEN credit END) as 'a2050-fedWh',
 SUM(CASE WHEN account='a6061-FICAtaxable' THEN credit END) as 'a6061-FICAtaxable',
-SUM(CASE WHEN account='a2010-SS' THEN credit END) as 'a2010-SS',
-SUM(CASE WHEN account='a2020-medi' THEN credit END) as 'a2020-medi',
+SUM(CASE WHEN account='a6036-SS' THEN credit END) as 'a6036-SS',
+SUM(CASE WHEN account='a6037-medi' THEN credit END) as 'a6037-medi',
 SUM(CASE WHEN account='a6050-stateWages' THEN debit END) as 'a6050-stateWages',
 SUM(CASE WHEN account='a6051-stateTaxable' THEN credit END) as 'a6051-stateTaxable',
 SUM(CASE WHEN account='a2060-stWh' THEN credit END) as 'a2060-stWh'
@@ -2832,8 +2832,8 @@ AND (
   account='a2050-fedWh'||
   account='a6061-FICAtaxable'||
   account='a6061-FICAwages'||
-  account='a2010-SS'||
-  account='a2020-medi'||
+  account='a6036-SS'||
+  account='a6037-medi'||
   account='a6050-stateWages' ||
   account='a6051-stateTaxable' ||
   account='a2060-stWh'

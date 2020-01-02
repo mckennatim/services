@@ -368,6 +368,17 @@ describe('w2', ()=>{
         done()
       })
   })
+  it('gets EFW2MA file', (done)=>{
+    var url = httpLoc + 'payroll/efw2ma/2019'
+    superagent
+      .get(url)
+      .set('Authorization', 'Bearer ' + token6)
+      .end(function(e, res) {
+        console.log(res.body)
+        expect(res.body).to.be.an('object');
+        done()
+      })
+  })
 })
 
 

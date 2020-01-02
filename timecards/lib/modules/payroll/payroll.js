@@ -472,7 +472,6 @@ module.exports = function() {
   })
 
   router.get('/efw2/:year', addAppId, bearerTokenCoid, function(req, res) {
-    const cr ='\n'
     if (!req.userTok.auth) {
       var mess = { message: 'in get /payroll/efw2/:year/:qtr (not authorized)-' + req.userTok.message }
       cons.log(mess)
@@ -481,83 +480,37 @@ module.exports = function() {
       const coid = req.userTok.coid
       const year = req.params.year
       getw2data(year, coid, (results)=>{
-        console.log('results: ', results)
-        const co = results[0][0]
-        const empinfo = results[1]
-        const empdata = results[2]
-        const emptot = results[3][0]
-        console.log('co: ', co)
-        const bid = `RA121440295WG4N37LN${''.padEnd(4+5)}0${''.padEnd(6)}98`
-        const coname = co.name.padEnd(57).toUpperCase()
-        const loc = ''.padEnd(22)
-        const costr = co.street.padEnd(22).toUpperCase()
-        const cocity = co.city.padEnd(22).toUpperCase()
-        const cost = co.st.toUpperCase()
-        const zip = co.zip.replace(/[^0-9]/g,'').padEnd(9)
-        const fore = ''.padEnd(5+23+15+2)
-        const forre = ''.padEnd(4+23+15+2)
-        const erro = `${'TIMOTHY MCKENNA'.padEnd(57+22)}${costr}${cocity}${cost}${zip}${fore}`
-        const contact = `${'TIMOTHY MCKENNA'.padEnd(27)}${'8574982574'.padEnd(15+5+3)}${'mckenna.tim@gmail.com'.padEnd(40+3+10+1)}L${''.padEnd(12)}`
-        const contactre = `${'TIMOTHY MCKENNA'.padEnd(27)}${'8574982574'.padEnd(15+5+10)}${'mckenna.tim@gmail.com'.padEnd(40)}`
-        console.log('contact: ', contact, contact.length)
-        console.log('fore.length: ', fore.length)
-        console.log('zip: ', zip, zip.length)
-        console.log('coname: ', coname, coname.length)
-        let ra =`${bid}${coname}${loc}${costr}${cocity}${cost}${zip}${fore}${erro}${contact}`
-        let re =`RE${year} ${co.fedein.padEnd(9)}${''.padEnd(9)}0${''.padEnd(4+9)}${coname}${loc}${costr}${cocity}${cost}${zip}N${forre}F 0${contactre}${''.padEnd(194)}`
-        console.log('ra: ', ra, ra.length)
-        console.log('re: ', re, re.length)
-        console.log('empdata[0]: ', empdata[0]['a2050-fedWh']==null ? 0 : empdata[0]['a2050-fedWh'] )
-        console.log('notNull: ', notNull(empdata[0]['a2050-fedWh']))
-        const rae = `${ra}${cr}${re}${cr}`
-        console.log('rae: ', rae)
-        const rwa = empdata.map((d,i)=>{
-          const ssn = empinfo[i].ssn.replace(/[^0-9]/g,'').padEnd(9,'0')
-          const fm = empinfo[i].firstmid.toUpperCase()
-          const first = fm.split(' ')[0].padEnd(15)
-          const mid = (fm.split(' ')[1]==undefined ? '' : fm.split(' ')[1].replace('.','')).padEnd(15)
-          const last = empinfo[i].lastname.padEnd(20).toUpperCase()
-          const sufloc = ''.padEnd(4+22)
-          const street = empinfo[i].street.padEnd(22).toUpperCase()
-          const city = empinfo[i].city.padEnd(22).toUpperCase()
-          const st = empinfo[i].st.toUpperCase()
-          const zip = empinfo[i].zip.replace(/[^0-9]/g,'').padEnd(9)
-          const fore = ''.padEnd(5+23+15+2)
-          const wages = Math.round(d['a6041-fedTaxable']*100).toString().padStart(11,'0')
-          const fedwh = Math.round(notNull(d['a2050-fedWh'])*100).toString().padStart(11,'0')
-          const sswages = Math.round(d['a6061-FICAtaxable']*100).toString().padStart(11,'0')
-          const sstax = Math.round(d['a2010-SS']*100).toString().padStart(11,'0')
-          const mediwage= sswages
-          const meditax = Math.round(d['a2020-medi']*100).toString().padStart(11,'0')
-          const othe = `${''.padStart(11*21, '0')} 0 00${''.padEnd(23)}`
-          const rw = `RW${ssn}${first}${mid}${last}${sufloc}${street}${city}${st}${zip}${fore}${wages}${fedwh}${sswages}${sstax}${mediwage}${meditax}${othe}`
-          console.log('rw: ', rw, rw.length)
-          console.log('d: ', d)
-          console.log('meditax: ', meditax)
-          return rw
-        })
-        let raew = rwa.reduce((acc,r)=>{
-          const rcr = `${r}${cr}`
-          return acc+rcr
-        },rae)
-        const numrec = empdata.length.toString().padStart(7,'0')
-        const wages = Math.round(emptot['a6041-fedTaxable']*100).toString().padStart(15,'0')
-        const fedwh = Math.round(notNull(emptot['a2050-fedWh'])*100).toString().padStart(15,'0')
-        const sswages = Math.round(emptot['a6061-FICAtaxable']*100).toString().padStart(15,'0')
-        const sstax = Math.round(emptot['a2010-SS']*100).toString().padStart(15,'0')
-        const mediwage= sswages
-        const meditax = Math.round(emptot['a2020-medi']*100).toString().padStart(15,'0') 
-        const othe = `${''.padStart(15*21, '0')}${''.padEnd(98)}`
-        const rt =`RT${numrec}${wages}${fedwh}${sswages}${sstax}${mediwage}${meditax}${othe}`
-        // console.log('rt: ', rt, rt.length)
-        // console.log('emptot: ', emptot)
-        const rf = `RF${''.padEnd(5)}${numrec.padStart(9,'0')}${''.padEnd(496)}`
-        // console.log('rf: ', rf, rf.length)
-        raew = `${raew}${rt}${cr}${rf}`
-        console.log(raew)
+        const {fed} = buildEfiles(year,results)
+        console.log('fed: ', fed)
         const fname = `${coid}${year}efw2`
         var fzip = new JSZip();
-        fzip.file(`${fname}.txt`, raew)
+        fzip.file(`${fname}.txt`, fed)
+        fzip.generateNodeStream({type:'nodebuffer',streamFiles:true})
+          .pipe(fs.createWriteStream(`${fname}.zip`))
+          .on('finish', function () {
+              // JSZip generates a readable stream with a "end" event,
+              // but is piped here in a writable stream which emits a "finish" event.
+              console.log(`${fname}.zip is written`);
+              res.download(`./${fname}.zip`)
+            });
+      })
+    }
+  })
+
+  router.get('/efw2ma/:year', addAppId, bearerTokenCoid, function(req, res) {
+    if (!req.userTok.auth) {
+      var mess = { message: 'in get /payroll/efw2/:year/:qtr (not authorized)-' + req.userTok.message }
+      cons.log(mess)
+      res.jsonp(mess)
+    } else {
+      const coid = req.userTok.coid
+      const year = req.params.year
+      getw2data(year, coid, (results)=>{
+        const {ma} = buildEfiles(year,results)
+        console.log('ma: ', ma)
+        const fname = `${coid}${year}efw2MA`
+        var fzip = new JSZip();
+        fzip.file(`${fname}.txt`, ma)
         fzip.generateNodeStream({type:'nodebuffer',streamFiles:true})
           .pipe(fs.createWriteStream(`${fname}.zip`))
           .on('finish', function () {
@@ -634,10 +587,125 @@ module.exports = function() {
 // function addDays (x){
 //   return x*(24*60*60*1000)
 // }
+function buildEfiles(year, results){
+  const cr ='\n'
+  // console.log('results: ', results)
+  const co = results[0][0]
+  const empinfo = results[1]
+  const empdata = results[2]
+  const emptot = results[3][0]
+  // console.log('co: ', co)
+  const bid = `RA121440295WG4N37LN${''.padEnd(4+5)}0${''.padEnd(6)}98`
+  const bidma = `RA017701519WG4N37LN${''.padEnd(4+5)}0${''.padEnd(6)}98`
+  const coname = co.name.padEnd(57).toUpperCase()
+  const loc = ''.padEnd(22)
+  const costr = co.street.padEnd(22).toUpperCase()
+  const cocity = co.city.padEnd(22).toUpperCase()
+  const cost = co.st.toUpperCase()
+  const zip = co.zip.replace(/[^0-9]/g,'').padEnd(9)
+  const fore = ''.padEnd(5+23+15+2)
+  const forre = ''.padEnd(4+23+15+2)
+  const erro = `${'TIMOTHY MCKENNA'.padEnd(57+22)}${costr}${cocity}${cost}${zip}${fore}`
+  const subma = `${'NOAH D MCKENNA'.padEnd(57+22)}${costr}${cocity}${cost}${zip}${fore}`
+  const contact = `${'TIMOTHY MCKENNA'.padEnd(27)}${'8574982574'.padEnd(15+5+3)}${'mckenna.tim@gmail.com'.padEnd(40+3+10+1)}L${''.padEnd(12)}`
+  const contactre = `${'TIMOTHY MCKENNA'.padEnd(27)}${'8574982574'.padEnd(15+5+10)}${'mckenna.tim@gmail.com'.padEnd(40)}`
+  const contactrema = `${'NOAH D MCKENNA'.padEnd(27)}${'8574982732'.padEnd(15+5+10)}${'noahmckenna@gmail.com'.padEnd(40)}`
+  // console.log('contact: ', contact, contact.length)
+  // console.log('fore.length: ', fore.length)
+  // console.log('zip: ', zip, zip.length)
+  // console.log('coname: ', coname, coname.length)
+  let ra =`${bid}${coname}${loc}${costr}${cocity}${cost}${zip}${fore}${erro}${contact}`
+  let rama =`${bidma}${coname}${loc}${costr}${cocity}${cost}${zip}${fore}${subma}${contact}`
+  let re =`RE${year} ${co.fedein.padEnd(9)}${''.padEnd(9)}0${''.padEnd(4+9)}${coname}${loc}${costr}${cocity}${cost}${zip}N${forre}F 0${contactre}${''.padEnd(194)}`
+  let rema =`RE${year} ${co.fedein.padEnd(9)}${''.padEnd(9)}0${''.padEnd(4+9)}${coname}${loc}${costr}${cocity}${cost}${zip}N${forre}F 0${contactrema}${''.padEnd(194)}`
+  // console.log('ra: ', ra, ra.length)
+  // console.log('re: ', re, re.length)
+  // console.log('empdata[0]: ', empdata[0]['a2050-fedWh']==null ? 0 : empdata[0]['a2050-fedWh'] )
+  // console.log('notNull: ', notNull(empdata[0]['a2050-fedWh']))
+  const rae = `${ra}${cr}${re}${cr}`
+  // console.log('rae: ', rae)
+  const rwa = empdata.map((d,i)=>{
+    const ssn = empinfo[i].ssn.replace(/[^0-9]/g,'').padEnd(9,'0')
+    const fm = empinfo[i].firstmid.toUpperCase()
+    const first = fm.split(' ')[0].padEnd(15)
+    const mid = (fm.split(' ')[1]==undefined ? '' : fm.split(' ')[1].replace('.','')).padEnd(15)
+    const last = empinfo[i].lastname.padEnd(20).toUpperCase()
+    const sufloc = ''.padEnd(4+22)
+    const street = empinfo[i].street.padEnd(22).toUpperCase()
+    const city = empinfo[i].city.padEnd(22).toUpperCase()
+    const st = empinfo[i].st.toUpperCase()
+    const zip = empinfo[i].zip.replace(/[^0-9]/g,'').padEnd(9)
+    const fore = ''.padEnd(5+23+15+2)
+    const wages = Math.round(d['a6041-fedTaxable']*100).toString().padStart(11,'0')
+    const fedwh = Math.round(notNull(d['a2050-fedWh'])*100).toString().padStart(11,'0')
+    const sswages = Math.round(d['a6061-FICAtaxable']*100).toString().padStart(11,'0')
+    const sstax = Math.round(d['a2010-SS']*100).toString().padStart(11,'0')
+    const mediwage= sswages
+    const meditax = Math.round(d['a2020-medi']*100).toString().padStart(11,'0')
+    const othe = `${''.padStart(11*21, '0')} 0 00${''.padEnd(23)}`
+    const rw = `RW${ssn}${first}${mid}${last}${sufloc}${street}${city}${st}${zip}${fore}${wages}${fedwh}${sswages}${sstax}${mediwage}${meditax}${othe}`
+    // console.log('rw: ')
+    // console.log(rw, rw.length)
+    // console.log('empinfo[i]: ', empinfo[i])
+    // console.log('d: ', d)
+    return rw
+  })
+
+  const rstae = `${rama}${cr}${rema}${cr}`
+  const rsta = empdata.map((d,i)=>{
+    const ssn = empinfo[i].ssn.replace(/[^0-9]/g,'').padEnd(9,'0')
+    const fm = empinfo[i].firstmid.toUpperCase()
+    const first = fm.split(' ')[0].padEnd(15)
+    const mid = (fm.split(' ')[1]==undefined ? '' : fm.split(' ')[1].replace('.','')).padEnd(15)
+    const last = empinfo[i].lastname.padEnd(20).toUpperCase()
+    const sufloc = ''.padEnd(4+22)
+    const street = empinfo[i].street.padEnd(22).toUpperCase()
+    const city = empinfo[i].city.padEnd(22).toUpperCase()
+    const st = empinfo[i].st.toUpperCase()
+    const zip = empinfo[i].zip.replace(/[^0-9]/g,'').padEnd(9)
+    const fore = ''.padEnd(5+23+15+2+2)
+    const rp0 = `${'0'.padStart(6+11+11+2+8+8,'0')}${''.padEnd(5+20+6)}${'0'.padStart(2,'0')}`
+    const stwages = Math.round(d['a6050-stateWages']*100).toString().padStart(11,'0')
+    const stwh = Math.round(notNull(d['a2060-stWh'])*100).toString().padStart(11,'0')
+    const othe = `${'0'.padStart(10+1+11+11+7+75+75+25, '0')}`
+    const rs = `RSMA${''.padEnd(5)}${ssn}${first}${mid}${last}${sufloc}${street}${city}${st}${zip}${fore}${rp0}${stwages}${stwh}${othe}`
+    // console.log('rs: ', rs, rs.length)
+    // console.log('d: ', d)
+    return rs
+  })
+  let raew = rwa.reduce((acc,r)=>{
+    const rcr = `${r}${cr}`
+    return acc+rcr
+  },rae)
+
+  let rstaew = rsta.reduce((acc,r)=>{
+    const rcr = `${r}${cr}`
+    return acc+rcr
+  },rstae)
+  // console.log('rama, rama.lenght: ', rama, rama.length)
+  // console.log('rema, rema.lenght: ', rema, rema.length)
+  const numrec = empdata.length.toString().padStart(7,'0')
+  const wages = Math.round(emptot['a6041-fedTaxable']*100).toString().padStart(15,'0')
+  const fedwh = Math.round(notNull(emptot['a2050-fedWh'])*100).toString().padStart(15,'0')
+  const sswages = Math.round(emptot['a6061-FICAtaxable']*100).toString().padStart(15,'0')
+  const sstax = Math.round(emptot['a2010-SS']*100).toString().padStart(15,'0')
+  const stwage = Math.round(emptot['a6050-stateWages']*100).toString().padStart(15,'0')
+  const stwh = Math.round(emptot['a2060-stWh']*100).toString().padStart(15,'0')
+  const mediwage= sswages
+  const meditax = Math.round(emptot['a2020-medi']*100).toString().padStart(15,'0') 
+  const othe = `${''.padStart(15*21, '0')}${''.padEnd(98)}`
+  const rt =`RT${numrec}${wages}${fedwh}${sswages}${sstax}${mediwage}${meditax}${othe}`
+  const rtma =`RT${numrec}${wages}${fedwh}${stwage}${stwh}${mediwage}${meditax}${othe}`
+  // console.log('rtma, rtma.length: ', rtma, rtma.length)
+  const rf = `RF${''.padEnd(5)}${numrec.padStart(9,'0')}${''.padEnd(496)}`
+  raew = `${raew}${rt}${cr}${rf}`
+  rstaew = `${rstaew}${rtma}`  
+  return({fed:raew, ma:rstaew})
+}
 
 function getw2data(year, coid, cb){
   console.log('coid: ', coid)
-  var query = conn.query("SELECT  * FROM co WHERE coid = ?;\
+  conn.query("SELECT  * FROM co WHERE coid = ?;\
     SELECT emailid,firstmid,lastname,street,city,st,zip,ssn FROM cureffective \
     WHERE emailid IN \
     (SELECT  DISTINCT someid as employee\
@@ -695,8 +763,8 @@ function getw2data(year, coid, cb){
       account='a6051-stateTaxable' ||\
       account='a2060-stWh'\
       ); ", [coid, coid, year, coid, year, year], (err,results)=>{
-      console.log('query.sql: ', query.sql)
-      console.log('err: ', err)
+      // console.log('query.sql: ', query.sql)
+      // console.log('err: ', err)
       //console.log('results: ', results)
       cb(results)
     })

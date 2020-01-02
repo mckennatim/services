@@ -5,7 +5,7 @@ var conn = require('../../db/mysqldb')
 var cons = require('tracer').console();
 
 var bearerTokenApp = function(req, res, next) {
-  cons.log('req.body: ', req.body)
+  // cons.log('req.body: ', req.body)
   if (!get('req.headers.authorization', req)) {
     req.userTok = { auth: false, message: "no authorization header", emailId: "" }
     next()
@@ -14,16 +14,16 @@ var bearerTokenApp = function(req, res, next) {
   var toka = req.headers.authorization.split(' ')
   try {
     var tokdata = jwt.decode(toka[1], cfg.secret)
-    cons.log('tokdata: ', tokdata)
+    // cons.log('tokdata: ', tokdata)
   } catch (e) {
     req.userTok = { auth: false, message: e.message, emailId: "" }
     next()
     return
   }
-  const q1 = conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND a.appid = ? AND w.active=1', [tokdata.email, tokdata.appId], function(error, results) {
+  conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w RIGHT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND a.appid = ? AND w.active=1', [tokdata.email, tokdata.appId], function(error, results) {
     //cons.log('c.goodtil > CURDATE(): ', c.goodtil > CURDATE() ? true : false)
-    cons.log('results: ', results)
-    cons.log('q1.sql: ', q1.sql)
+    // cons.log('results: ', results)
+    // cons.log('q1.sql: ', q1.sql)
     if (error) {
       req.userTok = { auth: false, message: error.message }
       next()
@@ -52,7 +52,7 @@ var bearerTokenApp = function(req, res, next) {
   })
 }
 var bearerTokenCoid = function(req, res, next) {
-  console.log('req.appid: ', req.appid)//from addAppId middleware
+  // console.log('req.appid: ', req.appid)//from addAppId middleware
   if (!get('req.headers.authorization', req)) {
     req.userTok = { auth: false, message: "no authorization header", emailId: "" }
     next()
@@ -66,10 +66,10 @@ var bearerTokenCoid = function(req, res, next) {
     next()
     return
   }
-  cons.log('tokdata in BearerTokenCoid: ', tokdata)
-  const qco =conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND c.coid = ? AND w.active=1', [tokdata.emailid, req.appid, tokdata.coid], function(error, results){
-    cons.log('qco results: ', results)
-    cons.log('qco.sql: ', qco.sql)
+  // cons.log('tokdata in BearerTokenCoid: ', tokdata)
+  conn.query('SELECT w.emailid, w.role, w.active, c.coid, c.goodtil, a.appid FROM rolewho w LEFT JOIN `roleapp` a ON a.`role`= w.`role` LEFT JOIN co c ON c.coid= w.coid WHERE w.emailid = ? AND c.goodtil > CURDATE() AND a.appid = ? AND c.coid = ? AND w.active=1', [tokdata.emailid, req.appid, tokdata.coid], function(error, results){
+    // cons.log('qco results: ', results)
+    // cons.log('qco.sql: ', qco.sql)
     if (error) {
       req.userTok = { auth: false, message: error.message }
       next()
@@ -80,7 +80,7 @@ var bearerTokenCoid = function(req, res, next) {
       next()
       return
     }
-    cons.log('results: ', results)
+    // cons.log('results: ', results)
     req.userTok = { auth: true, message: 'user has apps for coid', emailid: tokdata.emailid, appid:tokdata.appid, coid:tokdata.coid, role:tokdata.role, goodtil:results[0].goodtil}
     next()
     return
